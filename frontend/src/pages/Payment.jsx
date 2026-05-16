@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { savePaymentMethod } from '../redux/slices/cartSlice';
 import { motion } from 'framer-motion';
-import { CreditCard, ArrowRight } from 'lucide-react';
+import { CreditCard, ArrowRight, Shield } from 'lucide-react';
 
 const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('PayPal');
@@ -27,78 +27,65 @@ const Payment = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-slate-950">
+    <div className="min-h-screen pt-32 pb-20 bg-bg-cream flex items-center justify-center px-4">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full space-y-8 glass-dark p-10 rounded-[2rem] border border-white/10 shadow-2xl relative"
+        className="max-w-md w-full bg-white p-10 border border-black/5 shadow-sm"
       >
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-white tracking-tight">
-            Payment Method
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
-            Step 2 of 3: Choose how you want to pay
+        <div className="mb-12 text-center">
+          <h2 className="text-[13px] font-black uppercase tracking-[0.3em] text-primary">Payment Secure</h2>
+          <div className="w-10 h-0.5 bg-primary mx-auto mt-4 mb-2"></div>
+          <p className="text-muted text-[10px] font-black uppercase tracking-widest">
+            Step 2 of 3: Payment Method
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={submitHandler}>
-          <div className="space-y-4">
-            
-            <label className={`block w-full cursor-pointer rounded-xl border p-4 transition-all ${paymentMethod === 'PayPal' ? 'border-primary-500 bg-primary-500/10' : 'border-slate-700 bg-slate-900/50 hover:border-slate-500'}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="PayPal"
-                  checked={paymentMethod === 'PayPal'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="h-4 w-4 text-primary-500 border-gray-300 focus:ring-primary-500"
-                />
-                <span className="ml-3 block text-white font-medium">PayPal or Credit Card</span>
-              </div>
-            </label>
-
-            <label className={`block w-full cursor-pointer rounded-xl border p-4 transition-all ${paymentMethod === 'Stripe' ? 'border-primary-500 bg-primary-500/10' : 'border-slate-700 bg-slate-900/50 hover:border-slate-500'}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="Stripe"
-                  checked={paymentMethod === 'Stripe'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="h-4 w-4 text-primary-500 border-gray-300 focus:ring-primary-500"
-                />
-                <span className="ml-3 block text-white font-medium flex items-center gap-2">
-                  <CreditCard size={18} /> Stripe
-                </span>
-              </div>
-            </label>
-
-            <label className={`block w-full cursor-pointer rounded-xl border p-4 transition-all ${paymentMethod === 'Razorpay' ? 'border-primary-500 bg-primary-500/10' : 'border-slate-700 bg-slate-900/50 hover:border-slate-500'}`}>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="Razorpay"
-                  checked={paymentMethod === 'Razorpay'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="h-4 w-4 text-primary-500 border-gray-300 focus:ring-primary-500"
-                />
-                <span className="ml-3 block text-white font-medium">Razorpay (India)</span>
-              </div>
-            </label>
-            
+        <form className="space-y-6" onSubmit={submitHandler}>
+          <div className="space-y-3">
+            {[
+              { id: 'PayPal', label: 'PayPal or Credit Card' },
+              { id: 'Stripe', label: 'Stripe (Global)' },
+              { id: 'Razorpay', label: 'Razorpay (India)' }
+            ].map((method) => (
+              <label 
+                key={method.id}
+                className={`block w-full cursor-pointer border p-6 transition-all ${
+                  paymentMethod === method.id 
+                  ? 'border-primary bg-bg-cream shadow-inner' 
+                  : 'border-black/5 hover:border-black/20'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method.id}
+                      checked={paymentMethod === method.id}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="h-4 w-4 accent-primary"
+                    />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-primary">{method.label}</span>
+                  </div>
+                  {method.id === 'Stripe' && <CreditCard size={16} className="text-muted" />}
+                </div>
+              </label>
+            ))}
           </div>
 
-          <div>
+          <div className="pt-6">
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 focus:ring-offset-slate-900 transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]"
+              className="btn-allbirds w-full flex items-center justify-center gap-2"
             >
-              Continue to Review Order
-              <ArrowRight className="ml-2 h-5 w-5" />
+              Continue to Review <ArrowRight size={16} />
             </button>
+          </div>
+          
+          <div className="flex items-center justify-center gap-2 mt-8 text-muted">
+            <Shield size={14} />
+            <span className="text-[9px] font-black uppercase tracking-widest">Encrypted Secure Payment</span>
           </div>
         </form>
       </motion.div>

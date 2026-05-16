@@ -9,8 +9,11 @@ import Cart from './pages/Cart';
 import Shipping from './pages/Shipping';
 import Payment from './pages/Payment';
 import PlaceOrder from './pages/PlaceOrder';
+import Checkout from './pages/Checkout';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
+import OrderDetails from './pages/OrderDetails';
+import MyOrders from './pages/MyOrders';
 
 // Admin Imports
 import AdminLayout from './components/admin/AdminLayout';
@@ -26,6 +29,9 @@ import AdminReviews from './pages/admin/AdminReviews';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminSellers from './pages/admin/AdminSellers';
 import AdminDelivery from './pages/admin/AdminDelivery';
+import AdminProductModeration from './pages/admin/AdminProductModeration';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminNotifications from './pages/admin/AdminNotifications';
 
 // Seller Imports
 import SellerLayout from './components/seller/SellerLayout';
@@ -37,10 +43,13 @@ import SellerOrders from './pages/seller/SellerOrders';
 import SellerInventory from './pages/seller/SellerInventory';
 import SellerEarnings from './pages/seller/SellerEarnings';
 import SellerProfile from './pages/seller/SellerProfile';
+import SellerNotifications from './pages/seller/SellerNotifications';
+import SellerAddProduct from './pages/seller/SellerAddProduct';
+import SellerEditProduct from './pages/seller/SellerEditProduct';
+import SellerSettings from './pages/seller/SellerSettings';
+import SellerAnalytics from './pages/seller/SellerAnalytics';
+import SellerReviews from './pages/seller/SellerReviews';
 
-// Remaining mocks
-const SellerAnalytics = () => <div className="text-white text-2xl font-bold p-10">Seller Analytics (Coming Soon)</div>;
-const SellerReviews = () => <div className="text-white text-2xl font-bold p-10">Seller Reviews (Coming Soon)</div>;
 
 // Delivery Imports
 import DeliveryLayout from './components/delivery/DeliveryLayout';
@@ -51,9 +60,13 @@ import DeliveryOrders from './pages/delivery/DeliveryOrders';
 import DeliveryHistory from './pages/delivery/DeliveryHistory';
 import DeliveryEarnings from './pages/delivery/DeliveryEarnings';
 import DeliveryProfile from './pages/delivery/DeliveryProfile';
+import DeliverySettings from './pages/delivery/DeliverySettings';
+import DeliveryNotifications from './pages/delivery/DeliveryNotifications';
+import DeliveryOrderDetails from './pages/delivery/DeliveryOrderDetails';
 
-// Remaining mocks
-const DeliverySettings = () => <div className="text-white text-2xl font-bold p-10">Settings (Coming Soon)</div>;
+
+
+import Footer from './components/Footer';
 
 // Layout Component
 const Layout = ({ children }) => (
@@ -62,9 +75,7 @@ const Layout = ({ children }) => (
     <main className="flex-grow">
       {children}
     </main>
-    <footer className="bg-slate-950 py-12 border-t border-white/10 text-center">
-      <p className="text-gray-400">© 2026 Wearify. All rights reserved.</p>
-    </footer>
+    <Footer />
   </div>
 );
 
@@ -110,6 +121,11 @@ function App() {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="sellers" element={<AdminSellers />} />
             <Route path="delivery" element={<AdminDelivery />} />
+            <Route path="products/pending" element={<AdminProductModeration />} />
+            <Route path="products/approved" element={<AdminProductModeration />} />
+            <Route path="products/rejected" element={<AdminProductModeration />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="notifications" element={<AdminNotifications />} />
             <Route index element={<AdminDashboard />} />
           </Route>
         </Route>
@@ -119,12 +135,16 @@ function App() {
           <Route element={<SellerLayoutWrapper />}>
             <Route path="dashboard" element={<SellerDashboard />} />
             <Route path="products" element={<SellerProducts />} />
+            <Route path="add-product" element={<SellerAddProduct />} />
+            <Route path="edit-product/:id" element={<SellerEditProduct />} />
             <Route path="inventory" element={<SellerInventory />} />
             <Route path="orders" element={<SellerOrders />} />
             <Route path="earnings" element={<SellerEarnings />} />
             <Route path="analytics" element={<SellerAnalytics />} />
             <Route path="reviews" element={<SellerReviews />} />
             <Route path="profile" element={<SellerProfile />} />
+            <Route path="notifications" element={<SellerNotifications />} />
+            <Route path="settings" element={<SellerSettings />} />
             <Route index element={<SellerDashboard />} />
           </Route>
         </Route>
@@ -134,10 +154,12 @@ function App() {
           <Route element={<DeliveryLayoutWrapper />}>
             <Route path="dashboard" element={<DeliveryDashboard />} />
             <Route path="orders" element={<DeliveryOrders />} />
+            <Route path="order/:id" element={<DeliveryOrderDetails />} />
             <Route path="history" element={<DeliveryHistory />} />
             <Route path="earnings" element={<DeliveryEarnings />} />
             <Route path="profile" element={<DeliveryProfile />} />
             <Route path="settings" element={<DeliverySettings />} />
+            <Route path="notifications" element={<DeliveryNotifications />} />
             <Route index element={<DeliveryDashboard />} />
           </Route>
         </Route>
@@ -156,7 +178,11 @@ function App() {
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/placeorder" element={<PlaceOrder />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<MyOrders />} />
+          <Route path="/order/:id" element={<OrderDetails />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<AdminNotifications />} />
         </Route>
       </Routes>
     </Router>

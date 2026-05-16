@@ -1,8 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = localStorage.getItem('cart')
-  ? JSON.parse(localStorage.getItem('cart'))
-  : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal' };
+const getInitialState = () => {
+  const storedCart = localStorage.getItem('cart');
+  if (storedCart) {
+    try {
+      const parsed = JSON.parse(storedCart);
+      if (parsed && Array.isArray(parsed.cartItems)) {
+        return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to parse cart from localStorage');
+    }
+  }
+  return { 
+    cartItems: [], 
+    shippingAddress: {}, 
+    paymentMethod: 'PayPal',
+    itemsPrice: 0,
+    shippingPrice: 0,
+    taxPrice: 0,
+    totalPrice: 0
+  };
+};
+
+const initialState = getInitialState();
 
 const addDecimals = (num) => {
   return (Math.round(num * 100) / 100).toFixed(2);
@@ -27,14 +48,14 @@ const cartSlice = createSlice({
 
       // Calculate items price
       state.itemsPrice = addDecimals(
-        state.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+        state.cartItems.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.qty) || 1), 0)
       );
 
       // Calculate shipping price (If order is > $100 then free, else $10 shipping)
-      state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 10);
+      state.shippingPrice = addDecimals(Number(state.itemsPrice) > 100 ? 0 : 10);
 
       // Calculate tax price (15% tax)
-      state.taxPrice = addDecimals(Number((0.15 * state.itemsPrice).toFixed(2)));
+      state.taxPrice = addDecimals(Number((0.15 * Number(state.itemsPrice)).toFixed(2)));
 
       // Calculate total price
       state.totalPrice = (
@@ -50,10 +71,10 @@ const cartSlice = createSlice({
 
       // Recalculate prices
       state.itemsPrice = addDecimals(
-        state.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+        state.cartItems.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.qty) || 1), 0)
       );
-      state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 10);
-      state.taxPrice = addDecimals(Number((0.15 * state.itemsPrice).toFixed(2)));
+      state.shippingPrice = addDecimals(Number(state.itemsPrice) > 100 ? 0 : 10);
+      state.taxPrice = addDecimals(Number((0.15 * Number(state.itemsPrice)).toFixed(2)));
       state.totalPrice = (
         Number(state.itemsPrice) +
         Number(state.shippingPrice) +

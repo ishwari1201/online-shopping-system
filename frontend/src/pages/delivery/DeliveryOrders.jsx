@@ -1,30 +1,29 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  ShoppingBag, 
+  Package, 
   MapPin, 
   Phone, 
+  ChevronRight, 
   CheckCircle, 
-  Truck, 
-  XCircle,
-  Eye,
-  AlertTriangle,
-  ChevronRight,
-  User,
-  Package,
-  Calendar
+  Navigation,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DeliveryOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [otp, setOtp] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
       const { data } = await axios.get('/api/delivery/orders');
       setOrders(data);
     } catch (error) {
@@ -38,198 +37,180 @@ const DeliveryOrders = () => {
     fetchOrders();
   }, []);
 
-  const updateStatus = async (orderId, status, failureReason = '') => {
+  const updateStatus = async (id, status, deliveryOtp = null) => {
     try {
-      await axios.put(`/api/delivery/orders/${orderId}/status`, { status, failureReason });
-      toast.success(`Order status updated to ${status}`);
+      setProcessing(true);
+      const payload = { status };
+      if (deliveryOtp) payload.otp = deliveryOtp;
+
+      await axios.patch(`/api/delivery/orders/${id}/status`, payload);
+      toast.success(`Order status: ${status}`);
+      setShowOtpModal(false);
+      setOtp('');
       fetchOrders();
-      setSelectedOrder(null);
-    } catch (err) {
-      toast.error('Failed to update status');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update status');
+    } finally {
+      setProcessing(false);
     }
   };
 
-  const getStatusSteps = (currentStatus) => {
-    const steps = ['Assigned', 'Picked Up', 'Out For Delivery', 'Delivered'];
-    return steps;
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Accepted': return 'text-blue-500 bg-blue-500/10';
+      case 'Picked Up': return 'text-purple-500 bg-purple-500/10';
+      case 'Out For Delivery': return 'text-orange-500 bg-orange-500/10';
+      default: return 'text-gray-500 bg-gray-500/10';
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Active Route</h1>
-          <p className="text-gray-400 text-sm">You have {orders.length} active deliveries to complete</p>
-        </div>
+    <div className="space-y-6 pb-12">
+      <div>
+        <h1 className="text-2xl font-black text-white tracking-tight">Active Shipments</h1>
+        <p className="text-gray-400 text-sm">Manage your currently assigned deliveries and updates</p>
       </div>
 
-      <div className="grid gap-6">
-        {orders.length === 0 ? (
-          <div className="bg-slate-900 rounded-[2rem] border border-white/5 p-12 text-center">
-            <Truck size={48} className="mx-auto text-gray-700 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Empty Route</h3>
-            <p className="text-gray-500">No orders have been assigned to you yet.</p>
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-20 text-center">
+          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-gray-500">
+            <Truck size={32} />
           </div>
-        ) : (
-          orders.map((order) => (
-            <motion.div 
-              key={order._id}
-              layout
-              className="bg-slate-900 rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-primary-500/30 transition-all shadow-xl"
-            >
-              <div className="p-6 md:p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-white/5 bg-slate-900/50">
-                <div className="flex gap-6 items-center">
-                  <div className="p-4 bg-primary-500/10 rounded-2xl text-primary-400">
-                    <Package size={24} />
-                  </div>
+          <h3 className="text-white font-bold text-lg">No Active Assignments</h3>
+          <p className="text-gray-500 text-sm mt-2">New orders will appear here once assigned by the admin.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AnimatePresence>
+            {orders.map((order) => (
+              <motion.div 
+                key={order._id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group"
+              >
+                <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h3 className="text-lg font-bold text-white uppercase tracking-tight">Order #{order._id.substring(18)}</h3>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest">
-                        {order.deliveryStatus}
-                      </span>
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar size={12} /> {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
+                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.deliveryStatus)}`}>
+                      {order.deliveryStatus}
+                    </span>
+                    <h3 className="text-white font-black text-lg mt-2">#{String(order._id).slice(-6).toUpperCase()}</h3>
+                  </div>
+                  <Link to={`/delivery/order/${order._id}`} className="p-3 bg-slate-800 text-gray-400 hover:text-white rounded-xl transition-all">
+                    <ChevronRight size={18} />
+                  </Link>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-slate-800 text-gray-400 rounded-lg">
+                      <MapPin size={16} />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Delivery Address</p>
+                      <p className="text-white text-sm font-medium leading-relaxed">{order.shippingAddress?.address}, {order.shippingAddress?.city}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-slate-800 text-gray-400 rounded-lg">
+                      <Package size={16} />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Items</p>
+                      <p className="text-white text-sm font-medium">{order.orderItems?.length} Products • ${order.totalPrice}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
-                  <button 
-                    onClick={() => setSelectedOrder(order)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-all border border-white/5"
-                  >
-                    <Eye size={16} /> Details
-                  </button>
-                  
+                <div className="grid grid-cols-2 gap-3">
                   {order.deliveryStatus === 'Assigned' && (
                     <button 
-                      onClick={() => updateStatus(order._id, 'Picked Up')}
-                      className="px-6 py-2.5 bg-primary-600 text-white rounded-xl text-xs font-bold hover:bg-primary-500 transition-all"
+                      onClick={() => updateStatus(order._id, 'Accepted')}
+                      className="col-span-2 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary-900/20"
                     >
-                      Pick Up Package
+                      Accept Order
+                    </button>
+                  )}
+                  {order.deliveryStatus === 'Accepted' && (
+                    <button 
+                      onClick={() => updateStatus(order._id, 'Picked Up')}
+                      className="col-span-2 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-purple-900/20"
+                    >
+                      Mark as Picked Up
                     </button>
                   )}
                   {order.deliveryStatus === 'Picked Up' && (
                     <button 
                       onClick={() => updateStatus(order._id, 'Out For Delivery')}
-                      className="px-6 py-2.5 bg-accent text-white rounded-xl text-xs font-bold hover:bg-accent/80 transition-all"
+                      className="col-span-2 py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-orange-900/20"
                     >
                       Start Delivery
                     </button>
                   )}
                   {order.deliveryStatus === 'Out For Delivery' && (
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => updateStatus(order._id, 'Delivered')}
-                        className="px-6 py-2.5 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-500 transition-all"
-                      >
-                        Mark Delivered
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const reason = window.prompt('Reason for failure:');
-                          if (reason) updateStatus(order._id, 'Failed', reason);
-                        }}
-                        className="px-6 py-2.5 bg-red-600/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-600/30 transition-all border border-red-500/20"
-                      >
-                        Failed
-                      </button>
-                    </div>
+                    <button 
+                      onClick={() => { setSelectedOrderId(order._id); setShowOtpModal(true); }}
+                      className="col-span-2 py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-green-900/20"
+                    >
+                      Enter OTP & Deliver
+                    </button>
                   )}
                 </div>
-              </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
 
-              <div className="p-8 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Customer Info */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Customer Information</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-white">
-                      <User size={20} />
-                    </div>
-                    <div>
-                      <p className="text-white font-bold">{order.user?.name}</p>
-                      <button className="text-primary-400 text-xs font-medium flex items-center gap-1 mt-1 hover:underline">
-                        <Phone size={12} /> {order.shippingAddress?.phone || 'Call Customer'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Delivery Address */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Delivery Address</p>
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-primary-400">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm leading-relaxed">
-                        {order.shippingAddress.address}, {order.shippingAddress.city}<br />
-                        {order.shippingAddress.postalCode}, {order.shippingAddress.country}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Info */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Payment Method</p>
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${order.paymentMethod === 'COD' ? 'bg-orange-500/10 text-orange-400' : 'bg-green-500/10 text-green-400'}`}>
-                      <DollarSign size={20} />
-                    </div>
-                    <div>
-                      <p className="text-white font-bold">{order.paymentMethod}</p>
-                      <p className={`text-xs font-black uppercase mt-1 ${order.paymentMethod === 'COD' ? 'text-orange-400' : 'text-green-400'}`}>
-                        {order.paymentMethod === 'COD' ? `Collect $${order.totalPrice}` : 'Already Paid'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))
-        )}
-      </div>
-
-      {/* Modal for Order Details */}
+      {/* OTP Verification Modal */}
       <AnimatePresence>
-        {selectedOrder && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        {showOtpModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-950 w-full max-w-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              onClick={() => setShowOtpModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-slate-900 border border-white/10 p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl"
             >
-              <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
-                <h3 className="text-xl font-black text-white">Delivery Items</h3>
-                <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all"><XCircle size={24} /></button>
-              </div>
-              <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
-                {selectedOrder.orderItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-6 p-4 bg-slate-900 rounded-2xl border border-white/5">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />
-                    <div className="flex-1">
-                      <p className="text-white font-bold">{item.name}</p>
-                      <p className="text-xs text-gray-500">Quantity: {item.qty} • Price: ${item.price}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="p-8 bg-slate-900/50 border-t border-white/5 text-center">
-                <p className="text-gray-400 text-sm">Please verify all items before marking as picked up.</p>
+              <h3 className="text-2xl font-black text-white mb-2">Verify Delivery</h3>
+              <p className="text-gray-400 text-sm mb-6">Ask the customer for the 4-digit OTP sent to their tracking page.</p>
+              
+              <input 
+                type="text"
+                maxLength="4"
+                placeholder="Enter 4-digit OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="w-full bg-slate-800 border border-white/5 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 mb-6"
+              />
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setShowOtpModal(false)}
+                  className="flex-1 py-4 bg-slate-800 text-gray-400 rounded-2xl font-bold text-xs uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => updateStatus(selectedOrderId, 'Delivered', otp)}
+                  disabled={otp.length !== 4 || processing}
+                  className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50"
+                >
+                  {processing ? 'Verifying...' : 'Confirm'}
+                </button>
               </div>
             </motion.div>
           </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingBag, TrendingUp, Star, ShieldCheck, Truck, RefreshCw, Search, Heart } from 'lucide-react';
+import { ShoppingBag, TrendingUp, Star, Shield, Truck, RefreshCw, Search, Heart, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
@@ -16,46 +16,30 @@ const ProductCard = ({ product }) => {
   const handleWishlist = (e) => {
     e.stopPropagation();
     dispatch(toggleWishlist({ _id: product._id, name: product.name, price: product.price, image: product.images[0] }));
-    toast.info(isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist');
+    toast.info(isWishlisted ? 'Removed' : 'Saved');
   };
 
   return (
     <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 group cursor-pointer flex flex-col h-full"
+      className="group cursor-pointer"
       onClick={() => navigate(`/product/${product._id}`)}
     >
-      <div className="relative h-64 overflow-hidden bg-slate-900">
+      <div className="relative aspect-[3/4] overflow-hidden bg-white rounded-sm border border-black/5">
         <img 
           src={product.images && product.images[0] ? product.images[0] : ''} 
           alt={product.name} 
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${product.countInStock === 0 ? 'grayscale opacity-50' : ''}`} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
         />
-        {product.countInStock === 0 && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest z-20 shadow-2xl border border-white/20">
-            Out of Stock
-          </div>
-        )}
         <div 
-          className={`absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm p-2 rounded-full transition-colors z-10 ${isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`} 
+          className={`absolute top-4 right-4 p-2 rounded-full bg-white shadow-sm transition-colors ${isWishlisted ? 'text-red-500' : 'text-gray-400'}`} 
           onClick={handleWishlist}
         >
-          <Heart size={16} className={isWishlisted ? "fill-current" : ""} />
-        </div>
-        <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-slate-900 to-transparent">
-          <button className="w-full bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center gap-2">
-            <Search size={18} /> View Details
-          </button>
+          <Heart size={14} className={isWishlisted ? "fill-current" : ""} />
         </div>
       </div>
-      <div className="p-5 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold text-white line-clamp-1">{product.name}</h3>
-          <span className="flex items-center text-accent text-sm">
-            <Star size={14} className="fill-current mr-1" /> {product.rating || 0}
-          </span>
-        </div>
-        <p className="text-primary-400 font-bold text-xl mt-auto pt-2">${product.price}</p>
+      <div className="mt-4 space-y-1">
+        <h3 className="text-[12px] font-black text-primary uppercase tracking-tight">{product.name}</h3>
+        <p className="text-[12px] text-muted font-medium">${product.price}</p>
       </div>
     </motion.div>
   );
@@ -76,140 +60,131 @@ const Home = () => {
     fetchProducts();
   }, []);
 
+  const categories = [
+    { name: 'Clothes', image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Watches', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Bags', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Accessories', image: 'https://images.unsplash.com/photo-1511406361295-0a5ff814c0ad?q=80&w=800&auto=format&fit=crop' }
+  ];
+
   return (
-    <div className="pt-24 min-h-screen">
+    <div className="bg-bg-cream">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <span className="inline-block py-1 px-3 rounded-full bg-primary-500/10 text-primary-400 font-medium text-sm mb-6 border border-primary-500/20">
-                New Collection 2026
-              </span>
-              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 text-white">
-                Discover Your <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-500">
-                  Unique Style
-                </span>
-              </h1>
-              <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-                Explore our premium collection of contemporary fashion. Designed for comfort, styled for you. Elevate your wardrobe today.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/shop" className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-1">
-                  Shop Now
-                </Link>
-                <Link to="/categories" className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-8 py-4 rounded-full font-bold transition-all hover:-translate-y-1">
-                  View Categories
-                </Link>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop" 
-                alt="Fashion Model" 
-                className="relative z-10 w-full h-[600px] object-cover rounded-[2rem] shadow-2xl border border-white/10"
-              />
-              
-              {/* Floating Card */}
-              <motion.div 
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-10 -left-10 glass-dark p-4 rounded-2xl flex items-center gap-4 z-20 shadow-2xl"
-              >
-                <div className="bg-accent/20 p-3 rounded-full text-accent">
-                  <TrendingUp size={24} />
-                </div>
-                <div>
-                  <p className="text-white font-bold">Trending Now</p>
-                  <p className="text-sm text-gray-400">Summer Collection</p>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
+      <section className="relative h-screen min-h-[700px] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <img 
+            src="/allbirds_hero_sustainable_1778924604133.png" 
+            alt="Sustainable Fashion" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/10"></div>
+        </div>
+        
+        <div className="relative z-10 text-center text-white px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8"
+          >
+            Nature-Made <br /> Style
+          </motion.h1>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to="/shop?category=Men" className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
+              Shop Men
+            </Link>
+            <Link to="/shop?category=Women" className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
+              Shop Women
+            </Link>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="bg-slate-900/50 py-12 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex items-center gap-4 p-4">
-              <Truck size={40} className="text-primary-500" />
-              <div>
-                <h4 className="text-white font-bold">Free Shipping</h4>
-                <p className="text-gray-400 text-sm">On orders over $100</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4">
-              <ShieldCheck size={40} className="text-primary-500" />
-              <div>
-                <h4 className="text-white font-bold">Secure Payment</h4>
-                <p className="text-gray-400 text-sm">100% secure checkout</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4">
-              <RefreshCw size={40} className="text-primary-500" />
-              <div>
-                <h4 className="text-white font-bold">Easy Returns</h4>
-                <p className="text-gray-400 text-sm">30 days return policy</p>
-              </div>
-            </div>
-          </div>
+      {/* Category Grid */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-black uppercase tracking-tighter text-primary">Shop By Category</h2>
+          <div className="w-12 h-1 bg-primary mx-auto mt-4"></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((cat, idx) => (
+            <motion.div 
+              key={cat.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className={`relative overflow-hidden cursor-pointer group ${idx === 0 || idx === 3 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+            >
+              <Link to={`/shop?category=${cat.name}`}>
+                <div className="aspect-[4/5] overflow-hidden bg-gray-200">
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+                  <div className="absolute bottom-10 left-10">
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{cat.name}</h3>
+                    <div className="mt-2 text-white text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      Explore Now <ArrowRight size={14} />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Featured Products */}
-      <section className="py-20">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex justify-between items-end mb-16">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Featured Products</h2>
-              <p className="text-gray-400">Handpicked items just for you</p>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-primary">Our Favorites</h2>
+              <p className="text-muted text-sm mt-2">The best of Wearify, chosen for you.</p>
             </div>
-            <Link to="/shop" className="text-primary-400 hover:text-primary-300 font-medium hidden sm:block">
-              View All →
+            <Link to="/shop" className="text-[11px] font-black uppercase tracking-widest border-b-2 border-primary pb-1">
+              Shop All
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product, index) => (
-              <motion.div
-                key={product._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {products.map((product) => (
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </div>
       </section>
-      
-      {/* Newsletter */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary-900/20"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Join The Wearify Club</h2>
-          <p className="text-gray-300 mb-8">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <input type="email" placeholder="Enter your email" className="px-6 py-4 rounded-full bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-primary-500 w-full sm:w-96" />
-            <button className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-full font-bold transition-colors">
-              Subscribe
+
+      {/* Sustainability Section */}
+      <section className="py-24 bg-[#212a2f] text-white overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="text-accent text-[11px] font-black uppercase tracking-[0.3em]">Our Commitment</span>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mt-6 mb-8">
+              Crafted With <br /> Care For <br /> The Planet.
+            </h2>
+            <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-md">
+              We believe in making things better. Better materials, better design, and a better future for our planet. Every product in our collection is chosen with sustainability in mind.
+            </p>
+            <button className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
+              Learn More
             </button>
+          </div>
+          <div className="relative">
+            <img 
+              src="/allbirds_category_grid_1778924740292.png" 
+              alt="Sustainable Grid" 
+              className="rounded-sm shadow-2xl scale-110"
+            />
           </div>
         </div>
       </section>

@@ -1,34 +1,27 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { 
-  ShoppingBag, 
+  Truck, 
   CheckCircle, 
-  XCircle, 
+  AlertCircle, 
   DollarSign, 
-  Truck,
-  MapPin,
+  TrendingUp, 
   Clock,
+  Navigation,
   ArrowUpRight,
-  ChevronRight,
-  TrendingUp,
-  Star
+  ChevronRight
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const StatCard = ({ title, value, icon, subValue, color }) => (
-  <div className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 relative overflow-hidden group">
-    <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/10 rounded-bl-full blur-2xl`}></div>
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-4 bg-${color}-500/10 rounded-2xl text-${color}-400`}>
-        {icon}
-      </div>
-      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{subValue}</span>
-    </div>
-    <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">{title}</h3>
-    <p className="text-3xl font-black text-white">{value}</p>
-  </div>
-);
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const DeliveryDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -37,10 +30,10 @@ const DeliveryDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await axios.get('/api/delivery/stats');
+        const { data } = await axios.get('/api/delivery/dashboard');
         setStats(data);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch delivery stats');
       } finally {
         setLoading(false);
       }
@@ -52,148 +45,115 @@ const DeliveryDashboard = () => {
     { name: 'Mon', count: 4 },
     { name: 'Tue', count: 7 },
     { name: 'Wed', count: 5 },
-    { name: 'Thu', count: 8 },
-    { name: 'Fri', count: 12 },
+    { name: 'Thu', count: 12 },
+    { name: 'Fri', count: 9 },
     { name: 'Sat', count: 15 },
     { name: 'Sun', count: 10 },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+    </div>
+  );
+
+  const cards = [
+    { title: 'Assigned Orders', value: stats?.assigned || 0, icon: Truck, color: 'primary' },
+    { title: 'In Progress', value: stats?.pending || 0, icon: Navigation, color: 'blue' },
+    { title: 'Today Earnings', value: `$${stats?.totalEarnings || 0}`, icon: DollarSign, color: 'green' },
+    { title: 'Completed', value: stats?.delivered || 0, icon: CheckCircle, color: 'purple' },
+  ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-end">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Howdy, Partner!</h1>
-          <p className="text-gray-400 mt-1">Ready to hit the road? You have {stats?.assignedCount || 0} deliveries waiting.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Delivery Console</h1>
+          <p className="text-gray-400 text-sm">Welcome back! You have {stats?.assigned} new orders waiting.</p>
         </div>
-        <div className="flex items-center gap-3 bg-slate-900 p-2 pl-4 rounded-2xl border border-white/5">
-          <span className="text-xs font-bold text-gray-400">Driver Rating</span>
-          <div className="flex items-center gap-1 bg-primary-500/10 px-3 py-1.5 rounded-xl text-primary-400">
-            <Star size={14} fill="currentColor" />
-            <span className="font-black">4.9</span>
+        <div className="flex gap-3">
+          <div className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl border border-green-500/20 text-xs font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            Accepting Orders
           </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Assigned" 
-          value={stats?.assignedCount || 0} 
-          icon={<Truck size={24} />} 
-          subValue="Active" 
-          color="primary"
-        />
-        <StatCard 
-          title="Completed" 
-          value={stats?.completedCount || 0} 
-          icon={<CheckCircle size={24} />} 
-          subValue="Total" 
-          color="green"
-        />
-        <StatCard 
-          title="Failed" 
-          value={stats?.failedCount || 0} 
-          icon={<XCircle size={24} />} 
-          subValue="Issues" 
-          color="red"
-        />
-        <StatCard 
-          title="Earnings" 
-          value={`$${stats?.earnings || 0}`} 
-          icon={<DollarSign size={24} />} 
-          subValue="Today" 
-          color="purple"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {cards.map((card, idx) => (
+          <motion.div 
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="bg-slate-900 border border-white/5 p-6 rounded-[2rem] shadow-xl hover:border-white/10 transition-all group"
+          >
+            <div className={`p-4 rounded-2xl w-fit mb-4 bg-${card.color}-500/10 text-${card.color}-500`}>
+              <card.icon size={24} />
+            </div>
+            <p className="text-gray-500 text-xs font-black uppercase tracking-widest">{card.title}</p>
+            <h3 className="text-2xl font-black text-white mt-1 group-hover:scale-105 transition-transform origin-left">{card.value}</h3>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Performance Chart */}
-        <div className="lg:col-span-2 bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <TrendingUp size={20} className="text-primary-400" /> Delivery Performance
-            </h3>
+            <h3 className="text-white font-bold text-lg">Weekly Performance</h3>
+            <div className="text-primary-500 text-xs font-bold flex items-center gap-2">
+              <TrendingUp size={14} /> +24% growth
+            </div>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '1rem' }}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem' }}
                 />
-                <Area type="monotone" dataKey="count" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fill="url(#colorCount)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Recent Deliveries */}
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-xl">
-          <h3 className="text-xl font-bold text-white mb-6">Recent Deliveries</h3>
-          <div className="space-y-6">
+        <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+          <h3 className="text-white font-bold text-lg mb-6">Recent Assignments</h3>
+          <div className="space-y-4">
             {stats?.recentDeliveries?.length > 0 ? (
-              stats.recentDeliveries.map((delivery) => (
-                <div key={delivery._id} className="flex items-center gap-4 p-4 bg-slate-800/30 rounded-2xl border border-white/5">
-                  <div className="w-10 h-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
-                    <CheckCircle size={20} />
+              stats.recentDeliveries.map((order) => (
+                <Link 
+                  to={`/delivery/order/${order._id}`} 
+                  key={order._id}
+                  className="block p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/30 transition-all group"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-white text-sm font-bold truncate w-32">Order #{order._id.substring(18).toUpperCase()}</p>
+                      <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">{order.deliveryStatus}</p>
+                    </div>
+                    <ChevronRight className="text-gray-600 group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
                   </div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-white font-bold text-sm truncate">#{delivery._id.substring(18)}</p>
-                    <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest">{new Date(delivery.deliveredAt).toLocaleDateString()}</p>
-                  </div>
-                  <ChevronRight size={18} className="text-gray-600" />
-                </div>
+                </Link>
               ))
             ) : (
-              <div className="text-center py-10">
-                <ShoppingBag size={40} className="mx-auto text-gray-700 mb-4" />
-                <p className="text-gray-500 text-sm">No recent deliveries</p>
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-sm italic">No recent activity</p>
               </div>
             )}
           </div>
-          <button className="w-full mt-6 py-4 bg-slate-800 text-gray-400 text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:text-white transition-all">
-            View All History
-          </button>
+          <Link to="/delivery/orders" className="block text-center mt-6 text-primary-500 text-xs font-black uppercase tracking-widest hover:underline">
+            View All Orders
+          </Link>
         </div>
       </div>
-
-      {/* Current Task Banner */}
-      {stats?.assignedCount > 0 && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-primary-600 p-8 rounded-[2.5rem] text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl shadow-primary-900/40"
-        >
-          <div className="flex items-center gap-6">
-            <div className="p-4 bg-white/20 rounded-3xl">
-              <Navigation size={32} />
-            </div>
-            <div>
-              <h3 className="text-2xl font-black tracking-tight">Active Deliveries</h3>
-              <p className="text-white/80 font-medium">Head over to the orders page to start your route.</p>
-            </div>
-          </div>
-          <button className="bg-white text-primary-600 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform">
-            View My Route
-          </button>
-        </motion.div>
-      )}
     </div>
   );
 };

@@ -26,86 +26,103 @@ const PlaceOrder = () => {
   const placeOrderHandler = async () => {
     setLoading(true);
     try {
-      // Typically you'd send an API request here:
-      // const { data } = await axios.post('/api/orders', {
-      //   orderItems: cart.cartItems,
-      //   shippingAddress: cart.shippingAddress,
-      //   paymentMethod: cart.paymentMethod,
-      //   itemsPrice: cart.itemsPrice,
-      //   shippingPrice: cart.shippingPrice,
-      //   taxPrice: cart.taxPrice,
-      //   totalPrice: cart.totalPrice,
-      // });
+      const orderData = {
+        orderItems: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+        paymentMethod: cart.paymentMethod,
+        itemsPrice: cart.itemsPrice,
+        shippingPrice: cart.shippingPrice,
+        taxPrice: cart.taxPrice,
+        totalPrice: cart.totalPrice,
+      };
+
+      const { data } = await axios.post('/api/orders', orderData);
       
       toast.success('Order placed successfully!');
       dispatch(clearCartItems());
-      navigate('/'); // Or navigate to order details page
+      navigate(`/order/${data._id}`);
     } catch (error) {
-      toast.error('Failed to place order');
+      toast.error(error?.response?.data?.message || 'Failed to place order');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-slate-950">
+    <div className="pt-32 pb-24 min-h-screen bg-bg-cream text-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-extrabold text-white mb-8">Review Your Order</h1>
+        
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">Review Order</h1>
+          <div className="w-12 h-1 bg-primary mt-4 mb-2"></div>
+          <p className="text-muted text-[11px] font-black uppercase tracking-widest">
+            Step 3 of 3: Final Confirmation
+          </p>
+        </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-12">
           
           {/* Order Details */}
-          <div className="w-full lg:w-2/3 space-y-6">
+          <div className="flex-1 space-y-8">
             
-            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <MapPin className="text-primary-500" /> Shipping Information
+            {/* Shipping Info */}
+            <div className="bg-white p-10 border border-black/5 shadow-sm">
+              <div className="flex justify-between items-start mb-8 pb-4 border-b border-black/5">
+                <h2 className="text-[13px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                  <MapPin size={16} /> Delivery Address
                 </h2>
-                <Link to="/shipping" className="text-primary-500 hover:text-primary-400 text-sm font-medium transition-colors">
+                <Link to="/shipping" className="text-[10px] font-black uppercase tracking-widest text-muted border-b border-muted hover:text-primary hover:border-primary transition-all pb-1">
                   Change
                 </Link>
               </div>
-              <div className="text-gray-400">
-                <p><strong className="text-white">Name: </strong> {userInfo?.name || 'Guest'}</p>
-                <p className="mt-1"><strong className="text-white">Address: </strong> 
-                  {cart.shippingAddress.address}, {cart.shippingAddress.city} {cart.shippingAddress.postalCode}, {cart.shippingAddress.country}
-                </p>
+              <div className="text-[13px] font-medium text-muted leading-relaxed">
+                <p className="text-primary font-black uppercase tracking-widest mb-2">{userInfo?.name || 'Customer'}</p>
+                <p>{cart.shippingAddress.address}</p>
+                <p>{cart.shippingAddress.city}, {cart.shippingAddress.postalCode}</p>
+                <p className="uppercase tracking-widest text-[10px] pt-1">{cart.shippingAddress.country}</p>
               </div>
             </div>
 
-            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <CreditCard className="text-primary-500" /> Payment Method
+            {/* Payment Info */}
+            <div className="bg-white p-10 border border-black/5 shadow-sm">
+              <div className="flex justify-between items-start mb-8 pb-4 border-b border-black/5">
+                <h2 className="text-[13px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                  <CreditCard size={16} /> Payment Choice
                 </h2>
-                <Link to="/payment" className="text-primary-500 hover:text-primary-400 text-sm font-medium transition-colors">
+                <Link to="/payment" className="text-[10px] font-black uppercase tracking-widest text-muted border-b border-muted hover:text-primary hover:border-primary transition-all pb-1">
                   Change
                 </Link>
               </div>
-              <p className="text-gray-400">
-                <strong className="text-white">Method: </strong> {cart.paymentMethod}
+              <p className="text-[11px] font-black uppercase tracking-widest text-primary">
+                Method: <span className="text-muted">{cart.paymentMethod}</span>
               </p>
             </div>
 
-            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <ShoppingBag className="text-primary-500" /> Order Items
+            {/* Items List */}
+            <div className="bg-white p-10 border border-black/5 shadow-sm">
+              <h2 className="text-[13px] font-black uppercase tracking-[0.3em] mb-10 pb-4 border-b border-black/5 flex items-center gap-3">
+                <ShoppingBag size={16} /> Bag Items
               </h2>
               {cart.cartItems.length === 0 ? (
-                <p className="text-gray-400">Your cart is empty</p>
+                <p className="text-muted text-sm italic">Your bag is empty.</p>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-8">
                   {cart.cartItems.map((item, index) => (
-                    <div key={index} className="flex items-center gap-4 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                    <div key={index} className="flex items-center gap-8 group">
+                      <div className="w-20 h-20 bg-bg-cream border border-black/5 rounded-sm overflow-hidden flex-shrink-0">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      </div>
                       <div className="flex-1">
-                        <Link to={`/product/${item._id}`} className="text-white hover:text-primary-400 font-medium line-clamp-1">
+                        <Link to={`/product/${item._id}`} className="text-[12px] font-black uppercase tracking-tight text-primary hover:opacity-70 transition-opacity mb-1 block">
                           {item.name}
                         </Link>
+                        <p className="text-muted text-[10px] font-black uppercase tracking-widest">
+                          {item.qty} Unit{item.qty > 1 ? 's' : ''} · ${item.price}
+                        </p>
                       </div>
-                      <div className="text-gray-400 font-medium">
-                        {item.qty} x ${item.price} = <span className="text-white">${(item.qty * item.price).toFixed(2)}</span>
+                      <div className="text-primary font-black text-sm">
+                        ${(item.qty * item.price).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -116,36 +133,49 @@ const PlaceOrder = () => {
           </div>
 
           {/* Order Summary */}
-          <div className="w-full lg:w-1/3">
-            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 sticky top-28">
-              <h2 className="text-xl font-bold text-white mb-6">Order Summary</h2>
+          <div className="w-full lg:w-[400px]">
+            <div className="bg-white p-10 border border-black/5 shadow-sm sticky top-32">
+              <h2 className="text-[13px] font-black uppercase tracking-[0.3em] mb-10 pb-4 border-b border-black/5">Order Summary</h2>
               
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-gray-400">
-                  <span>Items</span>
-                  <span className="text-white">${cart.itemsPrice}</span>
+              <div className="space-y-5 mb-10">
+                <div className="flex justify-between text-[11px] font-black uppercase tracking-widest text-muted">
+                  <span>Subtotal</span>
+                  <span className="text-primary">${cart.itemsPrice}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Shipping</span>
-                  <span className="text-white">${cart.shippingPrice}</span>
+                <div className="flex justify-between text-[11px] font-black uppercase tracking-widest text-muted">
+                  <span>Shipping Cost</span>
+                  <span className="text-primary">${cart.shippingPrice}</span>
                 </div>
-                <div className="flex justify-between text-gray-400 pb-4 border-b border-white/10">
-                  <span>Tax</span>
-                  <span className="text-white">${cart.taxPrice}</span>
+                <div className="flex justify-between text-[11px] font-black uppercase tracking-widest text-muted pb-5 border-b border-black/5">
+                  <span>Estimated Tax</span>
+                  <span className="text-primary">${cart.taxPrice}</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold text-white pt-2">
-                  <span>Total</span>
-                  <span className="text-primary-500">${cart.totalPrice}</span>
+                <div className="flex justify-between text-[15px] font-black uppercase tracking-tighter text-primary pt-2">
+                  <span>Total Due</span>
+                  <span className="text-2xl">${cart.totalPrice}</span>
                 </div>
               </div>
 
               <button 
                 onClick={placeOrderHandler}
-                disabled={cart.cartItems === 0 || loading}
-                className="w-full bg-primary-600 hover:bg-primary-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
+                disabled={cart.cartItems.length === 0 || loading}
+                className="btn-allbirds w-full flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {loading ? 'Processing...' : 'Place Order'} <CheckCircle size={20} />
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Confirm & Place Order <CheckCircle size={18} />
+                  </>
+                )}
               </button>
+              
+              <p className="text-center text-[9px] font-black uppercase tracking-[0.2em] text-muted mt-8">
+                Free 30-day returns on all orders.
+              </p>
             </div>
           </div>
 

@@ -1,235 +1,215 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { 
   Package, 
-  ShoppingBag, 
+  ShoppingCart, 
   DollarSign, 
   TrendingUp, 
-  AlertTriangle,
+  AlertCircle,
+  Clock,
+  ChevronRight,
+  PlusCircle,
   ArrowUpRight,
-  ArrowDownRight
+  Activity
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar
+} from 'recharts';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-const StatCard = ({ title, value, icon, trend, trendValue, color }) => (
-  <div className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden group">
-    <div className={`absolute top-0 right-0 w-32 h-32 bg-${color}-500/10 rounded-bl-full blur-3xl group-hover:bg-${color}-500/20 transition-all duration-500`}></div>
+const StatCard = ({ title, value, icon: Icon, color, trend }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-slate-900 border border-white/5 p-6 rounded-[2rem] shadow-xl hover:border-white/10 transition-all group"
+  >
     <div className="flex justify-between items-start mb-4">
-      <div className={`p-4 bg-${color}-500/10 rounded-2xl text-${color}-400`}>
-        {icon}
+      <div className={`p-4 rounded-2xl bg-${color}-500/10 text-${color}-500 group-hover:scale-110 transition-transform`}>
+        <Icon size={24} />
       </div>
-      <div className={`flex items-center gap-1 text-xs font-bold ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-        {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-        {trendValue}
-      </div>
+      {trend && (
+        <div className="flex items-center gap-1 text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">
+          <ArrowUpRight size={12} /> {trend}%
+        </div>
+      )}
     </div>
-    <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
-    <p className="text-3xl font-black text-white">{value}</p>
-  </div>
+    <div>
+      <p className="text-gray-500 text-xs font-black uppercase tracking-widest mb-1">{title}</p>
+      <h3 className="text-2xl font-black text-white">{value}</h3>
+    </div>
+  </motion.div>
 );
 
 const SellerDashboard = () => {
-  const [stats, setStats] = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const { data } = await axios.get('/api/seller/stats');
-        setStats(data);
+        const { data } = await axios.get('/api/seller/dashboard/stats');
+        setData(data);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch dashboard data', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
 
+  const { stats, monthlySales, recentOrders } = data || {};
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Seller Dashboard</h1>
-          <p className="text-gray-400">Welcome back! Here's what's happening with your store today.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Seller Central</h1>
+          <p className="text-gray-400 text-sm">Welcome back! Here's what's happening with your store today.</p>
         </div>
-        {stats?.sellerStatus !== 'approved' && (
-          <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-2xl flex items-center gap-4 animate-pulse">
-            <div className="p-2 bg-orange-500/20 rounded-lg text-orange-500">
-              <AlertTriangle size={20} />
-            </div>
-            <div>
-              <p className="text-orange-500 font-bold text-sm uppercase tracking-wider">Account Pending Approval</p>
-              <p className="text-orange-500/70 text-xs font-medium">Please wait for an administrator to verify your store.</p>
-            </div>
-          </div>
-        )}
+        <div className="flex gap-3 w-full md:w-auto">
+          <Link to="/seller/add-product" className="flex-1 md:flex-none bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-900/20">
+            <PlusCircle size={16} /> Add Product
+          </Link>
+        </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stat Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Products" 
-          value={stats?.productsCount || 0} 
-          icon={<Package size={24} />} 
-          trend="up" 
-          trendValue="+12%" 
-          color="primary"
-        />
-        <StatCard 
-          title="Total Orders" 
-          value={stats?.totalOrders || 0} 
-          icon={<ShoppingBag size={24} />} 
-          trend="up" 
-          trendValue="+5%" 
-          color="purple"
-        />
-        <StatCard 
-          title="Total Revenue" 
-          value={`$${stats?.totalRevenue?.toFixed(2) || '0.00'}`} 
-          icon={<DollarSign size={24} />} 
-          trend="up" 
-          trendValue="+18%" 
-          color="green"
-        />
-        <StatCard 
-          title="Low Stock" 
-          value={stats?.lowStockCount || 0} 
-          icon={<AlertTriangle size={24} />} 
-          trend="down" 
-          trendValue="-2%" 
-          color="orange"
-        />
+        <StatCard title="Total Revenue" value={`$${stats?.totalRevenue?.toLocaleString()}`} icon={DollarSign} color="primary" trend="15.4" />
+        <StatCard title="Total Orders" value={stats?.totalOrders} icon={ShoppingCart} color="purple" trend="8.2" />
+        <StatCard title="Active Products" value={stats?.totalProducts} icon={Package} color="blue" />
+        <StatCard title="Pending Review" value={stats?.pendingProducts} icon={Clock} color="orange" />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Sales Chart */}
-        <div className="lg:col-span-2 bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-xl">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <TrendingUp size={20} className="text-primary-400" /> Sales Analytics
-            </h3>
-            <select className="bg-slate-800 text-white text-xs border-none rounded-lg px-3 py-1.5 outline-none">
-              <option>Last 6 Months</option>
-              <option>Last Year</option>
-            </select>
-          </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats?.monthlySales}>
-                <defs>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                <XAxis 
-                  dataKey="month" 
-                  stroke="#64748b" 
-                  fontSize={12} 
-                  tickLine={false} 
-                  axisLine={false} 
-                />
-                <YAxis 
-                  stroke="#64748b" 
-                  fontSize={12} 
-                  tickLine={false} 
-                  axisLine={false} 
-                  tickFormatter={(value) => `$${value}`}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '1rem' }}
-                  itemStyle={{ color: '#0ea5e9' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#0ea5e9" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorSales)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Best Selling Products */}
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-xl">
-          <h3 className="text-xl font-bold text-white mb-6">Best Sellers</h3>
-          <div className="space-y-6">
-            {stats?.recentProducts?.map((product) => (
-              <div key={product._id} className="flex items-center gap-4">
-                <img 
-                  src={product.images?.[0]} 
-                  alt={product.name} 
-                  className="w-14 h-14 rounded-2xl object-cover"
-                />
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-white font-bold truncate text-sm">{product.name}</p>
-                  <p className="text-gray-500 text-xs">{product.category}</p>
+      {/* Alerts & Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Sales Chart */}
+          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary-500/10 text-primary-500 rounded-xl">
+                  <TrendingUp size={20} />
                 </div>
-                <div className="text-right">
-                  <p className="text-white font-bold text-sm">${product.price}</p>
-                  <p className="text-primary-400 text-[10px] font-bold">128 Sold</p>
-                </div>
+                <h3 className="text-white font-bold text-lg">Revenue Growth</h3>
               </div>
-            ))}
+            </div>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlySales}>
+                  <defs>
+                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', color: '#fff' }}
+                  />
+                  <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Recent Orders */}
+          <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div className="p-8 border-b border-white/5 flex justify-between items-center">
+              <h3 className="text-white font-bold text-lg">Recent Orders</h3>
+              <Link to="/seller/orders" className="text-primary-500 text-xs font-bold hover:underline">View All</Link>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-widest text-gray-500 font-black border-b border-white/5">
+                    <th className="px-8 py-5">Order ID</th>
+                    <th className="px-8 py-5">Status</th>
+                    <th className="px-8 py-5">Customer</th>
+                    <th className="px-8 py-5 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {recentOrders?.map((order) => (
+                    <tr key={order._id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-8 py-5 font-mono text-gray-400">#{order._id.substring(18).toUpperCase()}</td>
+                      <td className="px-8 py-5">
+                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                          order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-8 py-5 text-white font-bold">{order.user?.name}</td>
+                      <td className="px-8 py-5 text-right text-white font-black">${order.totalPrice}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Recent Orders */}
-      <div className="bg-slate-900 rounded-[2.5rem] border border-white/5 shadow-xl overflow-hidden">
-        <div className="p-8 border-b border-white/5 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-white">Recent Orders</h3>
-          <button className="text-primary-400 text-sm font-bold hover:underline">View All</button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-800/50 text-gray-400 text-xs uppercase tracking-widest">
-              <tr>
-                <th className="px-8 py-4">Order ID</th>
-                <th className="px-8 py-4">Customer</th>
-                <th className="px-8 py-4">Status</th>
-                <th className="px-8 py-4">Amount</th>
-                <th className="px-8 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
-              {stats?.recentOrders?.length > 0 ? (
-                stats.recentOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-8 py-4 text-white font-medium">#{order._id.substring(18).toUpperCase()}</td>
-                    <td className="px-8 py-4 text-gray-300">{order.user?.name || 'Guest'}</td>
-                    <td className="px-8 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter ${order.isDelivered ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                        {order.isDelivered ? 'Delivered' : 'Processing'}
-                      </span>
-                    </td>
-                    <td className="px-8 py-4 text-white font-bold">${order.totalPrice.toFixed(2)}</td>
-                    <td className="px-8 py-4 text-right">
-                      <button className="text-primary-400 hover:text-white transition-colors font-bold">Details</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="px-8 py-10 text-center text-gray-500">No recent orders found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="space-y-8">
+          {/* Low Stock Alert */}
+          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
+                <AlertCircle size={20} />
+              </div>
+              <h3 className="text-white font-bold text-lg">Inventory Alerts</h3>
+            </div>
+            {stats?.lowStockCount > 0 ? (
+              <div className="space-y-4">
+                <p className="text-gray-400 text-sm">{stats.lowStockCount} products are running low on stock. Restock soon to avoid missing sales.</p>
+                <Link to="/seller/inventory" className="block w-full text-center py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-700 transition-all border border-white/5">
+                  Manage Stock
+                </Link>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">All products are well-stocked.</p>
+            )}
+          </div>
+
+          {/* Activity Widget */}
+          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-pink-500/10 text-pink-500 rounded-xl">
+                <Activity size={20} />
+              </div>
+              <h3 className="text-white font-bold text-lg">Quick Actions</h3>
+            </div>
+            <div className="space-y-3">
+              <Link to="/seller/profile" className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/50 transition-all group">
+                <span className="text-sm text-gray-300 font-bold">Update Store Profile</span>
+                <ChevronRight size={16} className="text-gray-600 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/seller/notifications" className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/50 transition-all group">
+                <span className="text-sm text-gray-300 font-bold">Check Notifications</span>
+                <ChevronRight size={16} className="text-gray-600 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

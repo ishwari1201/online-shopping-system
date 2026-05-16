@@ -59,6 +59,16 @@ const orderSchema = mongoose.Schema({
   paidAt: {
     type: Date,
   },
+    deliveryStatus: { type: String, enum: ['Assigned', 'Accepted', 'Picked Up', 'Out For Delivery', 'Delivered'], default: 'Assigned' },
+    deliveryOTP: { type: String },
+    otpVerified: { type: Boolean, default: false },
+    deliveryTimeline: [
+      {
+        status: String,
+        timestamp: Date,
+        description: String
+      }
+    ],
   isDelivered: {
     type: Boolean,
     required: true,
@@ -67,12 +77,42 @@ const orderSchema = mongoose.Schema({
   deliveredAt: {
     type: Date,
   },
-  deliveryBoy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  deliveryStatus: { 
-    type: String, 
-    enum: ['Pending', 'Assigned', 'Picked Up', 'Out For Delivery', 'Delivered', 'Failed'],
+  paymentId: { type: String },
+  razorpayOrderId: { type: String },
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Paid', 'Failed', 'Refunded', 'COD'],
+    default: 'Pending',
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'Pending',
+  },
+  deliveryPartner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  deliveryStatus: {
+    type: String,
+    enum: [
+      'Pending',
+      'Assigned',
+      'Accepted',
+      'Picked Up',
+      'Out For Delivery',
+      'Delivered',
+      'Failed Delivery',
+      'Cancelled',
+      'Returned'
+    ],
     default: 'Pending'
   },
+  deliveryTimeline: [{
+    status: String,
+    timestamp: { type: Date, default: Date.now },
+    description: String
+  }],
   failureReason: { type: String },
 }, {
   timestamps: true,

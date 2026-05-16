@@ -9,28 +9,23 @@ import {
   ChevronLeft, 
   ChevronRight,
   MoreVertical,
-  X
+  X,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Ban,
+  RefreshCcw,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SellerProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [productId, setProductId] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Form State
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [brand, setBrand] = useState('');
-  const [countInStock, setCountInStock] = useState('');
-  const [image, setImage] = useState('');
+  const navigate = useNavigate();
   
   const fetchProducts = async () => {
     try {
@@ -61,60 +56,34 @@ const SellerProducts = () => {
   };
 
   const editHandler = (product) => {
-    setProductId(product._id);
-    setName(product.name);
-    setPrice(product.price);
-    setDescription(product.description);
-    setCategory(product.category);
-    setBrand(product.brand);
-    setCountInStock(product.countInStock);
-    setImage(product.images?.[0] || '');
-    setEditMode(true);
-    setShowModal(true);
+    navigate(`/seller/edit-product/${product._id}`);
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const productData = {
-        name,
-        price: Number(price),
-        description,
-        category,
-        brand,
-        countInStock: Number(countInStock),
-        images: [image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop']
-      };
 
-      if (editMode) {
-        await axios.put(`/api/products/${productId}`, productData);
-        toast.success('Product updated');
-      } else {
-        await axios.post('/api/products', productData);
-        toast.success('Product created');
-      }
-      
-      setShowModal(false);
-      resetForm();
+
+
+
+  const resubmitHandler = async (id) => {
+    try {
+      await axios.patch(`/api/seller/products/${id}/resubmit`);
+      toast.success('Product resubmitted for approval');
       fetchProducts();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Action failed');
-    } finally {
-      setIsSubmitting(false);
+      toast.error(err?.response?.data?.message || 'Resubmission failed');
     }
   };
 
-  const resetForm = () => {
-    setProductId(null);
-    setName('');
-    setPrice('');
-    setDescription('');
-    setCategory('');
-    setBrand('');
-    setCountInStock('');
-    setImage('');
-    setEditMode(false);
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'Approved':
+        return <span className="bg-green-500/10 text-green-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit"><CheckCircle size={12} /> Live</span>;
+      case 'Rejected':
+        return <span className="bg-red-500/10 text-red-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit"><XCircle size={12} /> Rejected</span>;
+      case 'Disabled':
+        return <span className="bg-orange-500/10 text-orange-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit"><Ban size={12} /> Disabled</span>;
+      default:
+        return <span className="bg-blue-500/10 text-blue-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit"><Clock size={12} /> Pending</span>;
+    }
   };
 
   const filteredProducts = products.filter(p => 
@@ -128,12 +97,12 @@ const SellerProducts = () => {
           <h1 className="text-2xl font-black text-white tracking-tight">My Products</h1>
           <p className="text-gray-400 text-sm">Manage and monitor your product listings</p>
         </div>
-        <button 
-          onClick={() => { resetForm(); setShowModal(true); }}
+        <Link 
+          to="/seller/add-product"
           className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-primary-900/20 font-bold"
         >
           <Plus size={20} /> Add New Product
-        </button>
+        </Link>
       </div>
 
       <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
@@ -161,9 +130,9 @@ const SellerProducts = () => {
             <thead>
               <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
                 <th className="px-8 py-5">Product Info</th>
-                <th className="px-8 py-5">Category</th>
-                <th className="px-8 py-5">Price</th>
+                <th className="px-8 py-5">Category & Price</th>
                 <th className="px-8 py-5">Stock</th>
+                <th className="px-8 py-5">Status</th>
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -192,11 +161,11 @@ const SellerProducts = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-sm text-gray-400 font-medium">
-                      {product.category}
-                    </td>
                     <td className="px-8 py-5">
-                      <p className="text-white font-black text-sm">${product.price}</p>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{product.category}</span>
+                        <span className="text-white font-black text-sm">${product.price}</span>
+                      </div>
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col gap-1.5">
@@ -213,17 +182,42 @@ const SellerProducts = () => {
                         </div>
                       </div>
                     </td>
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col gap-2">
+                        {getStatusBadge(product.status)}
+                        {product.status === 'Rejected' && product.rejectionReason && (
+                          <div className="flex items-center gap-1.5 text-red-400/60 group/reason cursor-help relative">
+                            <AlertCircle size={10} />
+                            <span className="text-[9px] font-medium truncate max-w-[100px]">Reason: {product.rejectionReason}</span>
+                            <div className="absolute bottom-full left-0 mb-2 w-48 p-3 bg-slate-800 border border-white/10 rounded-xl text-[10px] text-gray-300 opacity-0 group-hover/reason:opacity-100 transition-opacity z-10 pointer-events-none shadow-2xl">
+                              {product.rejectionReason}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2">
+                        {product.status === 'Rejected' && (
+                          <button 
+                            onClick={() => resubmitHandler(product._id)}
+                            className="p-2.5 text-primary-400 hover:bg-primary-500/10 rounded-xl transition-all"
+                            title="Resubmit for Approval"
+                          >
+                            <RefreshCcw size={18} />
+                          </button>
+                        )}
                         <button 
                           onClick={() => editHandler(product)}
-                          className="p-2.5 text-gray-400 hover:text-primary-400 hover:bg-primary-500/10 rounded-xl transition-all"
+                          className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
+                          title="Edit"
                         >
                           <Edit size={18} />
                         </button>
                         <button 
                           onClick={() => deleteHandler(product._id)}
                           className="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                          title="Delete"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -237,123 +231,7 @@ const SellerProducts = () => {
         </div>
       </div>
 
-      {/* Product Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl"
-          >
-            <div className="p-8 border-b border-white/10 flex justify-between items-center bg-slate-900/50">
-              <div>
-                <h2 className="text-2xl font-black text-white">{editMode ? 'Edit Product' : 'Add New Product'}</h2>
-                <p className="text-gray-500 text-sm">Fill in the details to list your item</p>
-              </div>
-              <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
-                <X size={24} />
-              </button>
-            </div>
-            <form onSubmit={submitHandler} className="p-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Product Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="e.g. Premium Leather Jacket"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Price ($)</label>
-                  <input
-                    type="number"
-                    required
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="0.00"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Category</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="e.g. Apparel"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Brand</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="Your Brand"
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Initial Stock</label>
-                  <input
-                    type="number"
-                    required
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="0"
-                    value={countInStock}
-                    onChange={(e) => setCountInStock(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Image URL</label>
-                  <input
-                    type="text"
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="https://..."
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Description</label>
-                  <textarea
-                    required
-                    rows="4"
-                    className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all resize-none"
-                    placeholder="Explain the unique features of your product..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  ></textarea>
-                </div>
-              </div>
-              <div className="mt-10 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-4 border border-white/5 text-gray-400 font-bold rounded-2xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 px-4 py-4 bg-primary-600 text-white font-black rounded-2xl hover:bg-primary-500 transition-all shadow-xl shadow-primary-900/20 disabled:opacity-50 uppercase tracking-widest text-xs"
-                >
-                  {isSubmitting ? (editMode ? 'Updating...' : 'Listing...') : (editMode ? 'Save Changes' : 'List Product')}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+
     </div>
   );
 };

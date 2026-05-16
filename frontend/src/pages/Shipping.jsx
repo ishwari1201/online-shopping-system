@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveShippingAddress, saveAddressToBook } from '../redux/slices/cartSlice';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowRight, Plus, Home, Briefcase, CheckCircle2 } from 'lucide-react';
+import { MapPin, ArrowRight, Plus, Home, Briefcase, CheckCircle } from 'lucide-react';
 
 const Shipping = () => {
   const cart = useSelector((state) => state.cart);
@@ -17,7 +17,6 @@ const Shipping = () => {
   const [country, setCountry] = useState('');
   const [addressType, setAddressType] = useState('Home');
 
-  // Try to find if currently saved shippingAddress matches any in savedAddresses
   const initialSelectedIndex = savedAddresses.findIndex(
     (addr) => addr.address === shippingAddress?.address && addr.postalCode === shippingAddress?.postalCode
   );
@@ -45,46 +44,45 @@ const Shipping = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-slate-950">
+    <div className="min-h-screen pt-32 pb-20 bg-bg-cream flex items-center justify-center px-4">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-xl w-full space-y-8 glass-dark p-8 sm:p-10 rounded-[2rem] border border-white/10 shadow-2xl relative"
+        className="max-w-xl w-full bg-white p-10 border border-black/5 shadow-sm"
       >
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-white tracking-tight">
-            Delivery Address
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
-            Step 1 of 3: Where should we send your order?
+        <div className="mb-12 text-center">
+          <h2 className="text-[13px] font-black uppercase tracking-[0.3em] text-primary">Delivery Details</h2>
+          <div className="w-10 h-0.5 bg-primary mx-auto mt-4 mb-2"></div>
+          <p className="text-muted text-[10px] font-black uppercase tracking-widest">
+            Step 1 of 3: Shipping Address
           </p>
         </div>
 
         {!showForm && savedAddresses.length > 0 && (
-          <div className="mt-8 space-y-6">
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-6">
+            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
               {savedAddresses.map((addr, index) => (
                 <div 
                   key={index} 
                   onClick={() => setSelectedAddressIndex(index)}
-                  className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                  className={`p-6 border cursor-pointer transition-all ${
                     selectedAddressIndex === index 
-                    ? 'border-primary-500 bg-primary-500/10' 
-                    : 'border-slate-700 bg-slate-900/50 hover:border-slate-500'
+                    ? 'border-primary bg-bg-cream shadow-inner' 
+                    : 'border-black/5 bg-white hover:border-black/20'
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${selectedAddressIndex === index ? 'bg-primary-500/20 text-primary-400' : 'bg-slate-800 text-gray-400'}`}>
-                        {addr.type === 'Work' ? <Briefcase size={20} /> : <Home size={20} />}
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-sm ${selectedAddressIndex === index ? 'bg-primary text-white' : 'bg-bg-cream text-muted'}`}>
+                        {addr.type === 'Work' ? <Briefcase size={16} /> : <Home size={16} />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white">{addr.type || 'Home'}</span>
-                          {selectedAddressIndex === index && <CheckCircle2 size={16} className="text-primary-500" />}
+                          <span className="text-[11px] font-black uppercase tracking-widest text-primary">{addr.type || 'Home'}</span>
+                          {selectedAddressIndex === index && <CheckCircle size={14} className="text-primary" />}
                         </div>
-                        <p className="text-gray-300 mt-1 text-sm">{addr.address}</p>
-                        <p className="text-gray-400 text-sm">{addr.city}, {addr.country} - {addr.postalCode}</p>
+                        <p className="text-muted mt-1 text-[12px] font-medium leading-relaxed">{addr.address}</p>
+                        <p className="text-muted text-[11px] font-medium uppercase tracking-tight">{addr.city}, {addr.country} · {addr.postalCode}</p>
                       </div>
                     </div>
                   </div>
@@ -95,105 +93,114 @@ const Shipping = () => {
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="w-full py-4 border-2 border-dashed border-slate-700 rounded-2xl text-gray-400 hover:text-white hover:border-primary-500 hover:bg-primary-500/5 transition-all flex items-center justify-center gap-2 font-medium"
+              className="w-full py-4 border border-dashed border-black/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-primary hover:border-primary transition-all flex items-center justify-center gap-2"
             >
-              <Plus size={20} /> Add New Address
+              <Plus size={16} /> Add New Address
             </button>
 
             <button
               onClick={continueWithSelected}
               disabled={selectedAddressIndex === null}
-              className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 focus:ring-offset-slate-900 transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-allbirds w-full flex items-center justify-center gap-2"
             >
-              Deliver Here
-              <ArrowRight className="ml-2 h-5 w-5" />
+              Continue to Payment <ArrowRight size={16} />
             </button>
           </div>
         )}
 
         {showForm && (
-          <form className="mt-8 space-y-6" onSubmit={submitNewAddress}>
-            <div className="space-y-4">
-              {/* Address Type Selection */}
-              <div className="flex gap-4 mb-6">
-                <button
-                  type="button"
-                  onClick={() => setAddressType('Home')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
-                    addressType === 'Home' ? 'border-primary-500 bg-primary-500/10 text-primary-400' : 'border-slate-700 text-gray-400 bg-slate-900/50'
-                  }`}
-                >
-                  <Home size={18} /> Home
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAddressType('Work')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
-                    addressType === 'Work' ? 'border-primary-500 bg-primary-500/10 text-primary-400' : 'border-slate-700 text-gray-400 bg-slate-900/50'
-                  }`}
-                >
-                  <Briefcase size={18} /> Work
-                </button>
-              </div>
+          <form className="space-y-6" onSubmit={submitNewAddress}>
+            {/* Address Type Selection */}
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setAddressType('Home')}
+                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  addressType === 'Home' ? 'border-primary bg-primary text-white' : 'border-black/5 text-muted bg-bg-cream/50'
+                }`}
+              >
+                <Home size={14} /> Home
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddressType('Work')}
+                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  addressType === 'Work' ? 'border-primary bg-primary text-white' : 'border-black/5 text-muted bg-bg-cream/50'
+                }`}
+              >
+                <Briefcase size={14} /> Work
+              </button>
+            </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-                  <MapPin size={20} />
+            <div className="space-y-4">
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Street Address</label>
+                <div className="relative">
+                  <MapPin size={16} className="absolute left-4 top-4 text-muted" />
+                  <input
+                    type="text"
+                    required
+                    className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                    placeholder="Enter your street address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
                 </div>
-                <input
-                  type="text"
-                  required
-                  className="block w-full pl-12 pr-4 py-4 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all sm:text-sm"
-                  placeholder="Street Address, P.O. box, company name"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  required
-                  className="block w-full px-4 py-4 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all sm:text-sm"
-                  placeholder="City"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-                <input
-                  type="text"
-                  required
-                  className="block w-full px-4 py-4 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all sm:text-sm"
-                  placeholder="Postal Code"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                />
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">City</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                    placeholder="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Postal Code</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                    placeholder="ZIP Code"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                  />
+                </div>
               </div>
 
-              <input
-                type="text"
-                required
-                className="block w-full px-4 py-4 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all sm:text-sm"
-                placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              />
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Country</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                  placeholder="Country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 pt-4">
               {savedAddresses.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 py-4 border border-slate-700 rounded-xl text-white bg-slate-800 hover:bg-slate-700 transition-all font-bold"
+                  className="flex-1 py-4 border border-black/10 text-[10px] font-black uppercase tracking-widest text-muted hover:bg-bg-cream transition-all"
                 >
                   Cancel
                 </button>
               )}
               <button
                 type="submit"
-                className="flex-[2] flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 focus:ring-offset-slate-900 transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]"
+                className="btn-allbirds flex-[2] flex items-center justify-center gap-2"
               >
-                Save and Deliver Here
+                Save and Continue <ArrowRight size={16} />
               </button>
             </div>
           </form>

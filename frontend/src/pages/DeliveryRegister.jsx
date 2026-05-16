@@ -55,129 +55,164 @@ const DeliveryRegister = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-slate-950 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-600/10 rounded-full blur-[120px] -mr-64 -mt-64"></div>
-      
+    <div className="min-h-screen pt-32 pb-20 bg-bg-cream flex items-center justify-center px-4">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl w-full z-10"
+        className="max-w-4xl w-full bg-white p-10 md:p-16 border border-black/5 shadow-sm"
       >
-        <div className="text-center mb-10">
-          <div className="inline-flex p-4 bg-primary-500/10 rounded-3xl text-primary-400 mb-6 border border-primary-500/20">
-            <Truck size={40} />
+        <div className="text-center mb-16">
+          <div className="inline-flex p-5 bg-primary text-white rounded-sm mb-6 shadow-md">
+            <Truck size={32} />
           </div>
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Delivery Partner</h1>
-          <p className="text-gray-400">Join our delivery fleet and start earning on every delivery</p>
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-primary">Join the Fleet</h1>
+          <div className="w-12 h-1 bg-primary mx-auto mt-6 mb-4"></div>
+          <p className="text-muted text-[11px] font-black uppercase tracking-widest">Deliver sustainability with Wearify</p>
         </div>
 
-        <form onSubmit={submitHandler} className="bg-slate-900/50 backdrop-blur-xl p-8 lg:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl">
-          <div className="grid md:grid-cols-2 gap-8">
+        <form onSubmit={submitHandler} className="space-y-12">
+          <div className="grid md:grid-cols-2 gap-16">
             
             {/* Personal Details */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                <User size={20} className="text-primary-400" /> Personal Details
+            <div className="space-y-8">
+              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-primary border-b border-black/5 pb-4 flex items-center gap-3">
+                <User size={16} /> Personal Identity
               </h3>
               
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><User size={18} /></div>
-                <input
-                  name="name" type="text" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Full Name" value={formData.name} onChange={onChange}
-                />
-              </div>
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Legal Name</label>
+                  <div className="relative">
+                    <User size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="name" type="text" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                      placeholder="Your full name" value={formData.name} onChange={onChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><Mail size={18} /></div>
-                <input
-                  name="email" type="email" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Email Address" value={formData.email} onChange={onChange}
-                />
-              </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Email Address</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="email" type="email" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                      placeholder="email@example.com" value={formData.email} onChange={onChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><Lock size={18} /></div>
-                <input
-                  name="password" type="password" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Create Password" value={formData.password} onChange={onChange}
-                />
-              </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Create Password</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="password" type="password" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                      placeholder="••••••••" value={formData.password} onChange={onChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><Phone size={18} /></div>
-                <input
-                  name="phone" type="text" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Phone Number" value={formData.phone} onChange={onChange}
-                />
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Phone Number</label>
+                  <div className="relative">
+                    <Phone size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="phone" type="text" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium"
+                      placeholder="+91 00000 00000" value={formData.phone} onChange={onChange}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Vehicle & Work Details */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                <Truck size={20} className="text-accent" /> Vehicle Details
+            {/* Vehicle Details */}
+            <div className="space-y-8">
+              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-primary border-b border-black/5 pb-4 flex items-center gap-3">
+                <Truck size={16} /> Logistics Details
               </h3>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><Shield size={18} /></div>
-                <select
-                  name="vehicleType"
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none appearance-none"
-                  value={formData.vehicleType}
-                  onChange={onChange}
-                >
-                  <option value="Bike">Bike</option>
-                  <option value="Scooter">Scooter</option>
-                  <option value="Car">Car</option>
-                  <option value="Van">Van</option>
-                </select>
-              </div>
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Transport Mode</label>
+                  <div className="relative">
+                    <Shield size={16} className="absolute left-4 top-4 text-muted" />
+                    <select
+                      name="vehicleType"
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-[11px] font-black uppercase tracking-widest appearance-none"
+                      value={formData.vehicleType}
+                      onChange={onChange}
+                    >
+                      <option value="Bike">Bike</option>
+                      <option value="Scooter">Scooter</option>
+                      <option value="Car">Car</option>
+                      <option value="Van">Van</option>
+                    </select>
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><CreditCard size={18} /></div>
-                <input
-                  name="vehicleNumber" type="text" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Vehicle Number (e.g. NY-4829)" value={formData.vehicleNumber} onChange={onChange}
-                />
-              </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Vehicle Number</label>
+                  <div className="relative">
+                    <CreditCard size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="vehicleNumber" type="text" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium uppercase"
+                      placeholder="MH-01-AB-1234" value={formData.vehicleNumber} onChange={onChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500"><ImageIcon size={18} /></div>
-                <input
-                  name="drivingLicense" type="text" required
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none"
-                  placeholder="Driving License URL" value={formData.drivingLicense} onChange={onChange}
-                />
-              </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Driving License URL</label>
+                  <div className="relative">
+                    <ImageIcon size={16} className="absolute left-4 top-4 text-muted" />
+                    <input
+                      name="drivingLicense" type="text" required
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-[11px] font-medium"
+                      placeholder="Link to your license" value={formData.drivingLicense} onChange={onChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 pt-4 flex items-start pointer-events-none text-gray-500"><MapPin size={18} /></div>
-                <textarea
-                  name="address" required rows="2"
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-primary-500 outline-none resize-none"
-                  placeholder="Residential Address" value={formData.address} onChange={onChange}
-                ></textarea>
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted block mb-2">Base Location</label>
+                  <div className="relative">
+                    <MapPin size={16} className="absolute left-4 top-4 text-muted" />
+                    <textarea
+                      name="address" required rows="2"
+                      className="w-full pl-11 pr-4 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium resize-none"
+                      placeholder="Your current address" value={formData.address} onChange={onChange}
+                    ></textarea>
+                  </div>
+                </div>
               </div>
             </div>
 
           </div>
 
-          <div className="mt-12 flex flex-col items-center">
+          <div className="pt-12 flex flex-col items-center">
             <button
               type="submit" disabled={isLoading}
-              className="group relative w-full max-w-md flex justify-center py-4 px-6 border border-transparent text-lg font-bold rounded-2xl text-white bg-primary-600 hover:bg-primary-500 transition-all shadow-xl shadow-primary-900/20"
+              className="btn-allbirds w-full max-w-lg flex items-center justify-center gap-3 disabled:opacity-50"
             >
-              {isLoading ? 'Processing...' : 'Register as Partner'}
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  Register as Partner <ArrowRight size={18} />
+                </>
+              )}
             </button>
-            <p className="mt-4 text-sm text-gray-500">
-              Already a partner? <Link to="/login" className="text-primary-400 hover:underline">Login here</Link>
+            <p className="mt-8 text-[11px] font-black uppercase tracking-widest text-muted">
+              Already a partner? <Link to="/login" className="text-primary border-b border-primary pb-0.5 ml-2">Sign In</Link>
             </p>
           </div>
         </form>

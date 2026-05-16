@@ -37,6 +37,8 @@ const SellerLayout = ({ children }) => {
     { title: 'Analytics', icon: <BarChart3 size={20} />, path: '/seller/analytics' },
     { title: 'Reviews', icon: <Star size={20} />, path: '/seller/reviews' },
     { title: 'Store Profile', icon: <Store size={20} />, path: '/seller/profile' },
+    { title: 'Notifications', icon: <Bell size={20} />, path: '/seller/notifications' },
+    { title: 'Settings', icon: <Settings size={20} />, path: '/seller/settings' },
   ];
 
   const handleLogout = async () => {
@@ -111,10 +113,10 @@ const SellerLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative text-gray-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-all">
+            <Link to="/seller/notifications" className="relative text-gray-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-all">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full border-2 border-slate-900"></span>
-            </button>
+            </Link>
             <div className="flex items-center gap-3 pl-6 border-l border-white/10">
               <div className="text-right hidden sm:block">
                 <p className="text-white text-sm font-bold">{userInfo?.name}</p>

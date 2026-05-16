@@ -7,7 +7,6 @@ import { toggleWishlist } from '../redux/slices/wishlistSlice';
 
 const Wishlist = () => {
   const dispatch = useDispatch();
-
   const { wishlistItems } = useSelector((state) => state.wishlist);
 
   const addToCartHandler = (item) => {
@@ -25,64 +24,68 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="pt-24 pb-20 min-h-screen">
+    <div className="pt-32 pb-20 min-h-screen bg-[#f8f7f5] text-[#212a2f]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-extrabold text-white">My Wishlist</h1>
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">My Wishlist</h1>
+          <div className="w-12 h-1 bg-[#212a2f] mx-auto mt-4"></div>
           {wishlistItems.length > 0 && (
-            <button 
+            <button
               onClick={addAllToCartHandler}
-              className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors"
+              className="mt-8 inline-flex items-center gap-3 px-8 py-3 bg-[#212a2f] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#334148] transition-all"
             >
-              <ShoppingCart size={20} />
-              Add All to Cart
+              <ShoppingCart size={16} /> Add All to Cart
             </button>
           )}
         </div>
 
         {wishlistItems.length === 0 ? (
-          <div className="bg-slate-900 rounded-3xl p-12 text-center border border-slate-800">
-            <div className="flex justify-center mb-6 text-slate-700">
-              <Heart size={80} />
+          <div className="bg-white rounded-sm p-16 text-center border border-black/5 shadow-sm max-w-lg mx-auto">
+            <div className="flex justify-center mb-8 text-gray-300">
+              <Heart size={100} strokeWidth={1} />
             </div>
-            <h2 className="text-2xl text-white font-bold mb-4">Your wishlist is empty</h2>
-            <p className="text-gray-400 mb-8">Save items you love to your wishlist.</p>
-            <Link to="/shop" className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-3 rounded-xl font-medium inline-block transition-colors">
+            <h2 className="text-2xl font-black uppercase tracking-tighter mb-4">Wishlist is Empty</h2>
+            <p className="text-gray-400 mb-10 max-w-xs mx-auto">Save items you love and come back to them anytime.</p>
+            <Link
+              to="/shop"
+              className="inline-block px-10 py-4 bg-[#212a2f] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#334148] transition-all"
+            >
               Explore Products
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
             {wishlistItems.map((item) => (
-              <motion.div 
+              <motion.div
                 key={item._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800 flex flex-col relative group"
+                className="group"
               >
-                <div className="relative overflow-hidden rounded-xl aspect-square mb-4 bg-slate-800">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <button 
+                {/* Image */}
+                <div className="relative aspect-[3/4] overflow-hidden bg-white rounded-sm border border-black/5">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <button
                     onClick={() => removeFromWishlistHandler(item)}
-                    className="absolute top-3 right-3 bg-white/10 hover:bg-red-500/80 backdrop-blur-md p-2 rounded-full text-white transition-colors z-10"
+                    className="absolute top-3 right-3 bg-white shadow-sm p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
-                
-                <div className="flex-1 flex flex-col">
-                  <Link to={`/product/${item._id}`} className="text-lg font-semibold text-white hover:text-primary-400 transition-colors line-clamp-1 mb-1">
+
+                {/* Info */}
+                <div className="mt-4 space-y-2">
+                  <Link to={`/product/${item._id}`} className="text-[12px] font-black uppercase tracking-tight hover:opacity-70 transition-opacity block">
                     {item.name}
                   </Link>
-                  <p className="text-primary-500 font-bold mb-4">${item.price}</p>
-                  
-                  <button 
+                  <p className="text-[12px] text-gray-500 font-medium">${item.price}</p>
+                  <button
                     onClick={() => addToCartHandler(item)}
-                    className="mt-auto w-full bg-slate-800 hover:bg-primary-600 text-white py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                    className="w-full mt-3 py-3 bg-[#212a2f] text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#334148] transition-all"
                   >
-                    <ShoppingCart size={18} />
-                    Add to Cart
+                    <ShoppingCart size={14} /> Add to Cart
                   </button>
                 </div>
               </motion.div>

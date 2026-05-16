@@ -5,13 +5,22 @@ import {
   Wallet, 
   TrendingUp, 
   Calendar, 
-  ArrowUpRight, 
-  CheckCircle,
-  Clock,
-  Download,
-  AlertCircle
+  ChevronRight, 
+  ArrowUpRight,
+  BarChart3,
+  Award
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
+import { motion } from 'framer-motion';
 
 const DeliveryEarnings = () => {
   const [earnings, setEarnings] = useState(null);
@@ -20,10 +29,10 @@ const DeliveryEarnings = () => {
   useEffect(() => {
     const fetchEarnings = async () => {
       try {
-        const { data } = await axios.get('/api/delivery/stats');
+        const { data } = await axios.get('/api/delivery/earnings');
         setEarnings(data);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch earnings');
       } finally {
         setLoading(false);
       }
@@ -31,112 +40,123 @@ const DeliveryEarnings = () => {
     fetchEarnings();
   }, []);
 
-  const chartData = [
-    { day: 'Mon', amount: 45 },
-    { day: 'Tue', amount: 65 },
-    { day: 'Wed', amount: 50 },
-    { day: 'Thu', amount: 85 },
-    { day: 'Fri', amount: 120 },
-    { day: 'Sat', amount: 150 },
-    { day: 'Sun', amount: 90 },
+  const data = [
+    { name: 'Mon', amount: 160 },
+    { name: 'Tue', amount: 200 },
+    { name: 'Wed', amount: 120 },
+    { name: 'Thu', amount: 280 },
+    { name: 'Fri', amount: 240 },
+    { name: 'Sat', amount: 400 },
+    { name: 'Sun', amount: 320 },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
+  if (loading) return <div className="text-center py-20 text-white">Loading Financial Data...</div>;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 pb-12">
+      <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Earnings Portfolio</h1>
-          <p className="text-gray-400 text-sm">Track your daily income, bonuses, and COD collections</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Earnings & Payouts</h1>
+          <p className="text-gray-400 text-sm">Track your delivery rewards and withdrawal status</p>
         </div>
-        <button className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-primary-900/20 font-bold uppercase tracking-widest text-xs">
-          <Download size={18} /> Download Statement
+        <button className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary-900/20">
+          Request Payout
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-bl-full blur-3xl"></div>
-          <div className="p-4 bg-primary-500/10 rounded-2xl text-primary-400 w-fit mb-6"><DollarSign size={24} /></div>
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Earned</p>
-          <p className="text-3xl font-black text-white">${earnings?.earnings || 0}</p>
-          <div className="mt-4 flex items-center gap-2 text-xs text-green-400 font-bold">
-            <ArrowUpRight size={14} /> +15.2% from last week
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+            <Wallet size={100} />
           </div>
-        </div>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Lifetime Earnings</p>
+          <h3 className="text-3xl font-black text-white">${earnings?.total || 0}</h3>
+          <div className="mt-6 flex items-center gap-2 text-green-500 text-xs font-bold">
+            <TrendingUp size={14} /> +12% this week
+          </div>
+        </motion.div>
 
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-bl-full blur-3xl"></div>
-          <div className="p-4 bg-purple-500/10 rounded-2xl text-purple-400 w-fit mb-6"><Wallet size={24} /></div>
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Available for Payout</p>
-          <p className="text-3xl font-black text-white">${(earnings?.earnings || 0) * 0.9}</p>
-          <p className="mt-4 text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
-            <Clock size={12} /> Next Payout: May 25
-          </p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl"
+        >
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Today's Profit</p>
+          <h3 className="text-3xl font-black text-white">${earnings?.today || 0}</h3>
+          <div className="mt-6 flex items-center gap-2 text-gray-400 text-xs font-bold">
+            <Clock size={14} /> Next payout in 2 days
+          </div>
+        </motion.div>
 
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-bl-full blur-3xl"></div>
-          <div className="p-4 bg-orange-500/10 rounded-2xl text-orange-400 w-fit mb-6"><AlertCircle size={24} /></div>
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">COD Collections</p>
-          <p className="text-3xl font-black text-white">$420.00</p>
-          <p className="mt-4 text-[10px] text-orange-400 font-black uppercase tracking-widest">To be deposited</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+        >
+          <div className="absolute -top-4 -right-4 bg-yellow-500/10 text-yellow-500 p-8 rounded-full">
+            <Award size={40} />
+          </div>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Performance Bonus</p>
+          <h3 className="text-3xl font-black text-white">$120</h3>
+          <div className="mt-6 text-yellow-500/80 text-[10px] font-black uppercase tracking-widest">Top Partner Badge Active</div>
+        </motion.div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-slate-900 p-8 rounded-[2.5rem] border border-white/5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <TrendingUp size={20} className="text-primary-400" /> Income Breakdown
+            <h3 className="text-white font-bold text-lg flex items-center gap-3">
+              <BarChart3 size={20} className="text-primary-500" /> Earnings History
             </h3>
-            <div className="bg-slate-800 p-1 rounded-xl flex">
-              <button className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-bold transition-all">Week</button>
-              <button className="px-4 py-1.5 text-gray-400 hover:text-white rounded-lg text-xs font-bold transition-all">Month</button>
+            <div className="flex bg-slate-800 rounded-xl p-1 border border-white/5">
+              <button className="px-4 py-1.5 bg-slate-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Week</button>
+              <button className="px-4 py-1.5 text-gray-500 text-[10px] font-black uppercase tracking-widest hover:text-white">Month</button>
             </div>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip 
-                  cursor={{fill: '#ffffff05'}}
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '1rem' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem' }}
                 />
-                <Bar dataKey="amount" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
+                  {data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index === 5 ? '#6366f1' : '#1e293b'} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5">
-          <h3 className="text-xl font-bold text-white mb-6">Recent Collections</h3>
+        <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+          <h3 className="text-white font-bold text-lg mb-6">Recent Transactions</h3>
           <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 group hover:bg-slate-800 transition-all">
+            {earnings?.history?.slice(0, 5).map((log, idx) => (
+              <div key={idx} className="flex justify-between items-center p-4 bg-slate-800/50 rounded-2xl border border-white/5">
                 <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-orange-500/10 rounded-xl text-orange-400"><CheckCircle size={16} /></div>
+                  <div className="p-2.5 bg-green-500/10 text-green-500 rounded-xl">
+                    <CheckCircle size={14} />
+                  </div>
                   <div>
-                    <p className="text-white font-bold text-sm">COD #ORD-{820 + i}</p>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase">Collected 2h ago</p>
+                    <p className="text-white text-xs font-bold">Delivery Commission</p>
+                    <p className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">{new Date(log.date).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <p className="text-white font-black text-sm">$129.00</p>
+                <p className="text-white font-black text-sm">+${log.amount}</p>
               </div>
             ))}
           </div>
-          <button className="w-full mt-6 py-4 border border-dashed border-slate-700 rounded-2xl text-gray-500 text-xs font-bold hover:text-white hover:border-slate-500 transition-all uppercase tracking-widest">
-            Deposit to Vault
-          </button>
         </div>
       </div>
     </div>

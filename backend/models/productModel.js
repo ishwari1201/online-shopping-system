@@ -22,12 +22,32 @@ const productSchema = mongoose.Schema({
   rating: { type: Number, required: true, default: 0 },
   numReviews: { type: Number, required: true, default: 0 },
   price: { type: Number, required: true, default: 0 },
+  discount: { type: Number, default: 0 },
   countInStock: { type: Number, required: true, default: 0 },
+  sku: { type: String, unique: true, sparse: true },
+  subcategory: { type: String },
+  specs: [{
+    key: String,
+    value: String
+  }],
   variants: [{
     color: String,
     size: String,
-    stock: Number
+    stock: Number,
+    price: Number
   }],
+  status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected', 'Disabled', 'OutOfStock'],
+    default: 'Pending',
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  rejectionReason: {
+    type: String,
+  },
 }, {
   timestamps: true,
 });

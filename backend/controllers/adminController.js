@@ -1,33 +1,44 @@
 const User = require('../models/userModel');
 const Product = require('../models/productModel');
 const Order = require('../models/orderModel');
+const Notification = require('../models/notificationModel');
 
 // @desc    Get dashboard statistics
-// @route   GET /api/admin/stats
+// @route   GET /api/admin/dashboard/stats
 // @access  Private/Admin
-const getAdminStats = async (req, res, next) => {
+const getAdminDashboardStats = async (req, res, next) => {
   try {
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await User.countDocuments({ role: 'customer' });
+    const totalSellers = await User.countDocuments({ role: 'seller' });
     const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
+    const pendingProducts = await Product.countDocuments({ status: 'Pending' });
+    const lowStockProducts = await Product.countDocuments({ countInStock: { $lt: 5 } });
+    
+    const orders = await Order.find({});
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+    
+    const recentOrders = await Order.find({})
+      .populate('user', 'name')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
-    const orders = await Order.find({ isPaid: true });
-    const totalRevenue = orders.reduce((acc, order) => acc + order.totalPrice, 0);
-
-    const salesData = [
-      { name: 'Jan', sales: 4000 },
-      { name: 'Feb', sales: 3000 },
-      { name: 'Mar', sales: 5000 },
-      { name: 'Apr', sales: 4500 },
-      { name: 'May', sales: totalRevenue > 0 ? totalRevenue : 6000 },
-    ];
+    const topSellingProducts = await Product.find({})
+      .sort({ rating: -1 })
+      .limit(5);
 
     res.json({
-      totalUsers,
-      totalProducts,
-      totalOrders,
-      totalRevenue,
-      salesData
+      stats: {
+        totalUsers,
+        totalSellers,
+        totalProducts,
+        totalOrders,
+        totalRevenue,
+        pendingProducts,
+        lowStockProducts
+      },
+      recentOrders,
+      topSellingProducts
     });
   } catch (error) {
     next(error);
@@ -122,8 +133,15 @@ const assignDeliveryBoy = async (req, res, next) => {
     const order = await Order.findById(req.params.id);
 
     if (order) {
-      order.deliveryBoy = deliveryBoyId;
+      order.deliveryPartner = deliveryBoyId;
       order.deliveryStatus = 'Assigned';
+      
+      // Add to timeline
+      order.deliveryTimeline.push({
+        status: 'Assigned',
+        timestamp: Date.now(),
+        description: 'Delivery partner has been assigned to this order.'
+      });
       
       const updatedOrder = await order.save();
       res.json(updatedOrder);
@@ -136,11 +154,272 @@ const assignDeliveryBoy = async (req, res, next) => {
   }
 };
 
+// @desc    Get all products for admin
+// @route   GET /api/admin/products
+// @access  Private/Admin
+const getAdminProducts = async (req, res, next) => {
+  try {
+    const { status, seller } = req.query;
+    const query = {};
+    if (status) query.status = status;
+    if (seller) query.seller = seller;
+
+    const products = await Product.find(query)
+      .populate('seller', 'name email sellerProfile.storeName')
+      .sort({ createdAt: -1 });
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Approve a product
+// @route   PATCH /api/admin/products/:id/approve
+// @access  Private/Admin
+const approveProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      product.status = 'Approved';
+      product.approvedBy = req.user._id;
+      product.rejectionReason = undefined;
+
+      const updatedProduct = await product.save();
+
+      // Create notification for seller
+      await Notification.create({
+        user: product.seller,
+        title: 'Product Approved',
+        message: `Your product "${product.name}" has been approved and is now live.`,
+        type: 'success',
+      });
+
+      res.json(updatedProduct);
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reject a product
+// @route   PATCH /api/admin/products/:id/reject
+// @access  Private/Admin
+const rejectProduct = async (req, res, next) => {
+  try {
+    const { reason } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      product.status = 'Rejected';
+      product.rejectionReason = reason;
+
+      const updatedProduct = await product.save();
+
+      // Create notification for seller
+      await Notification.create({
+        user: product.seller,
+        title: 'Product Rejected',
+        message: `Your product "${product.name}" was rejected. Reason: ${reason}`,
+        type: 'error',
+      });
+
+      res.json(updatedProduct);
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Toggle product status (Enable/Disable)
+// @route   PATCH /api/admin/products/:id/toggle
+// @access  Private/Admin
+const toggleProductStatus = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      if (product.status === 'Approved') {
+        product.status = 'Disabled';
+      } else if (product.status === 'Disabled') {
+        product.status = 'Approved';
+      } else {
+        res.status(400);
+        throw new Error('Only approved or disabled products can be toggled');
+      }
+
+      const updatedProduct = await product.save();
+
+      // Create notification for seller
+      await Notification.create({
+        user: product.seller,
+        title: `Product ${product.status}`,
+        message: `Your product "${product.name}" has been ${product.status.toLowerCase()}.`,
+        type: product.status === 'Approved' ? 'success' : 'warning',
+      });
+
+      res.json(updatedProduct);
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get Admin Analytics
+// @route   GET /api/admin/analytics
+// @access  Private/Admin
+const getAdminAnalytics = async (req, res, next) => {
+  try {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const salesData = await Order.aggregate([
+      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
+          totalSales: { $sum: "$totalPrice" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]);
+
+    res.json(salesData);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get All Users
+// @route   GET /api/admin/users
+// @access  Private/Admin
+const getAdminUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({ role: 'customer' }).select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update User Status (Block/Unblock)
+// @route   PATCH /api/admin/users/:id/status
+// @access  Private/Admin
+const updateUserStatus = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      user.isBlocked = !user.isBlocked;
+      await user.save();
+      res.json({ message: `User ${user.isBlocked ? 'blocked' : 'unblocked'}` });
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get Inventory
+// @route   GET /api/admin/inventory
+// @access  Private/Admin
+const getInventory = async (req, res, next) => {
+  try {
+    const products = await Product.find({})
+      .populate('seller', 'name email sellerProfile.storeName')
+      .sort({ countInStock: 1 });
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update Stock
+// @route   PATCH /api/admin/inventory/:id/stock
+// @access  Private/Admin
+const updateStock = async (req, res, next) => {
+  try {
+    const { countInStock } = req.body;
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      product.countInStock = countInStock;
+      await product.save();
+      res.json({ message: 'Stock updated successfully' });
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get All Orders
+// @route   GET /api/admin/orders
+// @access  Private/Admin
+const getAdminOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({})
+      .populate('user', 'name email')
+      .populate('deliveryPartner', 'name phone')
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update Order Status
+// @route   PATCH /api/admin/orders/:id/status
+// @access  Private/Admin
+const updateOrderStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (order) {
+      order.status = status;
+      if (status === 'Delivered') {
+        order.isDelivered = true;
+        order.deliveredAt = Date.now();
+      }
+      await order.save();
+      res.json({ message: 'Order status updated' });
+    } else {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
-  getAdminStats,
+  getAdminDashboardStats,
   updateSellerStatus,
   getSellers,
   updateDeliveryPartnerStatus,
   getDeliveryPartners,
-  assignDeliveryBoy
+  assignDeliveryBoy,
+  getAdminProducts,
+  approveProduct,
+  rejectProduct,
+  toggleProductStatus,
+  getAdminAnalytics,
+  getAdminUsers,
+  updateUserStatus,
+  getInventory,
+  updateStock,
+  getAdminOrders,
+  updateOrderStatus
 };

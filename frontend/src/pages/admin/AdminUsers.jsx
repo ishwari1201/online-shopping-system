@@ -1,19 +1,33 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Trash2, Search, Edit } from 'lucide-react';
+import { 
+  Users, 
+  Search, 
+  Trash2, 
+  ShieldAlert, 
+  Shield, 
+  Mail, 
+  Calendar,
+  UserCheck,
+  UserX,
+  Store,
+  ArrowRight
+} from 'lucide-react';
 import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('customers');
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/users', { withCredentials: true });
+      const { data } = await axios.get('/api/admin/users');
       setUsers(data);
     } catch (error) {
-      console.error(error);
       toast.error('Failed to fetch users');
     } finally {
       setLoading(false);
@@ -24,79 +38,145 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
-  const deleteHandler = async (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await axios.delete(`/api/users/${id}`);
-        toast.success('User deleted');
-        fetchUsers();
-      } catch (err) {
-        toast.error(err?.response?.data?.message || 'Delete failed');
-      }
+  const toggleBlockHandler = async (id) => {
+    try {
+      await axios.patch(`/api/admin/users/${id}/status`);
+      toast.success('User status updated');
+      fetchUsers();
+    } catch (err) {
+      toast.error('Action failed');
     }
   };
 
-  if (loading && users.length === 0) {
-    return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div></div>;
-  }
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-white">Users Management</h1>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">User Management</h1>
+          <p className="text-gray-400 text-sm">Control platform access and manage account status</p>
+        </div>
+        
+        <div className="flex bg-slate-800 p-1 rounded-2xl border border-white/5">
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+              activeTab === 'customers' 
+                ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Users size={14} /> Customers
+          </button>
+        </div>
       </div>
 
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-          <div className="relative w-full max-w-sm">
+      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
+        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50">
+          <div className="relative w-full md:w-96">
             <input 
               type="text" 
-              placeholder="Search users..." 
-              className="w-full bg-slate-800 text-white border border-slate-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-primary-500"
+              placeholder="Search by name or email..." 
+              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
+          </div>
+          
+          <div className="flex gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-gray-400 rounded-xl border border-white/5 text-xs font-bold">
+              <UserCheck size={14} />
+              Active: {users.filter(u => !u.isBlocked).length}
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 text-xs font-bold">
+              <UserX size={14} />
+              Blocked: {users.filter(u => u.isBlocked).length}
+            </div>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-400">
-            <thead className="bg-slate-800/50 text-xs uppercase text-gray-300">
-              <tr>
-                <th className="px-6 py-4 font-medium">ID</th>
-                <th className="px-6 py-4 font-medium">Name</th>
-                <th className="px-6 py-4 font-medium">Email</th>
-                <th className="px-6 py-4 font-medium">Role</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+                <th className="px-8 py-5">User Account</th>
+                <th className="px-8 py-5">Role</th>
+                <th className="px-8 py-5">Joined Date</th>
+                <th className="px-8 py-5">Status</th>
+                <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {Array.isArray(users) && users.map((user) => (
-                <tr key={user._id} className="hover:bg-slate-800/20 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs text-gray-500">{user._id.substring(0, 10)}...</td>
-                  <td className="px-6 py-4 font-medium text-white">{user.name}</td>
-                  <td className="px-6 py-4"><a href={`mailto:${user.email}`} className="hover:underline">{user.email}</a></td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.role === 'admin' 
-                        ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' 
-                        : user.role === 'seller'
-                        ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
-                        : 'bg-slate-800 text-gray-300 border border-slate-700'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button className="text-blue-400 hover:text-blue-300 transition-colors"><Edit size={18} /></button>
-                    <button 
-                      onClick={() => deleteHandler(user._id)}
-                      className="text-red-400 hover:text-red-300 transition-colors"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+            <tbody className="divide-y divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="px-8 py-20 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
                   </td>
                 </tr>
-              ))}
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-8 py-20 text-center text-gray-500 font-bold">
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user._id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-700 to-slate-800 flex items-center justify-center text-white font-black text-sm border border-white/5">
+                          {user.name.charAt(0)}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-white flex items-center gap-2">
+                            {user.name}
+                            {user.isAdmin && <Shield size={14} className="text-primary-500" />}
+                          </span>
+                          <span className="text-xs text-gray-500 flex items-center gap-1.5"><Mail size={12} /> {user.email}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{user.role}</span>
+                    </td>
+                    <td className="px-8 py-5 text-xs text-gray-500 flex items-center gap-1.5 mt-4">
+                      <Calendar size={14} /> {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                        user.isBlocked 
+                          ? 'bg-red-500/10 text-red-500 border-red-500/20' 
+                          : 'bg-green-500/10 text-green-500 border-green-500/20'
+                      }`}>
+                        {user.isBlocked ? 'Blocked' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => toggleBlockHandler(user._id)}
+                          className={`p-2.5 rounded-xl transition-all ${
+                            user.isBlocked 
+                              ? 'text-green-500 hover:bg-green-500/10' 
+                              : 'text-red-400 hover:bg-red-500/10'
+                          }`}
+                          title={user.isBlocked ? 'Unblock' : 'Block'}
+                        >
+                          {user.isBlocked ? <Shield size={18} /> : <ShieldAlert size={18} />}
+                        </button>
+                        <button className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

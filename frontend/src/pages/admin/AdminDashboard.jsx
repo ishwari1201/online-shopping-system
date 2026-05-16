@@ -1,97 +1,294 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, Package, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  Users, 
+  Store, 
+  Package, 
+  ShoppingCart, 
+  DollarSign, 
+  AlertTriangle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Clock,
+  TrendingUp,
+  Activity
+} from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+  PieChart,
+  Pie
+} from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const StatCard = ({ title, value, icon: Icon, color, trend, trendValue }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-slate-900 border border-white/5 p-6 rounded-[2rem] shadow-xl hover:border-white/10 transition-all group"
+  >
+    <div className="flex justify-between items-start mb-4">
+      <div className={`p-4 rounded-2xl bg-${color}-500/10 text-${color}-500 group-hover:scale-110 transition-transform`}>
+        <Icon size={24} />
+      </div>
+      {trend && (
+        <div className={`flex items-center gap-1 text-xs font-bold ${trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+          {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+          {trendValue}%
+        </div>
+      )}
+    </div>
+    <div>
+      <p className="text-gray-500 text-xs font-black uppercase tracking-widest mb-1">{title}</p>
+      <h3 className="text-2xl font-black text-white">{value}</h3>
+    </div>
+  </motion.div>
+);
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState(null);
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const { data } = await axios.get('/api/admin/stats');
-        setStats(data);
+        const { data } = await axios.get('/api/admin/dashboard/stats');
+        setData(data);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch dashboard data', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div></div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
+    );
   }
 
-  const statCards = [
-    { title: 'Total Revenue', value: `$${stats?.totalRevenue?.toFixed(2) || '0.00'}`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-500/10' },
-    { title: 'Total Orders', value: stats?.totalOrders || 0, icon: ShoppingCart, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { title: 'Total Products', value: stats?.totalProducts || 0, icon: Package, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-    { title: 'Total Users', value: stats?.totalUsers || 0, icon: Users, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+  const stats = data?.stats || {};
+
+  const chartData = [
+    { name: 'Mon', sales: 4000 },
+    { name: 'Tue', sales: 3000 },
+    { name: 'Wed', sales: 2000 },
+    { name: 'Thu', sales: 2780 },
+    { name: 'Fri', sales: 1890 },
+    { name: 'Sat', sales: 2390 },
+    { name: 'Sun', sales: 3490 },
   ];
 
+  const pieData = [
+    { name: 'Electronics', value: 400 },
+    { name: 'Fashion', value: 300 },
+    { name: 'Home', value: 300 },
+    { name: 'Others', value: 200 },
+  ];
+
+  const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e'];
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <div key={index} className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg relative overflow-hidden group">
-              <div className="flex items-center justify-between relative z-10">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">{item.title}</p>
-                  <p className="text-3xl font-bold text-white mt-2">{item.value}</p>
-                </div>
-                <div className={`p-4 rounded-xl ${item.bg}`}>
-                  <Icon size={24} className={item.color} />
-                </div>
-              </div>
-              <div className={`absolute -bottom-4 -right-4 w-24 h-24 rounded-full ${item.bg} blur-2xl group-hover:scale-150 transition-transform duration-500`} />
-            </div>
-          );
-        })}
+    <div className="space-y-8 pb-12">
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">Marketplace Overview</h1>
+          <p className="text-gray-400 text-sm">Real-time performance analytics and management</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="bg-slate-800 text-white px-4 py-2 rounded-xl border border-white/5 text-xs font-bold hover:bg-slate-700 transition-all flex items-center gap-2">
+            <Clock size={14} /> Last 24 Hours
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg">
-          <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-            <TrendingUp className="text-primary-500" /> Revenue Analytics
-          </h2>
-          <div className="h-80 w-full">
+      {/* Stat Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Revenue" value={`$${stats.totalRevenue?.toLocaleString()}`} icon={DollarSign} color="primary" trend="up" trendValue="12.5" />
+        <StatCard title="Total Orders" value={stats.totalOrders} icon={ShoppingCart} color="purple" trend="up" trendValue="8.2" />
+        <StatCard title="Active Users" value={stats.totalUsers} icon={Users} color="pink" trend="up" trendValue="5.1" />
+        <StatCard title="Total Sellers" value={stats.totalSellers} icon={Store} color="blue" trend="up" trendValue="2.4" />
+      </div>
+
+      {/* Alerts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-[2rem] flex items-center gap-6"
+        >
+          <div className="bg-blue-500 p-4 rounded-2xl text-white shadow-lg shadow-blue-900/20">
+            <Store size={24} />
+          </div>
+          <div>
+            <h4 className="text-blue-200 font-bold">New Sellers</h4>
+            <p className="text-blue-200/60 text-sm">Review vendor applications</p>
+          </div>
+          <button onClick={() => navigate('/admin/sellers')} className="ml-auto bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-400 transition-all">Review</button>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-orange-500/10 border border-orange-500/20 p-6 rounded-[2rem] flex items-center gap-6"
+        >
+          <div className="bg-orange-500 p-4 rounded-2xl text-white shadow-lg shadow-orange-900/20">
+            <AlertTriangle size={24} />
+          </div>
+          <div>
+            <h4 className="text-orange-200 font-bold">Products</h4>
+            <p className="text-orange-200/60 text-sm">{stats.pendingProducts} pending review</p>
+          </div>
+          <button onClick={() => navigate('/admin/products/pending')} className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-orange-400 transition-all">Check</button>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-red-500/10 border border-red-500/20 p-6 rounded-[2rem] flex items-center gap-6"
+        >
+          <div className="bg-red-500 p-4 rounded-2xl text-white shadow-lg shadow-red-900/20">
+            <Package size={24} />
+          </div>
+          <div>
+            <h4 className="text-red-200 font-bold">Low Stock</h4>
+            <p className="text-red-200/60 text-sm">{stats.lowStockProducts} items left</p>
+          </div>
+          <button onClick={() => navigate('/admin/inventory')} className="ml-auto bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-400 transition-all">Stock</button>
+        </motion.div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary-500/10 text-primary-500 rounded-xl">
+                <TrendingUp size={20} />
+              </div>
+              <h3 className="text-white font-bold text-lg">Sales Performance</h3>
+            </div>
+            <select className="bg-slate-800 text-white text-xs border border-white/5 rounded-xl px-3 py-1.5 focus:outline-none">
+              <option>Weekly</option>
+              <option>Monthly</option>
+            </select>
+          </div>
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.salesData || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" axisLine={false} tickLine={false} />
-                <YAxis stroke="#94a3b8" axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '0.75rem', color: '#fff' }}
-                  itemStyle={{ color: '#0ea5e9' }}
-                  cursor={{ fill: '#1e293b' }}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', color: '#fff' }}
+                  itemStyle={{ color: '#6366f1' }}
                 />
-                <Bar dataKey="sales" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={40} />
-              </BarChart>
+                <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg">
-          <h2 className="text-lg font-bold text-white mb-6">Recent Activity</h2>
-          <div className="space-y-6">
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart size={16} className="text-gray-400" />
+        <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+              <Activity size={20} />
+            </div>
+            <h3 className="text-white font-bold text-lg">Categories</h3>
+          </div>
+          <div className="h-[300px] flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', color: '#fff' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="space-y-3 mt-4">
+            {pieData.map((item, index) => (
+              <div key={item.name} className="flex justify-between items-center text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index] }}></div>
+                  <span className="text-gray-400">{item.name}</span>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-white">New order received</p>
-                  <p className="text-xs text-gray-500 mt-1">Order #102{i} from John Doe</p>
-                </div>
-                <div className="ml-auto text-xs text-gray-500">2h ago</div>
+                <span className="text-white font-bold">{item.value}</span>
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Recent Orders Table */}
+      <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <div className="p-8 border-b border-white/5 flex justify-between items-center">
+          <h3 className="text-white font-bold text-lg">Recent Orders</h3>
+          <button className="text-primary-500 text-xs font-bold hover:underline">View All Orders</button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[10px] uppercase tracking-widest text-gray-500 font-black border-b border-white/5">
+                <th className="px-8 py-5">Order ID</th>
+                <th className="px-8 py-5">Customer</th>
+                <th className="px-8 py-5">Status</th>
+                <th className="px-8 py-5">Amount</th>
+                <th className="px-8 py-5">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {data.recentOrders.map((order) => (
+                <tr key={order._id} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="px-8 py-5 text-sm font-mono text-gray-400">#{order._id.substring(18).toUpperCase()}</td>
+                  <td className="px-8 py-5 text-sm font-bold text-white">{order.user?.name}</td>
+                  <td className="px-8 py-5">
+                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                      order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' :
+                      order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500' :
+                      'bg-blue-500/10 text-blue-500'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-8 py-5 text-sm font-black text-white">${order.totalPrice}</td>
+                  <td className="px-8 py-5 text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

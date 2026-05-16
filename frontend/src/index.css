@@ -1,46 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-accent: #f59e0b;
+  --color-primary: #212a2f; /* Allbirds Charcoal */
+  --color-accent: #ff4f33;  /* Allbirds Coral */
+  --color-bg-cream: #f8f7f5; /* Allbirds Beige */
+  --color-muted: #6a7277;
 }
 
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0f172a;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #212a2f;
+  background-color: #f8f7f5;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f8f7f5;
+  color: #212a2f;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #0f172a;
-    color: #f8fafc;
-  }
+.glass-allbirds {
+  background: rgba(248, 247, 245, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Base custom utilities */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+.card-allbirds {
+  @apply bg-white border border-black/5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
 }
 
-.glass-dark {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.btn-allbirds {
+  @apply px-10 py-4 bg-[#212a2f] text-white font-bold uppercase tracking-widest text-[11px] transition-all hover:bg-[#334148] active:scale-95;
 }

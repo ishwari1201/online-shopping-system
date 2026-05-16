@@ -16,7 +16,9 @@ import {
   Star,
   BarChart2,
   Store,
-  Truck
+  Truck,
+  Shield,
+  Bell
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -35,6 +37,9 @@ const AdminLayout = ({ children }) => {
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart2 },
     { name: 'Sellers', href: '/admin/sellers', icon: Store },
     { name: 'Delivery', href: '/admin/delivery', icon: Truck },
+    { name: 'Moderation', href: '/admin/products/pending', icon: Shield },
+    { name: 'Notifications', href: '/admin/notifications', icon: Bell },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   return (

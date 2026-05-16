@@ -8,7 +8,7 @@ import {
   Eye, 
   Star,
   MapPin,
-  ShieldCheck,
+  Shield,
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'react-toastify';

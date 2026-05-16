@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  Lock, 
-  UserPlus, 
-  User, 
-  Store, 
-  Truck, 
-  Shield, 
+import {
+  Mail,
+  Lock,
+  User,
+  Store,
+  Truck,
+  Shield,
   CheckCircle,
   ArrowRight,
   UserCheck
@@ -20,23 +19,22 @@ import { toast } from 'react-toastify';
 
 const RoleCard = ({ selected, onClick, role, icon: Icon, title, description }) => (
   <motion.div
-    whileHover={{ y: -4 }}
-    whileTap={{ scale: 0.98 }}
+    whileTap={{ scale: 0.97 }}
     onClick={() => onClick(role)}
-    className={`relative flex flex-col p-4 rounded-2xl cursor-pointer border transition-all ${
-      selected 
-        ? 'bg-primary-600/10 border-primary-500 shadow-lg shadow-primary-900/20' 
-        : 'bg-slate-900/50 border-white/5 hover:border-white/10'
+    className={`relative flex flex-col p-4 cursor-pointer border transition-all rounded-sm ${
+      selected
+        ? 'bg-[#212a2f] border-[#212a2f] text-white'
+        : 'bg-white border-black/10 text-gray-500 hover:border-[#212a2f]'
     }`}
   >
-    <div className={`p-2 rounded-xl w-fit mb-3 ${selected ? 'bg-primary-500 text-white' : 'bg-slate-800 text-gray-400'}`}>
-      <Icon size={20} />
+    <div className={`p-2 rounded-sm w-fit mb-3 ${selected ? 'bg-white/10 text-white' : 'bg-[#f8f7f5] text-gray-400'}`}>
+      <Icon size={18} />
     </div>
-    <h3 className={`font-bold text-sm ${selected ? 'text-white' : 'text-gray-400'}`}>{title}</h3>
-    <p className="text-[10px] text-gray-500 mt-1 line-clamp-1">{description}</p>
+    <h3 className={`font-black text-[11px] uppercase tracking-widest ${selected ? 'text-white' : 'text-[#212a2f]'}`}>{title}</h3>
+    <p className={`text-[10px] mt-1 line-clamp-1 ${selected ? 'text-white/60' : 'text-gray-400'}`}>{description}</p>
     {selected && (
-      <div className="absolute top-4 right-4 text-primary-500">
-        <CheckCircle size={16} />
+      <div className="absolute top-3 right-3 text-white">
+        <CheckCircle size={14} />
       </div>
     )}
   </motion.div>
@@ -70,13 +68,11 @@ const Signup = () => {
       toast.error('Passwords do not match');
       return;
     }
-    
     setIsLoading(true);
     try {
       const { data } = await axios.post('/api/users', { name, email, password, role });
       dispatch(setCredentials(data));
       toast.success('Account created successfully!');
-      
       if (data.role === 'admin') navigate('/admin/dashboard');
       else navigate('/');
     } catch (err) {
@@ -94,37 +90,39 @@ const Signup = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-slate-950 overflow-hidden">
-      {/* Left side - Visual & Brand */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-primary-600 items-center justify-center p-12">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center opacity-30"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700/80 to-slate-950"></div>
-        
-        <div className="relative z-10 max-w-lg">
+    <div className="min-h-screen flex bg-[#f8f7f5] overflow-hidden">
+
+      {/* Left Panel — Brand Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1920&auto=format&fit=crop')" }}
+        />
+        <div className="absolute inset-0 bg-[#212a2f]/60" />
+        <div className="relative z-10 flex flex-col justify-end p-16 pb-20">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-6xl font-black text-white leading-tight mb-6">
-              Join the <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent">Future</span> <br />
-              of Fashion.
+            <p className="text-white/50 text-[11px] font-black uppercase tracking-[0.3em] mb-6">Join Wearify</p>
+            <h1 className="text-5xl font-black text-white leading-none uppercase tracking-tighter mb-6">
+              Join the<br />future of<br />fashion.
             </h1>
-            <p className="text-xl text-primary-100 font-medium leading-relaxed mb-10 opacity-80">
-              Create your account today and unlock a world of curated styles and business opportunities.
+            <p className="text-white/60 text-base leading-relaxed max-w-sm">
+              Create your account and unlock a world of curated styles, business tools, and delivery opportunities.
             </p>
-            
-            <div className="grid grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-2 gap-4 mt-10 max-w-xs">
               {[
                 { count: '50k+', label: 'Active Users' },
-                { count: '1.2k+', label: 'Sellers Joined' },
+                { count: '1.2k+', label: 'Sellers' },
                 { count: '24/7', label: 'Support' },
                 { count: '100%', label: 'Secure' },
-              ].map((stat, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                  <p className="text-2xl font-black text-white">{stat.count}</p>
-                  <p className="text-primary-300 text-xs font-bold uppercase tracking-widest">{stat.label}</p>
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white/5 border border-white/10 p-4 rounded-sm">
+                  <p className="text-xl font-black text-white">{stat.count}</p>
+                  <p className="text-white/50 text-[10px] font-black uppercase tracking-widest mt-1">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -132,25 +130,23 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Right side - Signup Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-        
-        <motion.div 
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 overflow-y-auto">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md z-10 py-12"
+          className="w-full max-w-md py-8"
         >
-          <div className="mb-10">
-            <Link to="/" className="text-3xl font-black text-white tracking-tighter inline-block mb-8">
-              WEARIFY<span className="text-primary-500">.</span>
-            </Link>
-            <h2 className="text-4xl font-black text-white tracking-tight mb-2">Create Account</h2>
-            <p className="text-gray-400 font-medium">Select your journey type to get started</p>
-          </div>
+          {/* Logo */}
+          <Link to="/" className="text-2xl font-black text-[#212a2f] tracking-tighter uppercase inline-block mb-12">
+            Wearify
+          </Link>
 
-          {/* Role Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <h2 className="text-3xl font-black text-[#212a2f] uppercase tracking-tighter mb-2">Create Account</h2>
+          <p className="text-gray-400 text-sm mb-10">Select your role and fill in your details.</p>
+
+          {/* Role Selector */}
+          <div className="grid grid-cols-2 gap-3 mb-8">
             {roles.map((r) => (
               <RoleCard
                 key={r.id}
@@ -164,64 +160,59 @@ const Signup = () => {
             ))}
           </div>
 
-          {/* Conditional Registration Path */}
+          {/* Seller/Delivery Special CTA */}
           {(role === 'seller' || role === 'delivery') ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-primary-600/10 border border-primary-500/30 p-8 rounded-[2rem] text-center"
+              className="bg-white border border-black/5 rounded-sm p-10 text-center"
             >
-              <div className="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-primary-900/20">
-                {role === 'seller' ? <Store size={32} /> : <Truck size={32} />}
+              <div className="w-16 h-16 bg-[#212a2f] rounded-sm flex items-center justify-center text-white mx-auto mb-6">
+                {role === 'seller' ? <Store size={28} /> : <Truck size={28} />}
               </div>
-              <h3 className="text-2xl font-black text-white mb-3">
+              <h3 className="text-xl font-black text-[#212a2f] uppercase tracking-tighter mb-3">
                 {role === 'seller' ? 'Start Your Business' : 'Join Our Fleet'}
               </h3>
-              <p className="text-gray-400 mb-8 leading-relaxed text-sm">
-                {role === 'seller' 
-                  ? 'Sell your products to thousands of customers across the globe with our professional seller toolkit.'
-                  : 'Earn competitive payouts and flexible hours by joining our delivery partner program today.'}
+              <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+                {role === 'seller'
+                  ? 'Sell to thousands of customers with our professional seller toolkit.'
+                  : 'Earn with flexible hours by joining our delivery partner program.'}
               </p>
               <Link
                 to={role === 'seller' ? '/seller/register' : '/delivery/register'}
-                className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white font-black py-4 px-8 rounded-2xl transition-all shadow-xl shadow-primary-900/20 uppercase tracking-widest text-xs"
+                className="inline-flex items-center gap-3 bg-[#212a2f] text-white text-[11px] font-black uppercase tracking-widest px-8 py-4 hover:bg-[#334148] transition-all"
               >
-                <span>Continue Registration</span>
-                <ArrowRight size={18} />
+                Continue Registration <ArrowRight size={16} />
               </Link>
-              <p className="mt-6 text-xs text-gray-500">
-                Requires additional documentation and approval process.
+              <p className="mt-6 text-[10px] text-gray-400 uppercase tracking-widest">
+                Requires additional documents & approval.
               </p>
             </motion.div>
           ) : (
             <form onSubmit={submitHandler} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Full Name</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary-500 transition-colors">
-                    <User size={18} />
-                  </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Full Name</label>
+                <div className="relative">
+                  <User size={16} className="absolute left-4 top-4 text-gray-400" />
                   <input
                     type="text"
                     required
-                    className="block w-full pl-12 pr-4 py-4 bg-slate-900 border border-white/5 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
-                    placeholder="Enter your name"
+                    className="w-full pl-11 pr-4 py-4 bg-white border border-black/10 rounded-sm text-[#212a2f] placeholder-gray-300 focus:outline-none focus:border-[#212a2f] transition-all text-sm"
+                    placeholder="Your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Email Address</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary-500 transition-colors">
-                    <Mail size={18} />
-                  </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-4 top-4 text-gray-400" />
                   <input
                     type="email"
                     required
-                    className="block w-full pl-12 pr-4 py-4 bg-slate-900 border border-white/5 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                    className="w-full pl-11 pr-4 py-4 bg-white border border-black/10 rounded-sm text-[#212a2f] placeholder-gray-300 focus:outline-none focus:border-[#212a2f] transition-all text-sm"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -229,33 +220,29 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Password</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary-500 transition-colors">
-                      <Lock size={18} />
-                    </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Password</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-4 top-4 text-gray-400" />
                     <input
                       type="password"
                       required
-                      className="block w-full pl-12 pr-4 py-4 bg-slate-900 border border-white/5 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-white border border-black/10 rounded-sm text-[#212a2f] placeholder-gray-300 focus:outline-none focus:border-[#212a2f] transition-all text-sm"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Confirm</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary-500 transition-colors">
-                      <UserCheck size={18} />
-                    </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Confirm</label>
+                  <div className="relative">
+                    <UserCheck size={16} className="absolute left-4 top-4 text-gray-400" />
                     <input
                       type="password"
                       required
-                      className="block w-full pl-12 pr-4 py-4 bg-slate-900 border border-white/5 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-white border border-black/10 rounded-sm text-[#212a2f] placeholder-gray-300 focus:outline-none focus:border-[#212a2f] transition-all text-sm"
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -264,22 +251,27 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-4 px-6 border border-transparent text-sm font-black rounded-2xl text-white bg-primary-600 hover:bg-primary-500 transition-all shadow-xl shadow-primary-900/20 disabled:opacity-70 uppercase tracking-widest"
-                >
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex items-center justify-center gap-3 py-4 bg-[#212a2f] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#334148] transition-all disabled:opacity-60"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>Create Account <ArrowRight size={16} /></>
+                )}
+              </button>
             </form>
           )}
 
-          <div className="mt-10 text-center">
-            <p className="text-gray-400 text-sm">
+          <div className="mt-10 pt-8 border-t border-black/5 text-center">
+            <p className="text-sm text-gray-400">
               Already have an account?{' '}
-              <Link to="/login" className="font-black text-white hover:text-primary-400 transition-colors uppercase tracking-widest text-[11px] ml-2">
+              <Link to="/login" className="font-black text-[#212a2f] hover:opacity-70 transition-opacity uppercase tracking-widest text-[11px] ml-1">
                 Sign In
               </Link>
             </p>

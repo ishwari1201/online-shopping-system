@@ -17,8 +17,9 @@ const getProducts = async (req, res, next) => {
         }
       : {};
 
-    const count = await Product.countDocuments({ ...keyword });
-    const products = await Product.find({ ...keyword })
+    const filter = { ...keyword, status: 'Approved' };
+    const count = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(pageSize)
       .skip(pageSize * (page - 1));
@@ -36,11 +37,11 @@ const getProductById = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
 
-    if (product) {
+    if (product && product.status === 'Approved') {
       res.json(product);
     } else {
       res.status(404);
-      throw new Error('Product not found');
+      throw new Error('Product not found or not approved');
     }
   } catch (error) {
     next(error);
@@ -52,18 +53,26 @@ const getProductById = async (req, res, next) => {
 // @access  Private/Admin/Seller
 const createProduct = async (req, res, next) => {
   try {
-    const { name, price, description, images, brand, category, countInStock } = req.body;
-
+    const { 
+      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants 
+    } = req.body;
+    
     const product = new Product({
       name: name || 'Sample name',
       price: price || 0,
+      discount: discount || 0,
       user: req.user._id,
       seller: req.user.role === 'seller' ? req.user._id : (req.body.seller || req.user._id),
       images: images || ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop'],
       brand: brand || 'Sample brand',
       category: category || 'Sample category',
+      subcategory: subcategory,
       countInStock: countInStock || 0,
+      sku: sku,
+      specs: specs || [],
+      variants: variants || [],
       numReviews: 0,
+      status: 'Pending',
       description: description || 'Sample description',
     });
 
@@ -79,7 +88,9 @@ const createProduct = async (req, res, next) => {
 // @access  Private/Admin/Seller
 const updateProduct = async (req, res, next) => {
   try {
-    const { name, price, description, images, brand, category, countInStock } = req.body;
+    const { 
+      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants 
+    } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -91,11 +102,22 @@ const updateProduct = async (req, res, next) => {
       }
       product.name = name || product.name;
       product.price = price !== undefined ? price : product.price;
+      product.discount = discount !== undefined ? discount : product.discount;
       product.description = description || product.description;
       product.images = images || product.images;
       product.brand = brand || product.brand;
       product.category = category || product.category;
+      product.subcategory = subcategory || product.subcategory;
       product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;
+      product.sku = sku || product.sku;
+      product.specs = specs || product.specs;
+      product.variants = variants || product.variants;
+      
+      // Reset status to Pending if it was Rejected and re-submitted
+      if (product.status === 'Rejected') {
+        product.status = 'Pending';
+        product.rejectionReason = undefined;
+      }
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
@@ -183,7 +205,7 @@ const createProductReview = async (req, res, next) => {
 // @access  Public
 const getTopProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({}).sort({ rating: -1 }).limit(4);
+    const products = await Product.find({ status: 'Approved' }).sort({ rating: -1 }).limit(4);
     res.json(products);
   } catch (error) {
     next(error);
