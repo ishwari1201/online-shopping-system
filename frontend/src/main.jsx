@@ -8,8 +8,13 @@ import { ToastContainer } from 'react-toastify'
 import App from './App.jsx'
 import axios from 'axios'
 
+<<<<<<< Updated upstream
 axios.defaults.baseURL = 'https://online-shopping-system-backend.onrender.com'
 axios.defaults.withCredentials = true
+=======
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
+axios.defaults.withCredentials = true;
+>>>>>>> Stashed changes
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
