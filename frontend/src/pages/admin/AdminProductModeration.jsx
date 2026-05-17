@@ -109,19 +109,19 @@ const AdminProductModeration = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Product Moderation</h1>
-          <p className="text-gray-400 text-sm">Review and manage seller product submissions</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Product Moderation</h1>
+          <p className="text-gray-500 text-sm">Review and manage seller product submissions</p>
         </div>
         
-        <div className="flex bg-slate-800 p-1 rounded-2xl border border-white/5">
+        <div className="flex bg-gray-100 p-1 rounded-2xl border border-gray-200">
           {['Pending', 'Approved', 'Rejected', 'Disabled'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 statusFilter === status 
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200/50' 
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               {status}
@@ -130,13 +130,13 @@ const AdminProductModeration = () => {
         </div>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search products or sellers..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -147,7 +147,7 @@ const AdminProductModeration = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                 <th className="px-8 py-5">Product Details</th>
                 <th className="px-8 py-5">Seller</th>
                 <th className="px-8 py-5">Category & Price</th>
@@ -155,30 +155,30 @@ const AdminProductModeration = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-400 font-medium">Loading products...</p>
+                    <p className="mt-4 text-gray-500 font-medium">Loading products...</p>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
-                    <div className="bg-slate-800/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                      <AlertTriangle size={32} className="text-gray-500" />
+                    <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                      <AlertTriangle size={32} className="text-gray-400" />
                     </div>
-                    <p className="text-white font-bold">No products found</p>
+                    <p className="text-gray-900 font-bold">No products found</p>
                     <p className="text-gray-500 text-sm">There are no products in this category at the moment.</p>
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map((product) => (
-                  <tr key={product._id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={product._id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-slate-800 border border-white/5">
+                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
                           <img 
                             src={product.images?.[0]} 
                             alt={product.name} 
@@ -186,21 +186,21 @@ const AdminProductModeration = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm line-clamp-1">{product.name}</p>
+                          <p className="font-bold text-gray-900 text-sm line-clamp-1">{product.name}</p>
                           <p className="text-[10px] text-gray-500 font-mono mt-0.5">ID: {product._id.substring(18).toUpperCase()}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white">{product.seller?.sellerProfile?.storeName || product.seller?.name || 'Unknown Seller'}</span>
+                        <span className="text-sm font-bold text-gray-900">{product.seller?.sellerProfile?.storeName || product.seller?.name || 'Unknown Seller'}</span>
                         <span className="text-xs text-gray-500">{product.seller?.email}</span>
                       </div>
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
-                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">{product.category}</span>
-                        <span className="text-sm font-black text-white">${product.price}</span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{product.category}</span>
+                        <span className="text-sm font-black text-gray-900">₹{product.price}</span>
                       </div>
                     </td>
                     <td className="px-8 py-5">
@@ -210,7 +210,7 @@ const AdminProductModeration = () => {
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => { setSelectedProduct(product); setShowDetailsModal(true); }}
-                          className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
+                          className="p-2.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all border border-transparent hover:border-primary-100"
                           title="View Details"
                         >
                           <Eye size={18} />
@@ -220,14 +220,14 @@ const AdminProductModeration = () => {
                           <>
                             <button 
                               onClick={() => approveHandler(product._id)}
-                              className="p-2.5 text-green-500 hover:bg-green-500/10 rounded-xl transition-all"
+                              className="p-2.5 text-green-600 hover:bg-green-50 rounded-xl transition-all"
                               title="Approve"
                             >
                               <Shield size={18} />
                             </button>
                             <button 
                               onClick={() => { setSelectedProduct(product); setShowRejectModal(true); }}
-                              className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                              className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-all"
                               title="Reject"
                             >
                               <XCircle size={18} />
@@ -240,8 +240,8 @@ const AdminProductModeration = () => {
                             onClick={() => toggleStatusHandler(product._id, product.status)}
                             className={`p-2.5 rounded-xl transition-all ${
                               product.status === 'Approved' 
-                                ? 'text-orange-500 hover:bg-orange-500/10' 
-                                : 'text-green-500 hover:bg-green-500/10'
+                                ? 'text-orange-600 hover:bg-orange-50' 
+                                : 'text-green-600 hover:bg-green-50'
                             }`}
                             title={product.status === 'Approved' ? 'Disable' : 'Enable'}
                           >
@@ -261,19 +261,19 @@ const AdminProductModeration = () => {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowRejectModal(false)}></div>
+          <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setShowRejectModal(false)}></div>
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-slate-900 border border-white/10 rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl p-8"
+            className="relative bg-white border border-gray-200 rounded-[2rem] w-full max-w-md overflow-hidden shadow-xl p-8"
           >
-            <div className="flex items-center gap-3 text-red-500 mb-6">
+            <div className="flex items-center gap-3 text-red-600 mb-6">
               <AlertTriangle size={24} />
               <h2 className="text-xl font-black uppercase tracking-wider">Reject Product</h2>
             </div>
             
-            <p className="text-gray-400 text-sm mb-6">
-              Please specify the reason why you are rejecting <span className="text-white font-bold">"{selectedProduct?.name}"</span>. 
+            <p className="text-gray-500 text-sm mb-6">
+              Please specify the reason why you are rejecting <span className="text-gray-900 font-bold">"{selectedProduct?.name}"</span>. 
               This will be visible to the seller.
             </p>
 
@@ -283,7 +283,7 @@ const AdminProductModeration = () => {
                 <textarea
                   required
                   rows="4"
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all resize-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all resize-none"
                   placeholder="e.g. Incomplete details, poor image quality, policy violation..."
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
@@ -294,14 +294,14 @@ const AdminProductModeration = () => {
                 <button
                   type="button"
                   onClick={() => setShowRejectModal(false)}
-                  className="flex-1 px-4 py-4 border border-white/5 text-gray-400 font-bold rounded-2xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs"
+                  className="flex-1 px-4 py-4 border border-gray-200 text-gray-500 font-bold rounded-2xl hover:bg-gray-50 hover:text-gray-900 transition-all uppercase tracking-widest text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-red-900/20 disabled:opacity-50 uppercase tracking-widest text-xs"
+                  className="flex-1 px-4 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-sm disabled:opacity-50 uppercase tracking-widest text-xs"
                 >
                   {isSubmitting ? 'Processing...' : 'Confirm Reject'}
                 </button>
@@ -314,13 +314,13 @@ const AdminProductModeration = () => {
       {/* Details Modal */}
       {showDetailsModal && selectedProduct && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowDetailsModal(false)}></div>
+          <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setShowDetailsModal(false)}></div>
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
+            className="relative bg-white border border-gray-200 rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-xl flex flex-col md:flex-row max-h-[90vh]"
           >
-            <div className="w-full md:w-1/2 h-64 md:h-auto bg-slate-800 relative">
+            <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-100 relative">
               <img 
                 src={selectedProduct.images?.[0]} 
                 alt={selectedProduct.name} 
@@ -334,10 +334,10 @@ const AdminProductModeration = () => {
             <div className="w-full md:w-1/2 p-10 flex flex-col overflow-y-auto">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-3xl font-black text-white leading-tight mb-1">{selectedProduct.name}</h2>
-                  <p className="text-primary-500 font-bold text-xl">${selectedProduct.price}</p>
+                  <h2 className="text-3xl font-black text-gray-900 leading-tight mb-1">{selectedProduct.name}</h2>
+                  <p className="text-primary-600 font-bold text-xl">₹{selectedProduct.price}</p>
                 </div>
-                <button onClick={() => setShowDetailsModal(false)} className="p-2 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                <button onClick={() => setShowDetailsModal(false)} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all">
                   <Eye size={24} className="rotate-180" />
                 </button>
               </div>
@@ -345,48 +345,48 @@ const AdminProductModeration = () => {
               <div className="grid grid-cols-2 gap-6 mb-8">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Category</p>
-                  <p className="text-white font-bold">{selectedProduct.category}</p>
+                  <p className="text-gray-900 font-bold">{selectedProduct.category}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Brand</p>
-                  <p className="text-white font-bold">{selectedProduct.brand}</p>
+                  <p className="text-gray-900 font-bold">{selectedProduct.brand}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Stock</p>
-                  <p className="text-white font-bold">{selectedProduct.countInStock} Units</p>
+                  <p className="text-gray-900 font-bold">{selectedProduct.countInStock} Units</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Seller</p>
-                  <p className="text-white font-bold">{selectedProduct.seller?.sellerProfile?.storeName || selectedProduct.seller?.name}</p>
+                  <p className="text-gray-900 font-bold">{selectedProduct.seller?.sellerProfile?.storeName || selectedProduct.seller?.name}</p>
                 </div>
               </div>
 
               <div className="space-y-2 mb-8">
                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Description</p>
-                <p className="text-gray-400 text-sm leading-relaxed">{selectedProduct.description}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{selectedProduct.description}</p>
               </div>
 
               {selectedProduct.rejectionReason && (
-                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl mb-8">
-                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <div className="bg-red-50 border border-red-200 p-4 rounded-2xl mb-8">
+                  <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2 flex items-center gap-2">
                     <MessageSquare size={12} /> Rejection Reason
                   </p>
-                  <p className="text-red-200/70 text-sm">{selectedProduct.rejectionReason}</p>
+                  <p className="text-red-700 text-sm">{selectedProduct.rejectionReason}</p>
                 </div>
               )}
 
-              <div className="mt-auto pt-6 border-t border-white/5 flex gap-4">
+              <div className="mt-auto pt-6 border-t border-gray-100 flex gap-4">
                 {selectedProduct.status === 'Pending' ? (
                   <>
                     <button
                       onClick={() => { approveHandler(selectedProduct._id); setShowDetailsModal(false); }}
-                      className="flex-1 px-4 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-500 transition-all shadow-xl shadow-green-900/20 uppercase tracking-widest text-xs"
+                      className="flex-1 px-4 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-500 transition-all shadow-sm uppercase tracking-widest text-xs"
                     >
                       Approve Product
                     </button>
                     <button
                       onClick={() => { setShowRejectModal(true); setShowDetailsModal(false); }}
-                      className="flex-1 px-4 py-4 border border-red-500/50 text-red-500 font-bold rounded-2xl hover:bg-red-500/10 transition-all uppercase tracking-widest text-xs"
+                      className="flex-1 px-4 py-4 border border-red-200 text-red-600 font-bold rounded-2xl hover:bg-red-50 transition-all uppercase tracking-widest text-xs"
                     >
                       Reject
                     </button>
@@ -394,10 +394,10 @@ const AdminProductModeration = () => {
                 ) : (
                   <button
                     onClick={() => { toggleStatusHandler(selectedProduct._id, selectedProduct.status); setShowDetailsModal(false); }}
-                    className={`flex-1 px-4 py-4 font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs ${
+                    className={`flex-1 px-4 py-4 font-black rounded-2xl transition-all shadow-sm uppercase tracking-widest text-xs ${
                       selectedProduct.status === 'Approved'
-                        ? 'bg-orange-600 text-white hover:bg-orange-500 shadow-orange-900/20'
-                        : 'bg-green-600 text-white hover:bg-green-500 shadow-green-900/20'
+                        ? 'bg-orange-600 text-white hover:bg-orange-500'
+                        : 'bg-green-600 text-white hover:bg-green-500'
                     }`}
                   >
                     {selectedProduct.status === 'Approved' ? 'Disable Product' : 'Enable Product'}

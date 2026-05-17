@@ -46,7 +46,7 @@ const DeliveryLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 border-b border-white/5 sticky top-0 z-[60]">
         <span className="text-xl font-black text-white tracking-tighter">DELIVERY<span className="text-primary-500">.</span>HUB</span>

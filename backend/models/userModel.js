@@ -48,6 +48,7 @@ const userSchema = mongoose.Schema({
   },
   isDeliveryApproved: { type: Boolean, default: false },
   deliveryStatus: { type: String, enum: ['pending', 'approved', 'rejected', 'blocked'], default: 'pending' },
+  earnings: { type: Number, default: 0 },
 }, {
   timestamps: true
 });

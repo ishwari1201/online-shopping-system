@@ -86,24 +86,24 @@ const AdminCoupons = () => {
     <div className="space-y-6 pb-12">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Coupon Management</h1>
-          <p className="text-gray-400 text-sm">Create and manage marketing discount codes</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Coupon Management</h1>
+          <p className="text-gray-500 text-sm">Create and manage marketing discount codes</p>
         </div>
         <button 
           onClick={() => { resetForm(); setShowModal(true); }}
-          className="bg-accent hover:bg-accent/80 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 shadow-lg shadow-accent/20"
+          className="bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 shadow-sm"
         >
-          <Plus size={16} /> Create Coupon
+          <Plus size={16} className="text-gray-900" /> Create Coupon
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search by coupon code..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
             />
             <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
           </div>
@@ -112,7 +112,7 @@ const AdminCoupons = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                 <th className="px-8 py-5">Coupon Code</th>
                 <th className="px-8 py-5">Discount</th>
                 <th className="px-8 py-5">Expiry Date</th>
@@ -120,7 +120,7 @@ const AdminCoupons = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
@@ -135,39 +135,39 @@ const AdminCoupons = () => {
                 </tr>
               ) : (
                 coupons.map((coupon) => (
-                  <tr key={coupon._id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={coupon._id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-accent/10 text-accent rounded-xl">
+                        <div className="p-2.5 bg-primary-50 text-primary-600 rounded-xl border border-primary-100">
                           <Ticket size={20} />
                         </div>
-                        <span className="font-mono text-lg font-black text-white tracking-wider">{coupon.code}</span>
+                        <span className="font-mono text-lg font-black text-gray-900 tracking-wider">{coupon.code}</span>
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-2 text-green-400 font-black">
+                      <div className="flex items-center gap-2 text-green-600 font-black">
                         <Percent size={14} />
                         {coupon.discount}% OFF
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-2 text-gray-400 text-sm">
+                      <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
                         <Clock size={14} />
                         {new Date(coupon.expiryDate).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-center text-white font-bold text-sm">${coupon.minOrder || 0}</td>
+                    <td className="px-8 py-5 text-center text-gray-900 font-bold text-sm">₹{coupon.minOrder || 0}</td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => { setEditCoupon(coupon); setCode(coupon.code); setDiscount(coupon.discount); setExpiryDate(coupon.expiryDate.split('T')[0]); setMinOrder(coupon.minOrder); setShowModal(true); }}
-                          className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
+                          className="p-2.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                         >
                           <Edit size={18} />
                         </button>
                         <button 
                           onClick={() => deleteHandler(coupon._id)}
-                          className="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                          className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -189,17 +189,17 @@ const AdminCoupons = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" 
+              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" 
               onClick={() => setShowModal(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl"
+              className="relative bg-white border border-gray-200 rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-xl"
             >
-              <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
-                <h2 className="text-xl font-black text-white uppercase tracking-tight">
+              <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">
                   {editCoupon ? 'Edit Coupon' : 'Create New Coupon'}
                 </h2>
               </div>
@@ -210,7 +210,7 @@ const AdminCoupons = () => {
                     <input 
                       type="text" 
                       required
-                      className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 pl-12 text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all font-mono uppercase"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all font-mono uppercase"
                       placeholder="SUMMER2026"
                       value={code}
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -225,17 +225,17 @@ const AdminCoupons = () => {
                     <input 
                       type="number" 
                       required
-                      className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                       placeholder="10"
                       value={discount}
                       onChange={(e) => setDiscount(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Min Order ($)</label>
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Min Order (₹)</label>
                     <input 
                       type="number" 
-                      className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                       placeholder="50"
                       value={minOrder}
                       onChange={(e) => setMinOrder(e.target.value)}
@@ -249,7 +249,7 @@ const AdminCoupons = () => {
                     <input 
                       type="date" 
                       required
-                      className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 pl-12 text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                       value={expiryDate}
                       onChange={(e) => setExpiryDate(e.target.value)}
                     />
@@ -259,7 +259,7 @@ const AdminCoupons = () => {
 
                 <button 
                   type="submit"
-                  className="w-full bg-accent hover:bg-accent/80 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-accent/40"
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-sm"
                 >
                   {editCoupon ? 'Update Coupon' : 'Generate Coupon'}
                 </button>

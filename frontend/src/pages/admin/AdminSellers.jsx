@@ -68,25 +68,25 @@ const AdminSellers = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Seller Management</h1>
-          <p className="text-gray-400 text-sm">Review and manage vendor applications</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Seller Management</h1>
+          <p className="text-gray-500 text-sm mt-1">Review and manage vendor applications</p>
         </div>
         <button 
           onClick={fetchSellers}
-          className="p-3 bg-slate-800 text-white rounded-xl border border-white/5 hover:bg-slate-700 transition-all"
+          className="p-3 bg-white text-gray-500 rounded-xl border border-gray-200 hover:text-primary-600 hover:bg-gray-50 transition-all shadow-sm"
           title="Refresh List"
         >
           <Users size={18} />
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between gap-6 bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between gap-6 bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search store, name or email..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm shadow-sm transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -100,8 +100,8 @@ const AdminSellers = () => {
                 onClick={() => setActiveFilter(status)}
                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                   activeFilter === status 
-                    ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20' 
-                    : 'bg-slate-800 text-gray-400 border-white/5 hover:text-white'
+                    ? 'bg-gray-100 text-gray-900 border-gray-300 shadow-sm' 
+                    : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:bg-gray-50 shadow-sm'
                 }`}
               >
                 {status}
@@ -118,7 +118,7 @@ const AdminSellers = () => {
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-800/50 text-[10px] uppercase tracking-widest text-gray-400 font-black">
+                <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                   <th className="px-8 py-5">Store / Owner</th>
                   <th className="px-8 py-5">GST / Phone</th>
                   <th className="px-8 py-5">Status</th>
@@ -126,7 +126,7 @@ const AdminSellers = () => {
                   <th className="px-8 py-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-sm">
+              <tbody className="divide-y divide-gray-100 text-sm">
                 <AnimatePresence mode='popLayout'>
                   {filteredSellers.length > 0 ? (
                     filteredSellers.map((seller) => (
@@ -135,40 +135,40 @@ const AdminSellers = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="hover:bg-white/[0.02] transition-colors group border-l-2 border-transparent hover:border-primary-500"
+                        className="hover:bg-gray-50 transition-colors group border-l-2 border-transparent hover:border-primary-500"
                       >
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-slate-800 border border-white/5 overflow-hidden flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
                               {seller.sellerProfile?.storeLogo ? (
                                 <img src={seller.sellerProfile.storeLogo} className="w-full h-full object-cover" alt="Store" />
                               ) : (
-                                <Store size={20} className="text-gray-600" />
+                                <Store size={20} className="text-gray-400" />
                               )}
                             </div>
                             <div>
-                              <p className="font-bold text-white leading-tight">{seller.sellerProfile?.storeName || 'New Application'}</p>
-                              <p className="text-xs text-gray-500 mt-0.5">{seller.name} · {seller.email}</p>
+                              <p className="font-bold text-gray-900 leading-tight">{seller.sellerProfile?.storeName || 'New Application'}</p>
+                              <p className="text-xs text-gray-500 font-medium mt-0.5">{seller.name} · {seller.email}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-8 py-5">
                           <div className="flex flex-col">
-                            <p className="text-white font-mono text-[11px]">{seller.sellerProfile?.gstNumber || 'PENDING GST'}</p>
-                            <p className="text-xs text-gray-500 mt-1">{seller.sellerProfile?.phone || 'No Phone'}</p>
+                            <p className="text-gray-900 font-mono text-[11px] font-bold">{seller.sellerProfile?.gstNumber || 'PENDING GST'}</p>
+                            <p className="text-xs text-gray-500 font-medium mt-1">{seller.sellerProfile?.phone || 'No Phone'}</p>
                           </div>
                         </td>
                         <td className="px-8 py-5">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border ${
-                            seller.sellerStatus === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                            seller.sellerStatus === 'pending' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                            seller.sellerStatus === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                            'bg-gray-500/10 text-gray-400 border-white/5'
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                            seller.sellerStatus === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
+                            seller.sellerStatus === 'pending' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                            seller.sellerStatus === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' :
+                            'bg-gray-100 text-gray-600 border-gray-200'
                           }`}>
                             {seller.sellerStatus}
                           </span>
                         </td>
-                        <td className="px-8 py-5 text-gray-500 text-xs">
+                        <td className="px-8 py-5 text-gray-500 text-xs font-bold">
                           {new Date(seller.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                         </td>
                         <td className="px-8 py-5 text-right">
@@ -177,20 +177,20 @@ const AdminSellers = () => {
                               <>
                                 <button 
                                   onClick={() => updateStatus(seller._id, 'approved')}
-                                  className="px-4 py-1.5 bg-green-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all flex items-center gap-2"
+                                  className="px-4 py-1.5 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500 transition-all flex items-center gap-2 shadow-sm"
                                 >
                                   <CheckCircle size={14} /> Approve
                                 </button>
                                 <button 
                                   onClick={() => updateStatus(seller._id, 'rejected')}
-                                  className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-red-100"
                                   title="Reject"
                                 >
                                   <XCircle size={18} />
                                 </button>
                               </>
                             )}
-                            <button className="p-2 text-gray-400 hover:text-white rounded-lg transition-all">
+                            <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-primary-100">
                               <Eye size={18} />
                             </button>
                           </div>
@@ -201,11 +201,11 @@ const AdminSellers = () => {
                     <tr>
                       <td colSpan="5" className="px-8 py-24 text-center">
                         <div className="flex flex-col items-center gap-4">
-                          <div className="p-5 bg-slate-800/50 rounded-full text-gray-600">
+                          <div className="p-5 bg-gray-50 rounded-full text-gray-400 border border-gray-100">
                             <Store size={40} />
                           </div>
                           <div>
-                            <p className="text-white font-bold uppercase tracking-widest text-[11px]">No matching applications</p>
+                            <p className="text-gray-900 font-bold uppercase tracking-widest text-[11px]">No matching applications</p>
                             <p className="text-gray-500 text-xs mt-1">Refine your search or check another status tab</p>
                           </div>
                         </div>

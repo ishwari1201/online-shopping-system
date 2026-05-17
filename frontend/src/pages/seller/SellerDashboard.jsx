@@ -4,13 +4,12 @@ import {
   Package, 
   ShoppingCart, 
   DollarSign, 
-  TrendingUp, 
   AlertCircle,
   Clock,
-  ChevronRight,
-  PlusCircle,
   ArrowUpRight,
-  Activity
+  ChevronRight,
+  TrendingUp,
+  Plus
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -19,35 +18,9 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar
+  ResponsiveContainer
 } from 'recharts';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-
-const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="bg-slate-900 border border-white/5 p-6 rounded-[2rem] shadow-xl hover:border-white/10 transition-all group"
-  >
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-4 rounded-2xl bg-${color}-500/10 text-${color}-500 group-hover:scale-110 transition-transform`}>
-        <Icon size={24} />
-      </div>
-      {trend && (
-        <div className="flex items-center gap-1 text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">
-          <ArrowUpRight size={12} /> {trend}%
-        </div>
-      )}
-    </div>
-    <div>
-      <p className="text-gray-500 text-xs font-black uppercase tracking-widest mb-1">{title}</p>
-      <h3 className="text-2xl font-black text-white">{value}</h3>
-    </div>
-  </motion.div>
-);
 
 const SellerDashboard = () => {
   const [data, setData] = useState(null);
@@ -69,8 +42,8 @@ const SellerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      <div className="flex items-center justify-center min-h-[70vh]">
+        <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -78,138 +51,203 @@ const SellerDashboard = () => {
   const { stats, monthlySales, recentOrders } = data || {};
 
   return (
-    <div className="space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Seller Central</h1>
-          <p className="text-gray-400 text-sm">Welcome back! Here's what's happening with your store today.</p>
+    <div className="min-h-screen bg-[#fafafa] pb-24 font-sans text-[#111827]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        
+        {/* Header & Quick Actions */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Store Overview</h1>
+            <p className="text-sm text-gray-500 mt-1">Here's what's happening with your store today.</p>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Link to="/seller/orders" className="flex-1 md:flex-none text-center bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm">
+              View Orders
+            </Link>
+            <Link to="/seller/add-product" className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm">
+              <Plus size={16} /> New Product
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <Link to="/seller/add-product" className="flex-1 md:flex-none bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-900/20">
-            <PlusCircle size={16} /> Add Product
-          </Link>
-        </div>
-      </div>
 
-      {/* Stat Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value={`$${stats?.totalRevenue?.toLocaleString()}`} icon={DollarSign} color="primary" trend="15.4" />
-        <StatCard title="Total Orders" value={stats?.totalOrders} icon={ShoppingCart} color="purple" trend="8.2" />
-        <StatCard title="Active Products" value={stats?.totalProducts} icon={Package} color="blue" />
-        <StatCard title="Pending Review" value={stats?.pendingProducts} icon={Clock} color="orange" />
-      </div>
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      {/* Alerts & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {/* Sales Chart */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
-            <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary-500/10 text-primary-500 rounded-xl">
-                  <TrendingUp size={20} />
+          {/* 1. Main Revenue Chart (Spans 2 columns) */}
+          <div className="md:col-span-2 bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col justify-between">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <p className="text-sm font-semibold text-gray-500 mb-1 flex items-center gap-2">
+                  Total Revenue <TrendingUp size={14} className="text-emerald-500" />
+                </p>
+                <div className="flex items-baseline gap-3">
+                  <h2 className="text-4xl font-bold tracking-tight text-gray-900">
+                    ₹{(stats?.totalRevenue || 0).toLocaleString()}
+                  </h2>
+                  <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center">
+                    <ArrowUpRight size={14} /> 12.5%
+                  </span>
                 </div>
-                <h3 className="text-white font-bold text-lg">Revenue Growth</h3>
               </div>
+              <select className="bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg px-3 py-1.5 outline-none hover:bg-gray-100 transition-colors cursor-pointer">
+                <option>This Year</option>
+                <option>Last 6 Months</option>
+              </select>
             </div>
-            <div className="h-[300px]">
+            
+            <div className="h-[240px] w-full -ml-4">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlySales}>
+                <AreaChart data={monthlySales || []} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#111827" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#111827" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(val) => `₹${val/1000}k`} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', color: '#fff' }}
+                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0,0,0,0.1)' }}
+                    itemStyle={{ color: '#111827', fontWeight: 'bold' }}
+                    cursor={{ stroke: '#d1d5db', strokeWidth: 1, strokeDasharray: '4 4' }}
                   />
-                  <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                  <Area type="monotone" dataKey="sales" stroke="#111827" strokeWidth={2.5} fillOpacity={1} fill="url(#colorSales)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Recent Orders */}
-          <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center">
-              <h3 className="text-white font-bold text-lg">Recent Orders</h3>
-              <Link to="/seller/orders" className="text-primary-500 text-xs font-bold hover:underline">View All</Link>
+          {/* 2. Side Stacked Cards (Column 3) */}
+          <div className="flex flex-col gap-6">
+            {/* Orders Metric */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                  <ShoppingCart size={20} strokeWidth={2} />
+                </div>
+                <p className="text-sm font-semibold text-gray-500 mb-1">Total Orders</p>
+                <h3 className="text-3xl font-bold text-gray-900">{stats?.totalOrders || 0}</h3>
+              </div>
+            </div>
+
+            {/* Inventory / Action Required */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                  <Package size={20} strokeWidth={2} />
+                </div>
+                {stats?.lowStockCount > 0 && (
+                  <span className="flex h-3 w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-gray-500 mb-1">Active Listings</p>
+              <div className="flex items-end gap-3 mb-3">
+                <h3 className="text-3xl font-bold text-gray-900">{stats?.totalProducts || 0}</h3>
+              </div>
+              
+              {stats?.lowStockCount > 0 ? (
+                <Link to="/seller/inventory" className="mt-auto flex items-center justify-between bg-red-50 text-red-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">
+                  <span>{stats.lowStockCount} items low in stock</span>
+                  <ChevronRight size={14} />
+                </Link>
+              ) : (
+                <div className="mt-auto flex items-center gap-2 text-xs font-bold text-emerald-600">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> All stock healthy
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Recent Orders Table (Spans 2 columns) */}
+          <div className="md:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgb(0,0,0,0.04)] overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h3 className="text-lg font-bold text-gray-900">Recent Orders</h3>
+              <Link to="/seller/orders" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1">
+                View All <ChevronRight size={16} />
+              </Link>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="text-[10px] uppercase tracking-widest text-gray-500 font-black border-b border-white/5">
-                    <th className="px-8 py-5">Order ID</th>
-                    <th className="px-8 py-5">Status</th>
-                    <th className="px-8 py-5">Customer</th>
-                    <th className="px-8 py-5 text-right">Amount</th>
+                  <tr className="bg-gray-50/50">
+                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
-                  {recentOrders?.map((order) => (
-                    <tr key={order._id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-8 py-5 font-mono text-gray-400">#{order._id.substring(18).toUpperCase()}</td>
-                      <td className="px-8 py-5">
-                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                          order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
-                        }`}>
-                          {order.status}
-                        </span>
+                <tbody className="divide-y divide-gray-100">
+                  {recentOrders?.length > 0 ? (
+                    recentOrders.slice(0,5).map((order) => (
+                      <tr key={order._id} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="px-6 py-4">
+                          <Link to={`/seller/orders`} className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            #{order._id.substring(18).toUpperCase()}
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-600 capitalize">
+                          {order.user?.name || 'Guest'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${
+                            order.status === 'Delivered' ? 'bg-emerald-50 text-emerald-700' : 
+                            order.status === 'Processing' ? 'bg-blue-50 text-blue-700' :
+                            'bg-amber-50 text-amber-700'
+                          }`}>
+                            {order.status || 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                          ₹{(order.totalPrice || 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-12 text-center">
+                        <p className="text-sm font-medium text-gray-500">No recent orders found</p>
                       </td>
-                      <td className="px-8 py-5 text-white font-bold">{order.user?.name}</td>
-                      <td className="px-8 py-5 text-right text-white font-black">${order.totalPrice}</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
-        </div>
 
-        <div className="space-y-8">
-          {/* Low Stock Alert */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
-                <AlertCircle size={20} />
+          {/* 4. Action Center / Pending Items (Column 3) */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col">
+            <h3 className="text-lg font-bold text-gray-900 mb-6">Action Center</h3>
+            
+            <div className="space-y-4 flex-1">
+              {/* Pending Review Alert */}
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer group">
+                <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
+                  <Clock size={16} strokeWidth={2.5} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Pending Reviews</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">{stats?.pendingProducts || 0} items waiting for admin approval.</p>
+                </div>
               </div>
-              <h3 className="text-white font-bold text-lg">Inventory Alerts</h3>
-            </div>
-            {stats?.lowStockCount > 0 ? (
-              <div className="space-y-4">
-                <p className="text-gray-400 text-sm">{stats.lowStockCount} products are running low on stock. Restock soon to avoid missing sales.</p>
-                <Link to="/seller/inventory" className="block w-full text-center py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-700 transition-all border border-white/5">
-                  Manage Stock
-                </Link>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-sm">All products are well-stocked.</p>
-            )}
-          </div>
 
-          {/* Activity Widget */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-pink-500/10 text-pink-500 rounded-xl">
-                <Activity size={20} />
-              </div>
-              <h3 className="text-white font-bold text-lg">Quick Actions</h3>
-            </div>
-            <div className="space-y-3">
-              <Link to="/seller/profile" className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/50 transition-all group">
-                <span className="text-sm text-gray-300 font-bold">Update Store Profile</span>
-                <ChevronRight size={16} className="text-gray-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link to="/seller/notifications" className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/50 transition-all group">
-                <span className="text-sm text-gray-300 font-bold">Check Notifications</span>
-                <ChevronRight size={16} className="text-gray-600 group-hover:translate-x-1 transition-transform" />
+              {/* Notification Link */}
+              <Link to="/seller/notifications" className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-gray-200 transition-colors group">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle size={16} strokeWidth={2.5} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Notifications</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">Check latest updates & alerts.</p>
+                </div>
               </Link>
             </div>
           </div>
+
         </div>
       </div>
     </div>

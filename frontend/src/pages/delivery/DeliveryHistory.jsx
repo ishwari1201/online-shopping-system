@@ -39,24 +39,24 @@ const DeliveryHistory = () => {
   return (
     <div className="space-y-6 pb-12">
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Delivery History</h1>
-        <p className="text-gray-400 text-sm">Review your past deliveries and performance logs</p>
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Delivery History</h1>
+        <p className="text-gray-500 text-sm">Review your past deliveries and performance logs</p>
       </div>
 
-      <div className="bg-slate-900 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="bg-white rounded-[2.5rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search by Order ID..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
           </div>
           <div className="flex gap-4">
-            <div className="px-4 py-2 bg-slate-800 text-gray-400 rounded-xl text-xs font-bold border border-white/5">
+            <div className="px-4 py-2 bg-white text-gray-600 rounded-xl text-xs font-bold border border-gray-200 shadow-sm">
               Total: {history.length}
             </div>
           </div>
@@ -65,7 +65,7 @@ const DeliveryHistory = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-200">
                 <th className="px-8 py-5">Order ID</th>
                 <th className="px-8 py-5 text-center">Completed At</th>
                 <th className="px-8 py-5 text-center">Earnings</th>
@@ -73,7 +73,7 @@ const DeliveryHistory = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
@@ -88,21 +88,21 @@ const DeliveryHistory = () => {
                 </tr>
               ) : (
                 filteredHistory.map((order) => (
-                  <tr key={order._id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={order._id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
-                        <span className="text-white font-mono text-sm">#{order._id.substring(18).toUpperCase()}</span>
+                        <span className="text-gray-900 font-mono text-sm font-bold">#{order._id.substring(18).toUpperCase()}</span>
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">COD Shipment</span>
                       </div>
                     </td>
                     <td className="px-8 py-5 text-center">
                       <div className="flex flex-col">
-                        <span className="text-white text-sm font-bold">{new Date(order.deliveredAt || order.updatedAt).toLocaleDateString()}</span>
+                        <span className="text-gray-900 text-sm font-bold">{new Date(order.deliveredAt || order.updatedAt).toLocaleDateString()}</span>
                         <span className="text-[10px] text-gray-500 uppercase font-black">{new Date(order.deliveredAt || order.updatedAt).toLocaleTimeString()}</span>
                       </div>
                     </td>
                     <td className="px-8 py-5 text-center">
-                      <span className="text-green-500 font-black text-sm">+$40.00</span>
+                      <span className="text-green-500 font-black text-sm">+₹50.00</span>
                     </td>
                     <td className="px-8 py-5 text-center">
                       <div className="flex justify-center">
@@ -118,7 +118,7 @@ const DeliveryHistory = () => {
                     <td className="px-8 py-5 text-right">
                       <Link 
                         to={`/delivery/order/${order._id}`}
-                        className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all inline-block"
+                        className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all inline-block"
                       >
                         <ChevronRight size={18} />
                       </Link>

@@ -51,7 +51,7 @@ const PaymentModal = ({ isOpen, onClose, onConfirm, amount }) => {
              </div>
              <div>
                <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-70">Payment Portal</p>
-               <p className="text-xl font-black tracking-tight">${amount}</p>
+               <p className="text-xl font-black tracking-tight">₹{amount}</p>
              </div>
           </div>
           <button onClick={onClose} className="hover:bg-white/10 p-2 rounded-full transition-colors"><X size={20}/></button>
@@ -260,18 +260,18 @@ const Checkout = () => {
             <div className="bg-white border border-black/5 p-10 rounded-sm shadow-sm sticky top-32">
                <h3 className="text-[12px] font-black uppercase tracking-[0.3em] mb-10 pb-4 border-b border-black/5 text-muted">Order Total</h3>
                <div className="space-y-6 mb-12">
-                  <div className="flex justify-between text-[11px] font-black uppercase tracking-widest text-muted">
-                    <span>Cart Items</span>
-                    <span>${itemsPrice}</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] font-black uppercase tracking-widest text-muted pb-6 border-b border-black/5">
-                    <span>Tax Estimate</span>
-                    <span>${taxPrice}</span>
-                  </div>
-                  <div className="flex justify-between text-primary font-black uppercase tracking-tighter pt-2">
-                    <span className="text-[15px]">Grand Total</span>
-                    <span className="text-3xl">${totalPrice}</span>
-                  </div>
+                  <div className="flex justify-between items-center text-sm font-medium">
+                  <span className="text-muted">Subtotal</span>
+                  <span className="font-bold">₹{itemsPrice}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm font-medium">
+                  <span className="text-muted">Tax (GST)</span>
+                  <span className="font-bold">₹{taxPrice}</span>
+                </div>
+                <div className="pt-6 border-t border-black/5 flex justify-between items-center text-lg font-black uppercase tracking-tight">
+                  <span className="text-primary">Total Amount</span>
+                  <span className="text-3xl">₹{totalPrice}</span>
+                </div>
                </div>
                <button 
                  onClick={handleCheckoutSubmit} 

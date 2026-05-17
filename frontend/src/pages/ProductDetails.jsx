@@ -147,9 +147,10 @@ const ProductDetails = () => {
             </div>
 
             {/* Price */}
-            <div className="border-t border-black/5 pt-8">
-              <p className="text-3xl font-black">${product.price}</p>
-              <p className="text-[11px] text-gray-400 uppercase tracking-widest mt-1">Free shipping on orders over $100</p>
+            <div className="flex items-center gap-4 mb-12">
+              <span className="text-3xl font-black tracking-tighter text-primary">₹{product.price}</span>
+              <div className="w-px h-6 bg-black/5"></div>
+              <span className="text-[11px] font-black uppercase tracking-widest text-muted">Incl. GST</span>
             </div>
 
             {/* Description */}

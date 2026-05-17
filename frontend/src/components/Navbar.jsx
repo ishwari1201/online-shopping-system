@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, User, Search, Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Heart, User, Menu } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import SearchBar from './home/SearchBar';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const { cartItems } = useSelector((state) => state.cart || { cartItems: [] });
   const { wishlistItems } = useSelector((state) => state.wishlist || { wishlistItems: [] });
   const { userInfo } = useSelector((state) => state.auth);
@@ -25,16 +26,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Search Bar */}
+          {/* Live Search Bar */}
           <div className="hidden md:flex flex-1 items-center justify-center px-12">
-            <div className="w-full max-w-lg relative group">
-              <input
-                type="text"
-                placeholder="Search for clothes, shoes, and more..."
-                className="w-full bg-black/5 text-[#212a2f] border border-transparent rounded-full py-2.5 pl-6 pr-12 focus:outline-none focus:bg-white focus:border-black/10 transition-all placeholder:text-gray-400 text-sm"
-              />
-              <Search className="absolute right-5 top-3 text-gray-400 group-focus-within:text-[#212a2f] transition-colors" size={16} />
-            </div>
+            <SearchBar />
           </div>
 
           {/* Icons */}

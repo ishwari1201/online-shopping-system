@@ -61,17 +61,17 @@ const AdminReviews = () => {
   return (
     <div className="space-y-6 pb-12">
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Reviews Moderation</h1>
-        <p className="text-gray-400 text-sm">Monitor customer feedback and manage product reviews</p>
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Reviews Moderation</h1>
+        <p className="text-gray-500 text-sm mt-1">Monitor customer feedback and manage product reviews</p>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search reviews, users or products..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -82,7 +82,7 @@ const AdminReviews = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                 <th className="px-8 py-5">Reviewer / Product</th>
                 <th className="px-8 py-5">Rating</th>
                 <th className="px-8 py-5">Comment</th>
@@ -90,7 +90,7 @@ const AdminReviews = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
@@ -105,13 +105,13 @@ const AdminReviews = () => {
                 </tr>
               ) : (
                 filteredReviews.map((review) => (
-                  <tr key={review._id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={review._id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 flex items-center gap-2">
                           <User size={14} className="text-gray-500" /> {review.name}
                         </span>
-                        <span className="text-[10px] text-primary-500 font-black uppercase tracking-widest flex items-center gap-1.5 mt-1">
+                        <span className="text-[10px] text-primary-600 font-black uppercase tracking-widest flex items-center gap-1.5 mt-1">
                           <Package size={10} /> {review.productName}
                         </span>
                       </div>
@@ -121,22 +121,22 @@ const AdminReviews = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
-                            size={12} 
-                            className={i < review.rating ? "fill-accent text-accent" : "text-slate-700"} 
+                            size={14} 
+                            className={i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"} 
                           />
                         ))}
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                      <p className="text-sm text-gray-400 line-clamp-2 max-w-xs">{review.comment}</p>
+                      <p className="text-sm text-gray-600 line-clamp-2 max-w-xs">{review.comment}</p>
                     </td>
-                    <td className="px-8 py-5 text-xs text-gray-500">
+                    <td className="px-8 py-5 text-xs font-bold text-gray-500">
                       {new Date(review.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-8 py-5 text-right">
                       <button 
                         onClick={() => deleteHandler(review.productId, review._id)}
-                        className="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                        className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-red-100"
                         title="Delete Review"
                       >
                         <Trash2 size={18} />

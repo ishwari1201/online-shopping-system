@@ -66,24 +66,24 @@ const AdminInventory = () => {
     <div className="space-y-6 pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Inventory Management</h1>
-          <p className="text-gray-400 text-sm">Monitor stock levels and manage marketplace inventory</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Inventory Management</h1>
+          <p className="text-gray-500 text-sm">Monitor stock levels and manage marketplace inventory</p>
         </div>
         <button 
           onClick={fetchInventory}
-          className="p-3 bg-slate-800 text-gray-400 hover:text-white rounded-xl border border-white/5 transition-all"
+          className="p-3 bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl border border-gray-200 transition-all shadow-sm"
         >
           <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search by product or seller..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -91,11 +91,11 @@ const AdminInventory = () => {
           </div>
           
           <div className="flex gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 text-xs font-bold">
+            <div className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-200 text-xs font-bold shadow-sm">
               <AlertCircle size={14} />
               Low Stock: {products.filter(p => p.countInStock < 5).length}
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-gray-400 rounded-xl border border-white/5 text-xs font-bold">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl border border-gray-200 text-xs font-bold shadow-sm">
               <Package size={14} />
               Total Items: {products.length}
             </div>
@@ -105,7 +105,7 @@ const AdminInventory = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                 <th className="px-8 py-5">Product Info</th>
                 <th className="px-8 py-5">Seller</th>
                 <th className="px-8 py-5">Category</th>
@@ -113,7 +113,7 @@ const AdminInventory = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="px-8 py-20 text-center">
@@ -128,10 +128,10 @@ const AdminInventory = () => {
                 </tr>
               ) : (
                 filteredProducts.map((product) => (
-                  <tr key={product._id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={product._id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 border border-white/5">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
                           <img 
                             src={product.images?.[0]} 
                             alt={product.name} 
@@ -139,41 +139,41 @@ const AdminInventory = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm line-clamp-1">{product.name}</p>
+                          <p className="font-bold text-gray-900 text-sm line-clamp-1">{product.name}</p>
                           <p className="text-[10px] text-gray-500 font-mono">SKU: {product._id.substring(18).toUpperCase()}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <Store size={14} className="text-primary-500" />
-                        <span className="text-sm font-bold text-white">{product.seller?.sellerProfile?.storeName || product.seller?.name}</span>
+                        <Store size={14} className="text-primary-600" />
+                        <span className="text-sm font-bold text-gray-900">{product.seller?.sellerProfile?.storeName || product.seller?.name}</span>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-xs text-gray-400 uppercase tracking-widest">{product.category}</td>
+                    <td className="px-8 py-5 text-xs text-gray-500 uppercase tracking-widest font-bold">{product.category}</td>
                     <td className="px-8 py-5">
                       <div className="flex justify-center">
                         {editStockId === product._id ? (
                           <div className="flex items-center gap-2">
                             <input 
                               type="number" 
-                              className="w-20 bg-slate-800 border border-primary-500/50 text-white rounded-lg px-2 py-1 text-center font-bold"
+                              className="w-20 bg-white border border-primary-500 text-gray-900 rounded-lg px-2 py-1 text-center font-bold shadow-sm"
                               value={newStockValue}
                               onChange={(e) => setNewStockValue(e.target.value)}
                               autoFocus
                             />
                             <button 
                               onClick={() => updateStockHandler(product._id)}
-                              className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-400 transition-all"
+                              className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all shadow-sm"
                             >
                               <Save size={14} />
                             </button>
                           </div>
                         ) : (
-                          <div className={`px-4 py-1.5 rounded-xl font-black text-xs ${
-                            product.countInStock === 0 ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                            product.countInStock < 5 ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' :
-                            'bg-green-500/10 text-green-500 border border-green-500/20'
+                          <div className={`px-4 py-1.5 rounded-xl font-black text-xs border ${
+                            product.countInStock === 0 ? 'bg-red-50 text-red-600 border-red-200' :
+                            product.countInStock < 5 ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                            'bg-green-50 text-green-600 border-green-200'
                           }`}>
                             {product.countInStock} Units
                           </div>

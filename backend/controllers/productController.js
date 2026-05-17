@@ -5,7 +5,7 @@ const Product = require('../models/productModel');
 // @access  Public
 const getProducts = async (req, res, next) => {
   try {
-    const pageSize = 12;
+    const pageSize = 100; // Increased from 12 to 100 to allow frontend local filtering
     const page = Number(req.query.pageNumber) || 1;
 
     const keyword = req.query.keyword

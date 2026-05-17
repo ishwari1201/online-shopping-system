@@ -135,16 +135,16 @@ const OrderDetails = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-[12px] font-black uppercase tracking-tight text-primary mb-1">{item.name}</p>
-                      <p className="text-muted text-[10px] font-black uppercase tracking-widest">Qty: {item.qty} · ${item.price}</p>
+                      <p className="text-muted text-[10px] font-black uppercase tracking-widest">Qty: {item.qty} · ₹{item.price}</p>
                     </div>
-                    <div className="text-primary font-black text-sm">${(item.qty * item.price).toFixed(2)}</div>
+                    <div className="text-primary font-black text-sm">₹{(item.qty * item.price).toFixed(2)}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-10 pt-10 border-t border-black/5 flex justify-between items-end">
                  <div>
                    <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] mb-1">Order Total</p>
-                   <p className="text-primary font-black text-3xl tracking-tighter">${order.totalPrice.toFixed(2)}</p>
+                   <p className="text-primary font-black text-3xl tracking-tighter">₹{order.totalPrice.toFixed(2)}</p>
                  </div>
                  <Link to="/shop" className="text-[11px] font-black uppercase tracking-widest border-b-2 border-primary pb-1">Continue Shopping</Link>
               </div>

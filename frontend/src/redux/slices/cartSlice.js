@@ -51,8 +51,8 @@ const cartSlice = createSlice({
         state.cartItems.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.qty) || 1), 0)
       );
 
-      // Calculate shipping price (If order is > $100 then free, else $10 shipping)
-      state.shippingPrice = addDecimals(Number(state.itemsPrice) > 100 ? 0 : 10);
+      // Calculate shipping price (If order is > ₹1000 then free, else ₹100 shipping)
+      state.shippingPrice = state.itemsPrice > 1000 ? 0 : 100;
 
       // Calculate tax price (15% tax)
       state.taxPrice = addDecimals(Number((0.15 * Number(state.itemsPrice)).toFixed(2)));

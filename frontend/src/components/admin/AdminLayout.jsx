@@ -43,7 +43,7 @@ const AdminLayout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -53,18 +53,21 @@ const AdminLayout = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-white/10 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex-shrink-0`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-white/10">
-          <Link to="/admin/dashboard" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-accent">
-            Wearify Admin
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex-shrink-0 flex flex-col`}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
+          <Link to="/admin/dashboard" className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+            <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center font-black text-sm">
+              W
+            </div>
+            Admin Hub
           </Link>
-          <button className="md:hidden text-gray-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
-            <X size={24} />
+          <button className="md:hidden text-gray-500 hover:text-gray-900 hover:bg-gray-100 p-1 rounded-lg" onClick={() => setSidebarOpen(false)}>
+            <X size={20} />
           </button>
         </div>
 
-        <nav className="p-4 space-y-2 h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 px-2">Menu</div>
+        <nav className="p-4 space-y-1 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">Menu</div>
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.href);
@@ -72,14 +75,17 @@ const AdminLayout = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${
                   isActive 
-                  ? 'bg-primary-500/10 text-primary-400 font-medium' 
-                  : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-blue-50 text-blue-700 font-semibold' 
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium'
                 }`}
               >
-                <Icon size={20} className={isActive ? 'text-primary-500' : ''} />
-                {item.name}
+                <Icon size={20} className={`flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                <span className="text-sm">{item.name}</span>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-600 rounded-r-full"></div>
+                )}
               </Link>
             );
           })}
@@ -89,21 +95,21 @@ const AdminLayout = ({ children }) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Navbar */}
-        <header className="h-16 bg-slate-900/50 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0">
           <div className="flex items-center">
             <button 
-              className="text-gray-400 hover:text-white md:hidden mr-4"
+              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 p-1.5 rounded-lg md:hidden mr-4 transition-colors"
               onClick={() => setSidebarOpen(true)}
             >
-              <Menu size={24} />
+              <Menu size={20} />
             </button>
-            <h1 className="text-xl font-bold text-white hidden sm:block">
+            <h1 className="text-xl font-bold text-gray-900 hidden sm:block">
               {navigation.find(n => location.pathname.startsWith(n.href))?.name || 'Dashboard'}
             </h1>
           </div>
           
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link to="/" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
               View Store
             </Link>
           </div>

@@ -60,7 +60,7 @@ const DeliveryDashboard = () => {
   const cards = [
     { title: 'Assigned Orders', value: stats?.assigned || 0, icon: Truck, color: 'primary' },
     { title: 'In Progress', value: stats?.pending || 0, icon: Navigation, color: 'blue' },
-    { title: 'Today Earnings', value: `$${stats?.totalEarnings || 0}`, icon: DollarSign, color: 'green' },
+    { title: 'Today Earnings', value: `₹${stats?.totalEarnings || 0}`, icon: DollarSign, color: 'green' },
     { title: 'Completed', value: stats?.delivered || 0, icon: CheckCircle, color: 'purple' },
   ];
 
@@ -68,8 +68,8 @@ const DeliveryDashboard = () => {
     <div className="space-y-8 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Delivery Console</h1>
-          <p className="text-gray-400 text-sm">Welcome back! You have {stats?.assigned} new orders waiting.</p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Delivery Console</h1>
+          <p className="text-gray-500 text-sm">Welcome back! You have {stats?.assigned} new orders waiting.</p>
         </div>
         <div className="flex gap-3">
           <div className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl border border-green-500/20 text-xs font-bold flex items-center gap-2">
@@ -86,22 +86,22 @@ const DeliveryDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-slate-900 border border-white/5 p-6 rounded-[2rem] shadow-xl hover:border-white/10 transition-all group"
+            className="bg-white border border-gray-200 p-6 rounded-[2rem] shadow-sm hover:shadow-md hover:border-gray-300 transition-all group"
           >
-            <div className={`p-4 rounded-2xl w-fit mb-4 bg-${card.color}-500/10 text-${card.color}-500`}>
+            <div className={`p-4 rounded-2xl w-fit mb-4 bg-${card.color}-50 text-${card.color}-600 border border-${card.color}-100`}>
               <card.icon size={24} />
             </div>
             <p className="text-gray-500 text-xs font-black uppercase tracking-widest">{card.title}</p>
-            <h3 className="text-2xl font-black text-white mt-1 group-hover:scale-105 transition-transform origin-left">{card.value}</h3>
+            <h3 className="text-2xl font-black text-gray-900 mt-1 group-hover:scale-105 transition-transform origin-left">{card.value}</h3>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+        <div className="lg:col-span-2 bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-white font-bold text-lg">Weekly Performance</h3>
-            <div className="text-primary-500 text-xs font-bold flex items-center gap-2">
+            <h3 className="text-gray-900 font-bold text-lg">Weekly Performance</h3>
+            <div className="text-primary-600 text-xs font-bold flex items-center gap-2">
               <TrendingUp size={14} /> +24% growth
             </div>
           </div>
@@ -114,9 +114,9 @@ const DeliveryDashboard = () => {
                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12}} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '1rem', color: '#111827' }}
                 />
                 <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fill="url(#colorCount)" />
               </AreaChart>
@@ -124,22 +124,22 @@ const DeliveryDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
-          <h3 className="text-white font-bold text-lg mb-6">Recent Assignments</h3>
+        <div className="bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm">
+          <h3 className="text-gray-900 font-bold text-lg mb-6">Recent Assignments</h3>
           <div className="space-y-4">
             {stats?.recentDeliveries?.length > 0 ? (
               stats.recentDeliveries.map((order) => (
                 <Link 
                   to={`/delivery/order/${order._id}`} 
                   key={order._id}
-                  className="block p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-primary-500/30 transition-all group"
+                  className="block p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary-500/30 transition-all group hover:shadow-sm"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-white text-sm font-bold truncate w-32">Order #{order._id.substring(18).toUpperCase()}</p>
+                      <p className="text-gray-900 text-sm font-bold truncate w-32">Order #{order._id.substring(18).toUpperCase()}</p>
                       <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">{order.deliveryStatus}</p>
                     </div>
-                    <ChevronRight className="text-gray-600 group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
+                    <ChevronRight className="text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" size={18} />
                   </div>
                 </Link>
               ))

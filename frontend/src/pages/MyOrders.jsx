@@ -1,32 +1,33 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { 
   Package, 
   Truck, 
   CheckCircle, 
-  Clock, 
   ChevronRight, 
-  ExternalLink,
-  Shield,
+  Search, 
+  Clock, 
+  Shield, 
+  ArrowRight,
   MapPin,
-  ShoppingBag
+  RefreshCw
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [generatingOtp, setGeneratingOtp] = useState(null);
-  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchOrders = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get('/api/orders/my-orders');
       setOrders(data);
     } catch (error) {
-      toast.error('Failed to load your orders');
+      toast.error('Failed to fetch orders');
     } finally {
       setLoading(false);
     }
@@ -34,177 +35,158 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 30000); // Poll for updates every 30s
-    return () => clearInterval(interval);
   }, []);
 
   const generateOtp = async (orderId) => {
     try {
-      setGeneratingOtp(orderId);
-      const { data } = await axios.post(`/api/orders/${orderId}/generate-otp`);
-      toast.success('OTP Generated! Share this with your delivery partner.');
+      await axios.put(`/api/orders/${orderId}/otp`);
+      toast.success('Security OTP Generated');
       fetchOrders();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to generate OTP');
-    } finally {
-      setGeneratingOtp(null);
+      toast.error('Failed to generate OTP');
     }
   };
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'Delivered': return 'bg-green-100 text-green-700 border-green-200';
-      case 'Out For Delivery': return 'bg-primary text-white border-primary shadow-sm';
-      case 'Cancelled': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-bg-cream text-muted border-black/5';
-    }
-  };
+  const filteredOrders = orders.filter(o => 
+    String(o._id).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    o.orderItems.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   if (loading) return (
-    <div className="pt-40 pb-20 flex justify-center bg-bg-cream min-h-screen">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <div className="min-h-screen flex items-center justify-center bg-bg-cream">
+      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="pt-32 pb-24 min-h-screen bg-bg-cream text-primary">
-      <div className="max-w-5xl mx-auto px-4">
+    <div className="min-h-screen bg-bg-cream pt-32 pb-24 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12 pb-6 border-b border-black/5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">My Orders</h1>
-            <p className="text-muted text-[11px] font-black uppercase tracking-widest mt-2">Manage and track your sustainable journey</p>
+            <h1 className="text-5xl font-black uppercase tracking-tighter text-primary">Your Journey</h1>
+            <div className="w-16 h-1.5 bg-primary mt-4 mb-4"></div>
+            <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em]">Track your sustainable style</p>
           </div>
-          <Link to="/shop" className="text-[11px] font-black uppercase tracking-widest border border-black/10 px-6 py-3 hover:bg-primary hover:text-white transition-all flex items-center gap-2">
-            <ShoppingBag size={14} /> Continue Shopping
-          </Link>
+          
+          <div className="relative w-full md:w-96 group">
+            <Search className="absolute left-4 top-4 text-muted group-focus-within:text-primary transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search orders or products..." 
+              className="w-full pl-12 pr-4 py-4 bg-white border border-black/5 rounded-sm focus:outline-none focus:border-primary text-sm font-medium transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
-        {orders.length === 0 ? (
-          <div className="bg-white border border-black/5 p-24 text-center shadow-sm">
-            <div className="w-20 h-20 bg-bg-cream rounded-sm flex items-center justify-center mx-auto mb-8 text-muted/30">
-              <Package size={40} strokeWidth={1} />
-            </div>
-            <h3 className="text-[13px] font-black uppercase tracking-[0.3em] mb-4">No Orders Yet</h3>
-            <p className="text-muted text-[12px] font-medium max-w-xs mx-auto mb-10 leading-relaxed">Your purchase history is empty. Discover our latest collections and start your journey.</p>
-            <Link to="/shop" className="btn-allbirds inline-block px-12 py-4">
-              Explore Now
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-10">
-            {orders.map((order) => (
+        {/* Order List */}
+        <div className="space-y-12">
+          {filteredOrders.length > 0 ? (
+            filteredOrders.map((order) => (
               <motion.div 
                 key={order._id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-black/5 shadow-sm hover:shadow-md transition-all group"
+                className="bg-white border border-black/5 p-8 md:p-12 shadow-sm relative overflow-hidden"
               >
-                <div className="p-8 md:p-10">
-                  {/* Order Top Bar */}
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-6 border-b border-black/5">
-                    <div className="flex items-center gap-6">
-                      <div className="p-4 bg-bg-cream text-primary border border-black/5 rounded-sm">
-                        <Package size={20} />
+                {/* Status Badge */}
+                <div className="absolute top-0 right-0 px-6 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em]">
+                  {order.status}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                  
+                  {/* Order Info */}
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-1">Order Identifier</p>
+                      <p className="text-primary font-black text-sm font-mono uppercase">#{String(order._id).slice(-8)}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-1">Placed On</p>
+                      <p className="text-primary font-bold text-sm">{new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-1">Shipping Destination</p>
+                      <div className="flex items-start gap-2 text-primary font-medium text-xs">
+                        <MapPin size={14} className="mt-0.5 text-muted" />
+                        <p>{order.shippingAddress.address}, {order.shippingAddress.city}</p>
                       </div>
-                      <div>
-                        <p className="text-[9px] text-muted font-black uppercase tracking-[0.2em]">Order Identifier</p>
-                        <p className="text-primary font-black uppercase tracking-widest text-[13px] mt-0.5">#{String(order._id).slice(-6).toUpperCase()}</p>
-                      </div>
+                    </div>
+                  </div>
+
+                  {/* Items */}
+                  <div className="space-y-6 border-y md:border-y-0 md:border-x border-black/5 py-8 md:py-0 md:px-12">
+                    <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-4">Parcel Contents</p>
+                    <div className="space-y-6 max-h-[180px] overflow-y-auto pr-4 scrollbar-hide">
+                      {order.orderItems.map((item) => (
+                        <div key={item._id} className="flex gap-4 group">
+                          <div className="w-16 h-16 bg-bg-cream rounded-sm overflow-hidden flex-shrink-0 border border-black/5">
+                            <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-primary text-[11px] font-black uppercase tracking-tight truncate mb-1">{item.name}</p>
+                            <p className="text-muted text-[10px] font-black tracking-widest italic">{item.qty} × ₹{item.price}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pricing & Actions */}
+                  <div className="flex flex-col justify-between">
+                    <div className="text-left md:text-right">
+                      <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-1">Total Charged</p>
+                      <p className="text-primary text-4xl font-black tracking-tighter">₹{order.totalPrice.toFixed(2)}</p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-3">
-                      <span className={`px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest border ${getStatusStyle(order.deliveryStatus)}`}>
-                        {order.deliveryStatus || 'Processing'}
-                      </span>
-                      <span className={`px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest border ${order.isPaid ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-                        {order.isPaid ? 'Payment Confirmed' : 'Awaiting Payment'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                    {/* Items Section */}
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Bag Items</h3>
-                      <div className="space-y-4">
-                        {order.orderItems.slice(0, 2).map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-4 bg-bg-cream/50 p-3 border border-black/5">
-                            <img src={item.image} className="w-12 h-12 object-cover rounded-sm" />
-                            <div className="flex-1 overflow-hidden">
-                              <p className="text-primary text-[11px] font-black uppercase tracking-tight truncate">{item.name}</p>
-                              <p className="text-muted text-[10px] font-medium mt-0.5">{item.qty} × ${item.price}</p>
+                    <div className="space-y-4 mt-8">
+                      {!order.isDelivered ? (
+                        <div className="space-y-4">
+                          {order.deliveryOTP ? (
+                            <div className="bg-primary text-white p-5 rounded-sm text-center shadow-md">
+                              <p className="text-white/70 text-[8px] font-black uppercase tracking-widest mb-1">Secure Delivery OTP</p>
+                              <p className="text-3xl font-black tracking-[0.3em]">{order.deliveryOTP}</p>
                             </div>
-                          </div>
-                        ))}
-                        {order.orderItems.length > 2 && (
-                          <p className="text-muted text-[9px] font-black uppercase tracking-widest pl-2">+{order.orderItems.length - 2} Additional Items</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Delivery Section */}
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Destination</h3>
-                      <div className="bg-bg-cream/50 p-6 border border-black/5 space-y-6">
-                        <div className="flex items-center gap-4">
-                          <MapPin size={16} className="text-muted" />
-                          <p className="text-muted text-[11px] font-medium leading-relaxed truncate">{order.shippingAddress?.address}, {order.shippingAddress?.city}</p>
+                          ) : (
+                            <button 
+                              onClick={() => generateOtp(order._id)}
+                              className="w-full bg-white border-2 border-primary text-primary py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
+                            >
+                              <Shield size={14} /> Generate Security OTP
+                            </button>
+                          )}
                         </div>
-                        {order.deliveryPartner && (
-                          <div className="flex items-center gap-4 pt-4 border-t border-black/5">
-                            <Truck size={16} className="text-primary" />
-                            <div>
-                              <p className="text-primary text-[11px] font-black uppercase tracking-widest">{order.deliveryPartner.name}</p>
-                              <p className="text-muted text-[9px] font-medium">Official Delivery Partner</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Pricing & Actions */}
-                    <div className="flex flex-col justify-between">
-                      <div className="text-left md:text-right">
-                        <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em] mb-1">Total Charged</p>
-                        <p className="text-primary text-4xl font-black tracking-tighter">${order.totalPrice.toFixed(2)}</p>
-                      </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-green-600 font-black uppercase tracking-widest text-[10px] justify-start md:justify-end">
+                          <CheckCircle size={16} /> Order Fulfilled
+                        </div>
+                      )}
                       
-                      <div className="space-y-4 mt-8">
-                        {order.deliveryStatus === 'Out For Delivery' && (
-                          <div className="space-y-2">
-                            {order.deliveryOTP ? (
-                              <div className="bg-primary text-white p-5 rounded-sm text-center shadow-md">
-                                <p className="text-white/70 text-[8px] font-black uppercase tracking-widest mb-1">Secure Delivery OTP</p>
-                                <p className="text-3xl font-black tracking-[0.3em]">{order.deliveryOTP}</p>
-                              </div>
-                            ) : (
-                              <button 
-                                onClick={() => generateOtp(order._id)}
-                                disabled={generatingOtp === order._id}
-                                className="w-full py-4 bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
-                              >
-                                <Shield size={16} /> 
-                                {generatingOtp === order._id ? 'Securing...' : 'Get Delivery OTP'}
-                              </button>
-                            )}
-                          </div>
-                        )}
-                        <Link 
-                          to={`/order/${order._id}`}
-                          className="w-full py-4 border border-black/10 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:bg-bg-cream transition-all flex items-center justify-center gap-2"
-                        >
-                          <Truck size={16} /> Track Details <ChevronRight size={14} />
-                        </Link>
-                      </div>
+                      <Link 
+                        to={`/order/${order._id}`}
+                        className="w-full btn-allbirds py-4 flex items-center justify-center gap-2 group"
+                      >
+                        Track Shipment <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      </Link>
                     </div>
                   </div>
+
                 </div>
               </motion.div>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <div className="py-32 text-center bg-white border border-black/5">
+              <Package className="mx-auto text-muted mb-6" size={48} />
+              <h3 className="text-xl font-black uppercase tracking-tighter text-primary">No orders yet</h3>
+              <p className="text-muted text-[11px] font-black uppercase tracking-widest mt-2">Start your journey into sustainable fashion</p>
+              <Link to="/shop" className="inline-block mt-8 btn-allbirds px-12">Shop Now</Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

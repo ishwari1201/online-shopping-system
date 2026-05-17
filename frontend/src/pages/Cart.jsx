@@ -76,7 +76,7 @@ const Cart = () => {
                     >
                       {item.name}
                     </Link>
-                    <p className="text-gray-500 text-[12px] font-medium mt-1">${item.price}</p>
+                    <p className="text-gray-500 text-[12px] font-medium mt-1">₹{item.price}</p>
 
                     <div className="mt-4 flex items-center gap-6">
                       <div className="flex items-center border border-black/10 rounded-sm">
@@ -117,19 +117,19 @@ const Cart = () => {
                 <div className="space-y-4 mb-10">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="font-bold">${itemsPrice}</span>
+                    <span className="font-bold">₹{itemsPrice}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Shipping</span>
-                    <span className="font-bold">{shippingPrice === 0 ? 'FREE' : `$${shippingPrice}`}</span>
+                    <span className="font-bold">{shippingPrice === 0 ? 'FREE' : `₹${shippingPrice}`}</span>
                   </div>
                   <div className="flex justify-between text-sm pb-4 border-b border-black/5">
                     <span className="text-gray-500">Tax</span>
-                    <span className="font-bold">${taxPrice}</span>
+                    <span className="font-bold">₹{taxPrice}</span>
                   </div>
                   <div className="flex justify-between text-lg font-black pt-2">
                     <span className="uppercase tracking-tighter">Total</span>
-                    <span>${totalPrice}</span>
+                    <span>₹{totalPrice}</span>
                   </div>
                 </div>
 

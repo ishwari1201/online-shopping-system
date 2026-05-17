@@ -392,6 +392,13 @@ const updateOrderStatus = async (req, res, next) => {
       if (status === 'Delivered') {
         order.isDelivered = true;
         order.deliveredAt = Date.now();
+        
+        // If Cash on Delivery, mark payment as paid upon successful delivery
+        if (order.paymentMethod === 'Cash on Delivery') {
+          order.isPaid = true;
+          order.paidAt = Date.now();
+          order.paymentStatus = 'Paid';
+        }
       }
       await order.save();
       res.json({ message: 'Order status updated' });

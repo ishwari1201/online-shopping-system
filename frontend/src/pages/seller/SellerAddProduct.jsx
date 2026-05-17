@@ -7,14 +7,11 @@ import {
   Trash2, 
   Save, 
   ArrowLeft,
-  ChevronRight,
   Package,
   Layers,
-  Settings,
   Info
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const SellerAddProduct = () => {
   const navigate = useNavigate();
@@ -38,14 +35,6 @@ const SellerAddProduct = () => {
   // Advanced
   const [specs, setSpecs] = useState([{ key: '', value: '' }]);
   const [variants, setVariants] = useState([{ color: '', size: '', stock: '', price: '' }]);
-
-  const addSpec = () => setSpecs([...specs, { key: '', value: '' }]);
-  const removeSpec = (index) => setSpecs(specs.filter((_, i) => i !== index));
-  const updateSpec = (index, field, value) => {
-    const newSpecs = [...specs];
-    newSpecs[index][field] = value;
-    setSpecs(newSpecs);
-  };
 
   const addVariant = () => setVariants([...variants, { color: '', size: '', stock: '', price: '' }]);
   const removeVariant = (index) => setVariants(variants.filter((_, i) => i !== index));
@@ -94,204 +83,240 @@ const SellerAddProduct = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-3 bg-slate-900 border border-white/5 rounded-2xl text-gray-400 hover:text-white transition-all">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Add New Product</h1>
-          <p className="text-gray-400 text-sm">Fill in the details to list your product in the marketplace.</p>
+    <div className="min-h-screen bg-[#fafafa] font-sans text-[#111827] pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate(-1)} className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">Add New Product</h1>
+              <p className="text-sm text-gray-500 mt-1">Fill in the details to list your product in the marketplace.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <button 
+              type="button"
+              onClick={() => navigate(-1)}
+              className="flex-1 md:flex-none text-center bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"
+            >
+              Discard
+            </button>
+            <button 
+              onClick={submitHandler}
+              disabled={loading}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gray-900 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-70"
+            >
+              {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Save size={16} />}
+              Save Product
+            </button>
+          </div>
         </div>
-      </div>
 
-      <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {/* General Information */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 bg-primary-500/10 text-primary-500 rounded-xl"><Info size={20} /></div>
-              <h3 className="text-white font-bold text-lg">General Information</h3>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Product Title</label>
-              <input 
-                type="text" required
-                className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                placeholder="e.g. Premium Cotton T-Shirt"
-                value={name} onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Description</label>
-              <textarea 
-                rows="6" required
-                className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all resize-none"
-                placeholder="Describe your product features, materials, and benefits..."
-                value={description} onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div className="lg:col-span-2 space-y-8">
+            {/* General Information */}
+            <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <Info size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">General Information</h3>
+              </div>
+              
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Brand Name</label>
+                <label className="text-sm font-semibold text-gray-700">Product Title <span className="text-red-500">*</span></label>
                 <input 
                   type="text" required
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                  value={brand} onChange={(e) => setBrand(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                  placeholder="e.g. Premium Cotton T-Shirt"
+                  value={name} onChange={(e) => setName(e.target.value)}
                 />
               </div>
+
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">SKU (Stock Keeping Unit)</label>
-                <input 
-                  type="text"
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all font-mono"
-                  value={sku} onChange={(e) => setSku(e.target.value)}
+                <label className="text-sm font-semibold text-gray-700">Description <span className="text-red-500">*</span></label>
+                <textarea 
+                  rows="5" required
+                  className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none placeholder:text-gray-400"
+                  placeholder="Describe your product features, materials, and benefits..."
+                  value={description} onChange={(e) => setDescription(e.target.value)}
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Brand Name <span className="text-red-500">*</span></label>
+                  <input 
+                    type="text" required
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    value={brand} onChange={(e) => setBrand(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">SKU (Stock Keeping Unit)</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono"
+                    value={sku} onChange={(e) => setSku(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing & Inventory */}
+            <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Package size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Pricing & Inventory</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Base Price (₹) <span className="text-red-500">*</span></label>
+                  <input 
+                    type="number" required
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    value={price} onChange={(e) => setPrice(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Discount (%)</label>
+                  <input 
+                    type="number"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    value={discount} onChange={(e) => setDiscount(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Total Stock <span className="text-red-500">*</span></label>
+                  <input 
+                    type="number" required
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    value={countInStock} onChange={(e) => setCountInStock(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Variants */}
+            <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] space-y-6">
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <Layers size={18} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">Product Variants</h3>
+                </div>
+                <button type="button" onClick={addVariant} className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                  <Plus size={16} /> Add Variant
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {variants.map((v, i) => (
+                  <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end bg-gray-50/50 p-5 rounded-xl border border-gray-200 relative group">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-500">Color</label>
+                      <input type="text" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" value={v.color} onChange={(e) => updateVariant(i, 'color', e.target.value)} placeholder="e.g. Red" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-500">Size</label>
+                      <input type="text" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" value={v.size} onChange={(e) => updateVariant(i, 'size', e.target.value)} placeholder="e.g. XL" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-500">Add. Price</label>
+                      <input type="number" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" value={v.price} onChange={(e) => updateVariant(i, 'price', e.target.value)} placeholder="0" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-500">Stock</label>
+                      <input type="number" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" value={v.stock} onChange={(e) => updateVariant(i, 'stock', e.target.value)} placeholder="0" />
+                    </div>
+                    <div className="flex justify-end pb-1">
+                      <button type="button" onClick={() => removeVariant(i)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                    </div>
+                  </div>
+                ))}
+                {variants.length === 0 && (
+                  <p className="text-sm text-gray-500 italic text-center py-4">No variants added.</p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Pricing & Inventory */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 bg-green-500/10 text-green-500 rounded-xl"><Package size={20} /></div>
-              <h3 className="text-white font-bold text-lg">Pricing & Inventory</h3>
-            </div>
+          <div className="space-y-8">
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Base Price ($)</label>
+            {/* Media Upload */}
+            <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] space-y-6">
+              <h3 className="text-base font-bold text-gray-900 mb-2">Product Media</h3>
+              <div className="flex gap-2">
                 <input 
-                  type="number" required
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                  value={price} onChange={(e) => setPrice(e.target.value)}
+                  type="text" 
+                  className="flex-1 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                  placeholder="Paste Image URL..."
+                  value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
                 />
+                <button type="button" onClick={addImageUrl} className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-semibold text-sm">Add</button>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Discount (%)</label>
-                <input 
-                  type="number"
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                  value={discount} onChange={(e) => setDiscount(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Total Stock</label>
-                <input 
-                  type="number" required
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                  value={countInStock} onChange={(e) => setCountInStock(e.target.value)}
-                />
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                {images.map((img, i) => (
+                  <div key={i} className="relative group rounded-xl overflow-hidden aspect-square border border-gray-200 bg-gray-50">
+                    <img src={img} className="w-full h-full object-cover" />
+                    <button onClick={() => removeImage(i)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+                {images.length === 0 && (
+                  <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                    <ImageIcon size={32} className="mb-3 text-gray-300" />
+                    <p className="text-sm font-semibold text-gray-500">No images provided</p>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
 
-          {/* Variants */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-             <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl"><Layers size={20} /></div>
-                <h3 className="text-white font-bold text-lg">Product Variants</h3>
+            {/* Category Selection */}
+            <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] space-y-6">
+              <h3 className="text-base font-bold text-gray-900 mb-2">Organization</h3>
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Category <span className="text-red-500">*</span></label>
+                  <select 
+                    required
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                    value={category} onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">Select Category...</option>
+                    <option value="Clothes">Clothes</option>
+                    <option value="Shoes">Shoes</option>
+                    <option value="Watches">Watches</option>
+                    <option value="Bags">Bags</option>
+                    <option value="Accessories">Accessories</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Subcategory (e.g. Men, Women)</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400" 
+                    value={subcategory} onChange={(e) => setSubcategory(e.target.value)} 
+                    placeholder="e.g. Women"
+                  />
+                </div>
               </div>
-              <button type="button" onClick={addVariant} className="text-primary-500 font-bold text-xs uppercase tracking-widest hover:underline">+ Add Variant</button>
             </div>
-            
-            {variants.map((v, i) => (
-              <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end bg-slate-800/50 p-4 rounded-2xl border border-white/5 relative group">
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Color</label>
-                  <input type="text" className="w-full bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-white text-xs" value={v.color} onChange={(e) => updateVariant(i, 'color', e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Size</label>
-                  <input type="text" className="w-full bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-white text-xs" value={v.size} onChange={(e) => updateVariant(i, 'size', e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Price</label>
-                  <input type="number" className="w-full bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-white text-xs" value={v.price} onChange={(e) => updateVariant(i, 'price', e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Stock</label>
-                  <input type="number" className="w-full bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-white text-xs" value={v.stock} onChange={(e) => updateVariant(i, 'stock', e.target.value)} />
-                </div>
-                <div className="flex justify-end">
-                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><Trash2 size={14} /></button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="space-y-8">
-          {/* Media Upload */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-            <h3 className="text-white font-bold text-lg mb-4">Media / Images</h3>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                className="flex-1 bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-white text-xs"
-                placeholder="Paste Image URL..."
-                value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
-              />
-              <button type="button" onClick={addImageUrl} className="p-3 bg-primary-600 text-white rounded-xl hover:bg-primary-500 transition-all"><Plus size={18} /></button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {images.map((img, i) => (
-                <div key={i} className="relative group rounded-2xl overflow-hidden aspect-square border border-white/10 bg-slate-800">
-                  <img src={img} className="w-full h-full object-cover" />
-                  <button onClick={() => removeImage(i)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              ))}
-              {images.length === 0 && (
-                <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-600 border-2 border-dashed border-white/5 rounded-2xl">
-                  <ImageIcon size={32} className="mb-2" />
-                  <p className="text-xs font-bold">No images added</p>
-                </div>
-              )}
-            </div>
           </div>
-
-          {/* Category Selection */}
-          <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-            <h3 className="text-white font-bold text-lg mb-4">Organization</h3>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Category</label>
-                <select 
-                  required
-                  className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none"
-                  value={category} onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="">Select Category</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Home">Home</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Subcategory</label>
-                <input type="text" className="w-full bg-slate-800 border border-white/5 rounded-2xl px-5 py-4 text-white" value={subcategory} onChange={(e) => setSubcategory(e.target.value)} />
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-tr from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl shadow-primary-900/40 flex items-center justify-center gap-3"
-          >
-            {loading ? <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div> : <Save size={20} />}
-            Submit for Review
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

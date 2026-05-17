@@ -156,6 +156,13 @@ const updateDeliveryStatus = async (req, res) => {
     order.deliveredAt = Date.now();
     order.status = 'Delivered';
 
+    // If Cash on Delivery, mark payment as paid upon successful delivery
+    if (order.paymentMethod === 'Cash on Delivery') {
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.paymentStatus = 'Paid';
+    }
+
     // Update Delivery Partner Earnings (₹50 per delivery)
     const partner = await User.findById(order.deliveryPartner);
     if (partner) {

@@ -7,7 +7,6 @@ import {
   ShoppingBag, 
   BarChart3, 
   Settings, 
-  User, 
   LogOut, 
   Menu, 
   X,
@@ -16,7 +15,9 @@ import {
   Archive,
   DollarSign,
   Star,
-  Store
+  Store,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { logoutUser } from '../../redux/slices/authSlice';
 import axios from 'axios';
@@ -52,85 +53,106 @@ const SellerLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-[#fafafa] flex font-sans text-gray-900">
+      
       {/* Sidebar */}
       <aside 
-        className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 border-r border-white/5 transition-all duration-300 fixed h-full z-50`}
+        className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-gray-200 transition-all duration-300 fixed h-full z-50 flex flex-col`}
       >
-        <div className="p-6 flex items-center justify-between">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
           {isSidebarOpen && (
-            <Link to="/" className="text-2xl font-black text-white tracking-tighter">
-              WEARIFY<span className="text-primary-500">.</span>SELLER
+            <Link to="/seller/dashboard" className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2 pl-2">
+              <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center font-black text-sm">
+                W
+              </div>
+              Wearify
             </Link>
           )}
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-colors mx-auto"
           >
-            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {isSidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
-        <nav className="mt-6 px-4 space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.path}
-              className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
-                location.pathname === item.path 
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' 
-                  : 'text-gray-400 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <span className="flex-shrink-0">{item.icon}</span>
-              {isSidebarOpen && <span className="font-medium">{item.title}</span>}
-            </Link>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path || (location.pathname.startsWith('/seller/edit-product') && item.path === '/seller/products');
+            return (
+              <Link
+                key={item.title}
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${
+                  isActive 
+                    ? 'bg-blue-50 text-blue-700 font-semibold' 
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium'
+                }`}
+                title={!isSidebarOpen ? item.title : ''}
+              >
+                <span className={`flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  {item.icon}
+                </span>
+                {isSidebarOpen && <span className="text-sm">{item.title}</span>}
+                
+                {isActive && isSidebarOpen && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-600 rounded-r-full"></div>
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="absolute bottom-8 left-0 w-full px-4">
+        <div className="p-4 border-t border-gray-100">
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-4 px-4 py-3 w-full rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 font-medium transition-colors group"
+            title={!isSidebarOpen ? 'Logout' : ''}
           >
-            <LogOut size={20} />
-            {isSidebarOpen && <span className="font-medium">Logout</span>}
+            <LogOut size={20} className="text-gray-400 group-hover:text-red-500 flex-shrink-0" />
+            {isSidebarOpen && <span className="text-sm">Log out</span>}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
-        {/* Top Navbar */}
-        <header className="h-20 bg-slate-900/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 sticky top-0 z-40">
-          <div className="flex items-center gap-4 bg-slate-800/50 px-4 py-2 rounded-xl border border-white/5 w-96">
-            <Search size={18} className="text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search items..." 
-              className="bg-transparent border-none outline-none text-white text-sm w-full"
-            />
+      <main className={`flex-1 transition-all duration-300 flex flex-col min-h-screen ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+        
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-40">
+          <div className="flex items-center flex-1">
+            <div className="relative w-full max-w-md hidden md:block">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search orders, products, or settings..." 
+                className="w-full bg-gray-50 border border-transparent focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-lg py-2 pl-9 pr-4 text-sm text-gray-900 transition-all outline-none"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link to="/seller/notifications" className="relative text-gray-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-all">
+          <div className="flex items-center gap-4">
+            <Link to="/seller/notifications" className="relative p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all">
               <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full border-2 border-slate-900"></span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </Link>
-            <div className="flex items-center gap-3 pl-6 border-l border-white/10">
+            
+            <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+            
+            <div className="flex items-center gap-3 cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg transition-colors">
               <div className="text-right hidden sm:block">
-                <p className="text-white text-sm font-bold">{userInfo?.name}</p>
-                <p className="text-primary-400 text-xs font-medium uppercase tracking-widest">{userInfo?.role}</p>
+                <p className="text-sm font-semibold text-gray-900 leading-none">{userInfo?.name || 'Seller'}</p>
+                <p className="text-xs text-gray-500 font-medium mt-1">Store Admin</p>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
-                {userInfo?.name?.charAt(0)}
+              <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
+                {userInfo?.name?.charAt(0) || 'S'}
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-8">
+        <div className="flex-1 relative">
           {children}
         </div>
       </main>

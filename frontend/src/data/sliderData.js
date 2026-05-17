@@ -1,0 +1,32 @@
+export const sliderData = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&auto=format&fit=crop",
+    heading: "Summer Edit 2026",
+    subheading: "Lightweight fabrics and breathable designs for the modern wardrobe.",
+    btn1: "Shop New Arrivals",
+    btn1Link: "/shop",
+    btn2: "View Lookbook",
+    btn2Link: "/shop",
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?q=80&w=1600&auto=format&fit=crop",
+    heading: "Urban Essentials",
+    subheading: "Everything you need for your daily hustle, curated by top vendors.",
+    btn1: "Shop Essentials",
+    btn1Link: "/shop",
+    btn2: "Top Rated",
+    btn2Link: "/shop",
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop",
+    heading: "Sustainable Luxury",
+    subheading: "Premium materials meet ethical craftsmanship in every piece.",
+    btn1: "Explore Eco-Line",
+    btn1Link: "/shop",
+    btn2: "Learn More",
+    btn2Link: "/shop",
+  },
+];

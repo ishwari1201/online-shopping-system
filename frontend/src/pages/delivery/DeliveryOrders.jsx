@@ -67,8 +67,8 @@ const DeliveryOrders = () => {
   return (
     <div className="space-y-6 pb-12">
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Active Shipments</h1>
-        <p className="text-gray-400 text-sm">Manage your currently assigned deliveries and updates</p>
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Active Shipments</h1>
+        <p className="text-gray-500 text-sm">Manage your currently assigned deliveries and updates</p>
       </div>
 
       {loading ? (
@@ -76,11 +76,11 @@ const DeliveryOrders = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-20 text-center">
-          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-gray-500">
+        <div className="bg-white border border-gray-200 rounded-[2.5rem] p-20 text-center shadow-sm">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-gray-400 border border-gray-100">
             <Truck size={32} />
           </div>
-          <h3 className="text-white font-bold text-lg">No Active Assignments</h3>
+          <h3 className="text-gray-900 font-bold text-lg">No Active Assignments</h3>
           <p className="text-gray-500 text-sm mt-2">New orders will appear here once assigned by the admin.</p>
         </div>
       ) : (
@@ -93,37 +93,37 @@ const DeliveryOrders = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group"
+                className="bg-white border border-gray-200 rounded-[2.5rem] p-6 shadow-sm hover:shadow-md relative overflow-hidden group transition-shadow"
               >
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.deliveryStatus)}`}>
                       {order.deliveryStatus}
                     </span>
-                    <h3 className="text-white font-black text-lg mt-2">#{String(order._id).slice(-6).toUpperCase()}</h3>
+                    <h3 className="text-gray-900 font-black text-lg mt-2">#{String(order._id).slice(-6).toUpperCase()}</h3>
                   </div>
-                  <Link to={`/delivery/order/${order._id}`} className="p-3 bg-slate-800 text-gray-400 hover:text-white rounded-xl transition-all">
+                  <Link to={`/delivery/order/${order._id}`} className="p-3 bg-gray-50 text-gray-500 hover:text-gray-900 rounded-xl transition-all border border-transparent hover:border-gray-200 hover:bg-white hover:shadow-sm">
                     <ChevronRight size={18} />
                   </Link>
                 </div>
 
                 <div className="space-y-4 mb-8">
                   <div className="flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-800 text-gray-400 rounded-lg">
+                    <div className="p-2.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
                       <MapPin size={16} />
                     </div>
                     <div>
                       <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Delivery Address</p>
-                      <p className="text-white text-sm font-medium leading-relaxed">{order.shippingAddress?.address}, {order.shippingAddress?.city}</p>
+                      <p className="text-gray-900 text-sm font-medium leading-relaxed">{order.shippingAddress?.address}, {order.shippingAddress?.city}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-800 text-gray-400 rounded-lg">
+                    <div className="p-2.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
                       <Package size={16} />
                     </div>
                     <div>
                       <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Items</p>
-                      <p className="text-white text-sm font-medium">{order.orderItems?.length} Products • ${order.totalPrice}</p>
+                      <p className="text-gray-900 text-sm font-medium">{order.orderItems?.length} Products • ₹{order.totalPrice}</p>
                     </div>
                   </div>
                 </div>
@@ -176,17 +176,17 @@ const DeliveryOrders = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
               onClick={() => setShowOtpModal(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-slate-900 border border-white/10 p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl"
+              className="relative bg-white border border-gray-200 p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl"
             >
-              <h3 className="text-2xl font-black text-white mb-2">Verify Delivery</h3>
-              <p className="text-gray-400 text-sm mb-6">Ask the customer for the 4-digit OTP sent to their tracking page.</p>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Verify Delivery</h3>
+              <p className="text-gray-500 text-sm mb-6">Ask the customer for the 4-digit OTP sent to their tracking page.</p>
               
               <input 
                 type="text"
@@ -194,20 +194,20 @@ const DeliveryOrders = () => {
                 placeholder="Enter 4-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full bg-slate-800 border border-white/5 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 mb-6"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 mb-6"
               />
               
               <div className="flex gap-3">
                 <button 
                   onClick={() => setShowOtpModal(false)}
-                  className="flex-1 py-4 bg-slate-800 text-gray-400 rounded-2xl font-bold text-xs uppercase tracking-widest"
+                  className="flex-1 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={() => updateStatus(selectedOrderId, 'Delivered', otp)}
                   disabled={otp.length !== 4 || processing}
-                  className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50"
+                  className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-primary-500/20"
                 >
                   {processing ? 'Verifying...' : 'Confirm'}
                 </button>

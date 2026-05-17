@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingBag, TrendingUp, Star, Shield, Truck, RefreshCw, Search, Heart, ArrowRight } from 'lucide-react';
+import { ShoppingBag, TrendingUp, Star, Shield, Truck, RefreshCw, Search, Heart, ArrowRight, Leaf, Droplets, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import HeroSlider from '../components/home/HeroSlider';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const ProductCard = ({ product }) => {
       </div>
       <div className="mt-4 space-y-1">
         <h3 className="text-[12px] font-black text-primary uppercase tracking-tight">{product.name}</h3>
-        <p className="text-[12px] text-muted font-medium">${product.price}</p>
+        <p className="text-[12px] text-muted font-medium">₹{product.price}</p>
       </div>
     </motion.div>
   );
@@ -52,7 +53,7 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get('/api/products');
-        setProducts(data.products.slice(0, 4));
+        setProducts(data.products.slice(0, 8));
       } catch (error) {
         console.error(error);
       }
@@ -62,52 +63,20 @@ const Home = () => {
 
   const categories = [
     { name: 'Clothes', image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Watches', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Bags', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Accessories', image: 'https://images.unsplash.com/photo-1511406361295-0a5ff814c0ad?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Shoes', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Watches', image: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Bags', image: 'https://images.unsplash.com/photo-1547949003-9792a18a2601?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Accessories', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=800&auto=format&fit=crop' }
   ];
 
   return (
     <div className="bg-bg-cream">
-      {/* Hero Section */}
-      <section className="relative h-screen min-h-[700px] flex items-center justify-center">
-        <div className="absolute inset-0">
-          <img 
-            src="/allbirds_hero_sustainable_1778924604133.png" 
-            alt="Sustainable Fashion" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/10"></div>
-        </div>
-        
-        <div className="relative z-10 text-center text-white px-4">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8"
-          >
-            Nature-Made <br /> Style
-          </motion.h1>
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/shop?category=Men" className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
-              Shop Men
-            </Link>
-            <Link to="/shop?category=Women" className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
-              Shop Women
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* Hero Slider Section */}
+      <HeroSlider />
+
 
       {/* Category Grid */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-black/5">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-black uppercase tracking-tighter text-primary">Shop By Category</h2>
           <div className="w-12 h-1 bg-primary mx-auto mt-4"></div>
@@ -119,11 +88,12 @@ const Home = () => {
               key={cat.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className={`relative overflow-hidden cursor-pointer group ${idx === 0 || idx === 3 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+              className="relative overflow-hidden cursor-pointer group"
             >
               <Link to={`/shop?category=${cat.name}`}>
-                <div className="aspect-[4/5] overflow-hidden bg-gray-200">
+                <div className="aspect-[4/5] overflow-hidden bg-gray-200 rounded-sm">
                   <img 
                     src={cat.image} 
                     alt={cat.name} 
@@ -160,31 +130,6 @@ const Home = () => {
             {products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Sustainability Section */}
-      <section className="py-24 bg-[#212a2f] text-white overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
-          <div>
-            <span className="text-accent text-[11px] font-black uppercase tracking-[0.3em]">Our Commitment</span>
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mt-6 mb-8">
-              Crafted With <br /> Care For <br /> The Planet.
-            </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-md">
-              We believe in making things better. Better materials, better design, and a better future for our planet. Every product in our collection is chosen with sustainability in mind.
-            </p>
-            <button className="bg-white text-primary px-10 py-4 font-black uppercase tracking-widest text-[11px] hover:bg-bg-cream transition-colors">
-              Learn More
-            </button>
-          </div>
-          <div className="relative">
-            <img 
-              src="/allbirds_category_grid_1778924740292.png" 
-              alt="Sustainable Grid" 
-              className="rounded-sm shadow-2xl scale-110"
-            />
           </div>
         </div>
       </section>

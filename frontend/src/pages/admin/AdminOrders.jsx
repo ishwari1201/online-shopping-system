@@ -104,19 +104,19 @@ const AdminOrders = () => {
     <div className="space-y-6 pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Orders Management</h1>
-          <p className="text-gray-400 text-sm">Monitor and process marketplace orders</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Orders Management</h1>
+          <p className="text-gray-500 text-sm">Monitor and process marketplace orders</p>
         </div>
         
-        <div className="flex bg-slate-800 p-1 rounded-2xl border border-white/5">
+        <div className="flex bg-gray-100 p-1 rounded-2xl border border-gray-200">
           {['All', 'Pending', 'Shipped', 'Delivered', 'Cancelled'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 statusFilter === status 
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200/50' 
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               {status}
@@ -125,13 +125,13 @@ const AdminOrders = () => {
         </div>
       </div>
 
-      <div className="bg-slate-900 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50">
+      <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
               placeholder="Search by Order ID or Customer..." 
-              className="w-full bg-slate-800 text-white border border-white/5 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -142,7 +142,7 @@ const AdminOrders = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
+              <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-100">
                 <th className="px-8 py-5">Order ID</th>
                 <th className="px-8 py-5">Customer</th>
                 <th className="px-8 py-5">Items</th>
@@ -151,7 +151,7 @@ const AdminOrders = () => {
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan="6" className="px-8 py-20 text-center">
@@ -166,16 +166,16 @@ const AdminOrders = () => {
                 </tr>
               ) : (
                 filteredOrders.map((order) => (
-                  <tr key={order._id} className="group hover:bg-white/[0.02] transition-colors">
-                    <td className="px-8 py-5 text-sm font-mono text-gray-400">#{String(order._id).slice(-6).toUpperCase()}</td>
+                  <tr key={order._id} className="group hover:bg-gray-50 transition-colors">
+                    <td className="px-8 py-5 text-sm font-mono text-gray-500">#{String(order._id).slice(-6).toUpperCase()}</td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white">{order.user?.name}</span>
+                        <span className="text-sm font-bold text-gray-900">{order.user?.name}</span>
                         <span className="text-xs text-gray-500">{order.user?.email}</span>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-sm text-gray-400">{order.orderItems?.length} Products</td>
-                    <td className="px-8 py-5 text-center text-sm font-black text-white">${order.totalPrice}</td>
+                    <td className="px-8 py-5 text-sm text-gray-500 font-medium">{order.orderItems?.length} Products</td>
+                    <td className="px-8 py-5 text-center text-sm font-black text-gray-900">₹{order.totalPrice}</td>
                     <td className="px-8 py-5">
                       <div className="flex justify-center">
                         <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${getStatusColor(order.status)}`}>
@@ -186,7 +186,7 @@ const AdminOrders = () => {
                     <td className="px-8 py-5 text-right">
                       <button 
                         onClick={() => { setSelectedOrder(order); setShowDetailsModal(true); }}
-                        className="p-2.5 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
+                        className="p-2.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-primary-100"
                       >
                         <Eye size={18} />
                       </button>
@@ -207,18 +207,18 @@ const AdminOrders = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" 
+              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" 
               onClick={() => setShowDetailsModal(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              className="relative bg-white border border-gray-200 rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-xl flex flex-col max-h-[90vh]"
             >
-              <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+              <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <div>
-                  <h2 className="text-xl font-black text-white uppercase tracking-tight">Order Details</h2>
+                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Order Details</h2>
                   <p className="text-gray-500 text-xs font-mono mt-1">ID: #{selectedOrder._id}</p>
                 </div>
                 <div className={`px-4 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest border ${getStatusColor(selectedOrder.status)}`}>
@@ -231,45 +231,45 @@ const AdminOrders = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Shipping Information</h3>
-                    <div className="bg-slate-800/50 p-6 rounded-2xl border border-white/5 flex gap-4">
-                      <div className="p-3 bg-primary-500/10 text-primary-500 rounded-xl h-fit">
+                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 flex gap-4">
+                      <div className="p-3 bg-primary-50 text-primary-600 border border-primary-100 rounded-xl h-fit">
                         <MapPin size={20} />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-white font-bold">{selectedOrder.user?.name}</p>
-                        <p className="text-gray-400 text-sm">{selectedOrder.shippingAddress?.address}</p>
-                        <p className="text-gray-400 text-sm">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.postalCode}</p>
-                        <p className="text-gray-400 text-sm">{selectedOrder.shippingAddress?.country}</p>
+                        <p className="text-gray-900 font-bold">{selectedOrder.user?.name}</p>
+                        <p className="text-gray-500 text-sm">{selectedOrder.shippingAddress?.address}</p>
+                        <p className="text-gray-500 text-sm">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.postalCode}</p>
+                        <p className="text-gray-500 text-sm">{selectedOrder.shippingAddress?.country}</p>
                       </div>
                     </div>
                   </div>
 
                   <div>
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Payment Method</h3>
-                    <div className="bg-slate-800/50 p-6 rounded-2xl border border-white/5 flex items-center gap-4">
-                      <div className="p-3 bg-green-500/10 text-green-500 rounded-xl">
+                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 flex items-center gap-4">
+                      <div className="p-3 bg-green-50 text-green-600 border border-green-100 rounded-xl">
                         <CreditCard size={20} />
                       </div>
-                      <p className="text-white font-bold">{selectedOrder.paymentMethod}</p>
+                      <p className="text-gray-900 font-bold">{selectedOrder.paymentMethod}</p>
                     </div>
                   </div>
 
-                  <div className="bg-slate-800/50 p-6 rounded-2xl border border-white/5 space-y-3">
+                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Subtotal</span>
-                      <span className="text-white font-bold">${selectedOrder.itemsPrice}</span>
+                      <span className="text-gray-900 font-bold">₹{selectedOrder.itemsPrice}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Shipping</span>
-                      <span className="text-white font-bold">${selectedOrder.shippingPrice}</span>
+                      <span className="text-gray-900 font-bold">₹{selectedOrder.shippingPrice}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Tax</span>
-                      <span className="text-white font-bold">${selectedOrder.taxPrice}</span>
+                      <span className="text-gray-900 font-bold">₹{selectedOrder.taxPrice}</span>
                     </div>
-                    <div className="pt-3 border-t border-white/10 flex justify-between">
-                      <span className="text-white font-black uppercase tracking-widest text-xs">Total</span>
-                      <span className="text-primary-400 font-black text-lg">${selectedOrder.totalPrice}</span>
+                    <div className="pt-3 border-t border-gray-200 flex justify-between">
+                      <span className="text-gray-900 font-black uppercase tracking-widest text-xs">Total</span>
+                      <span className="text-primary-600 font-black text-lg">₹{selectedOrder.totalPrice}</span>
                     </div>
                   </div>
                 </div>
@@ -280,32 +280,32 @@ const AdminOrders = () => {
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Order Items</h3>
                     <div className="space-y-3">
                       {selectedOrder.orderItems.map((item, index) => (
-                        <div key={index} className="bg-slate-800/50 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
+                        <div key={index} className="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex items-center gap-4">
                           <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
                           <div className="flex-1">
-                            <p className="text-white font-bold text-sm line-clamp-1">{item.name}</p>
-                            <p className="text-gray-500 text-xs">{item.qty} x ${item.price}</p>
+                            <p className="text-gray-900 font-bold text-sm line-clamp-1">{item.name}</p>
+                            <p className="text-gray-500 text-xs font-medium">{item.qty} x ₹{item.price}</p>
                           </div>
-                          <div className="text-white font-black text-sm">${(item.qty * item.price).toFixed(2)}</div>
+                          <div className="text-gray-900 font-black text-sm">₹{(item.qty * item.price).toFixed(2)}</div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-white/5 space-y-4">
+                  <div className="pt-6 border-t border-gray-200 space-y-4">
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Quick Actions</h3>
                     <div className="grid grid-cols-2 gap-3">
                       <button 
                         onClick={() => updateOrderStatus(selectedOrder._id, 'Shipped')}
                         disabled={selectedOrder.status === 'Shipped' || selectedOrder.status === 'Delivered'}
-                        className="flex items-center justify-center gap-2 bg-purple-600 text-white p-3 rounded-xl font-bold text-xs hover:bg-purple-500 transition-all disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 bg-purple-600 text-white p-3 rounded-xl font-bold text-xs hover:bg-purple-500 transition-all disabled:opacity-50 shadow-sm"
                       >
                         <Truck size={16} /> Mark Shipped
                       </button>
                       <button 
                         onClick={() => updateOrderStatus(selectedOrder._id, 'Delivered')}
                         disabled={selectedOrder.status === 'Delivered'}
-                        className="flex items-center justify-center gap-2 bg-green-600 text-white p-3 rounded-xl font-bold text-xs hover:bg-green-500 transition-all disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 bg-green-600 text-white p-3 rounded-xl font-bold text-xs hover:bg-green-500 transition-all disabled:opacity-50 shadow-sm"
                       >
                         <CheckCircle size={16} /> Mark Delivered
                       </button>
@@ -313,26 +313,26 @@ const AdminOrders = () => {
                     <button 
                       onClick={() => updateOrderStatus(selectedOrder._id, 'Cancelled')}
                       disabled={selectedOrder.status === 'Cancelled' || selectedOrder.status === 'Delivered'}
-                      className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 p-3 rounded-xl font-bold text-xs hover:bg-red-500/20 transition-all disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 p-3 rounded-xl font-bold text-xs hover:bg-red-100 transition-all disabled:opacity-50 border border-red-200"
                     >
                       <XCircle size={16} /> Cancel Order
                     </button>
                   </div>
 
                   {/* Delivery Assignment Section */}
-                  <div className="pt-6 border-t border-white/5 space-y-4">
+                  <div className="pt-6 border-t border-gray-200 space-y-4">
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
                       <Truck size={14} /> Assign Delivery Partner
                     </h3>
                     {selectedOrder.deliveryPartner ? (
-                      <div className="bg-primary-500/10 p-4 rounded-2xl border border-primary-500/20">
-                         <p className="text-primary-400 text-sm font-bold">Assigned to: {selectedOrder.deliveryPartner.name || 'Partner'}</p>
+                      <div className="bg-primary-50 p-4 rounded-2xl border border-primary-100">
+                         <p className="text-primary-700 text-sm font-bold">Assigned to: {selectedOrder.deliveryPartner.name || 'Partner'}</p>
                          <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">Status: {selectedOrder.deliveryStatus}</p>
                       </div>
                     ) : (
                       <div className="flex gap-2">
                         <select 
-                          className="flex-1 bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none"
+                          className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500"
                           onChange={(e) => setSelectedOrder({...selectedOrder, tempPartner: e.target.value})}
                         >
                           <option value="">Select Partner</option>
@@ -343,7 +343,7 @@ const AdminOrders = () => {
                         <button 
                           onClick={() => assignPartner(selectedOrder._id, selectedOrder.tempPartner)}
                           disabled={!selectedOrder.tempPartner || assigning}
-                          className="bg-primary-600 text-white px-6 rounded-xl font-bold text-xs hover:bg-primary-500 disabled:opacity-50"
+                          className="bg-gray-900 hover:bg-gray-800 text-white px-6 rounded-xl font-bold text-xs disabled:opacity-50 shadow-sm"
                         >
                           {assigning ? '...' : 'Assign'}
                         </button>
