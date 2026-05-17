@@ -4,8 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-<<<<<<< Updated upstream
-=======
   server: {
     proxy: {
       '/api': {
@@ -14,5 +12,4 @@ export default defineConfig({
       },
     },
   },
->>>>>>> Stashed changes
 })
