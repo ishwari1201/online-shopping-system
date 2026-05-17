@@ -152,7 +152,7 @@ const AdminProducts = () => {
                 <tr key={product._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
-                      <img src={product.images?.[0] || product.image} alt={product.name} className="w-12 h-12 rounded-xl border border-gray-200 bg-gray-100 object-cover" />
+                      <img src={product.images?.[0] || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} alt={product.name} className="w-12 h-12 rounded-xl border border-gray-200 bg-gray-100 object-cover" />
                       <div className="font-bold text-gray-900 truncate max-w-[200px]">{product.name}</div>
                     </div>
                   </td>

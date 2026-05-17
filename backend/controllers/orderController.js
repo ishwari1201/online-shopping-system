@@ -45,7 +45,7 @@ const addOrderItems = async (req, res) => {
 // @route   GET /api/orders/:id
 // @access  Private
 const getOrderById = async (req, res) => {
-  const order = await Order.findById(req.params.id).populate('user', 'name email');
+  const order = await Order.findById(req.params.id).populate('user', 'name email phone');
 
   if (order) {
     res.json(order);
@@ -172,13 +172,15 @@ const updateDeliveryStatus = async (req, res) => {
 
     // Notify Admin & Seller
     const admin = await User.findOne({ role: 'admin' });
-    await Notification.create({
-      user: admin._id,
-      order: order._id,
-      title: 'Order Delivered',
-      message: `Order #${String(order._id).slice(-6).toUpperCase()} was delivered successfully.`,
-      type: 'success'
-    });
+    if (admin) {
+      await Notification.create({
+        user: admin._id,
+        order: order._id,
+        title: 'Order Delivered',
+        message: `Order #${String(order._id).slice(-6).toUpperCase()} was delivered successfully.`,
+        type: 'success'
+      });
+    }
   }
 
   order.deliveryTimeline.push({
@@ -190,13 +192,15 @@ const updateDeliveryStatus = async (req, res) => {
   await order.save();
 
   // Notify Customer
-  await Notification.create({
-    user: order.user._id,
-    order: order._id,
-    title: `Order Update: ${status}`,
-    message: description,
-    type: 'info'
-  });
+  if (order.user) {
+    await Notification.create({
+      user: order.user._id,
+      order: order._id,
+      title: `Order Update: ${status}`,
+      message: description,
+      type: 'info'
+    });
+  }
 
   res.json({ message: `Status updated to ${status}`, order });
 };

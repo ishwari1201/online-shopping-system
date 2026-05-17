@@ -33,6 +33,20 @@ const AdminAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const handleExport = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Week,Revenue,Orders\n"
+      + salesTrend.map(e => `${e.name},${e.revenue},${e.orders}`).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sales_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
@@ -76,7 +90,7 @@ const AdminAnalytics = () => {
           <button className="bg-white text-gray-600 px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-bold hover:bg-gray-50 hover:text-gray-900 transition-all flex items-center gap-2 shadow-sm">
             <Calendar size={14} /> Last 6 Months
           </button>
-          <button className="bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+          <button onClick={handleExport} className="bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
             <Download size={14} className="text-gray-900" /> Export Report
           </button>
         </div>

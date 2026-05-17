@@ -30,7 +30,7 @@ const DeliveryNotifications = () => {
     switch (type) {
       case 'order': return <Truck className="text-blue-500" />;
       case 'payout': return <DollarSign className="text-green-500" />;
-      default: return <Bell className="text-primary-500" />;
+      default: return <Bell className="text-primary" />;
     }
   };
 
@@ -60,7 +60,7 @@ const DeliveryNotifications = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className={`bg-white border border-gray-200 p-6 rounded-[2rem] shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex gap-6 relative group ${notif.unread ? 'ring-1 ring-primary-500/20' : ''}`}
+                className={`bg-white border border-gray-200 p-6 rounded-[2rem] shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex gap-6 relative group ${notif.unread ? 'ring-1 ring-primary/20' : ''}`}
                 onClick={() => markRead(notif.id)}
               >
                 <div className="p-4 bg-gray-50 border border-gray-100 rounded-2xl h-fit">
@@ -80,7 +80,7 @@ const DeliveryNotifications = () => {
                   <X size={18} />
                 </button>
                 {notif.unread && (
-                  <div className="absolute top-6 left-6 w-3 h-3 bg-primary-500 rounded-full border-4 border-white shadow-sm"></div>
+                  <div className="absolute top-6 left-6 w-3 h-3 bg-primary rounded-full border-4 border-white shadow-sm"></div>
                 )}
               </motion.div>
             ))

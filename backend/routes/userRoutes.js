@@ -7,6 +7,7 @@ const {
   registerDelivery,
   logoutUser,
   getUserProfile,
+  updateUserProfile,
   getUsers,
   deleteUser,
 } = require('../controllers/userController');
@@ -18,6 +19,8 @@ router.post('/delivery-register', registerDelivery);
 router.route('/:id').delete(protect, admin, deleteUser);
 router.post('/login', authUser);
 router.post('/logout', logoutUser);
-router.route('/profile').get(protect, getUserProfile);
+router.route('/profile')
+  .get(protect, getUserProfile)
+  .put(protect, updateUserProfile);
 
 module.exports = router;

@@ -11,7 +11,8 @@ import {
   Shield,
   CheckCircle,
   ArrowRight,
-  UserCheck
+  UserCheck,
+  Phone
 } from 'lucide-react';
 import axios from 'axios';
 import { setCredentials } from '../redux/slices/authSlice';
@@ -43,6 +44,7 @@ const RoleCard = ({ selected, onClick, role, icon: Icon, title, description }) =
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [role, setRole] = useState('customer');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,7 +72,7 @@ const Signup = () => {
     }
     setIsLoading(true);
     try {
-      const { data } = await axios.post('/api/users', { name, email, password, role });
+      const { data } = await axios.post('/api/users', { name, email, password, role, phone });
       dispatch(setCredentials(data));
       toast.success('Account created successfully!');
       if (data.role === 'admin') navigate('/admin/dashboard');
@@ -216,6 +218,21 @@ const Signup = () => {
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Phone Number</label>
+                <div className="relative">
+                  <Phone size={16} className="absolute left-4 top-4 text-gray-400" />
+                  <input
+                    type="text"
+                    required
+                    className="w-full pl-11 pr-4 py-4 bg-white border border-black/10 rounded-sm text-[#212a2f] placeholder-gray-300 focus:outline-none focus:border-[#212a2f] transition-all text-sm"
+                    placeholder="Your phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
               </div>

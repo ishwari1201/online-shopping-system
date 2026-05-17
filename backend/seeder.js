@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
 const users = require('./data/users');
 const products = require('./data/products');
 const User = require('./models/userModel');
@@ -17,7 +18,13 @@ const importData = async () => {
     await Product.deleteMany();
     await User.deleteMany();
 
-    const createdUsers = await User.insertMany(users);
+    const salt = await bcrypt.genSalt(10);
+    const hashedUsers = await Promise.all(users.map(async (user) => {
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      return { ...user, password: hashedPassword };
+    }));
+
+    const createdUsers = await User.insertMany(hashedUsers);
 
     const adminUser = createdUsers[0]._id;
 

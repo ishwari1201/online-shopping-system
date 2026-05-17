@@ -53,7 +53,7 @@ const DeliveryDashboard = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
     </div>
   );
 
@@ -101,7 +101,7 @@ const DeliveryDashboard = () => {
         <div className="lg:col-span-2 bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-gray-900 font-bold text-lg">Weekly Performance</h3>
-            <div className="text-primary-600 text-xs font-bold flex items-center gap-2">
+            <div className="text-primary text-xs font-bold flex items-center gap-2">
               <TrendingUp size={14} /> +24% growth
             </div>
           </div>
@@ -132,7 +132,7 @@ const DeliveryDashboard = () => {
                 <Link 
                   to={`/delivery/order/${order._id}`} 
                   key={order._id}
-                  className="block p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary-500/30 transition-all group hover:shadow-sm"
+                  className="block p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary/30 transition-all group hover:shadow-sm"
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -149,7 +149,7 @@ const DeliveryDashboard = () => {
               </div>
             )}
           </div>
-          <Link to="/delivery/orders" className="block text-center mt-6 text-primary-500 text-xs font-black uppercase tracking-widest hover:underline">
+          <Link to="/delivery/orders" className="block text-center mt-6 text-primary text-xs font-black uppercase tracking-widest hover:underline">
             View All Orders
           </Link>
         </div>

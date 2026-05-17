@@ -61,7 +61,7 @@ const DeliveryEarnings = () => {
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Earnings & Payouts</h1>
           <p className="text-gray-500 text-sm">Track your delivery rewards and withdrawal status</p>
         </div>
-        <button className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary-500/20">
+        <button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary/20">
           Request Payout
         </button>
       </div>
@@ -114,7 +114,7 @@ const DeliveryEarnings = () => {
         <div className="lg:col-span-2 bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-gray-900 font-bold text-lg flex items-center gap-3">
-              <BarChart3 size={20} className="text-primary-600" /> Earnings History
+              <BarChart3 size={20} className="text-primary" /> Earnings History
             </h3>
             <div className="flex bg-gray-100 rounded-xl p-1 border border-gray-200">
               <button className="px-4 py-1.5 bg-white text-gray-900 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm">Week</button>

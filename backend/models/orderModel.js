@@ -59,16 +59,8 @@ const orderSchema = mongoose.Schema({
   paidAt: {
     type: Date,
   },
-    deliveryStatus: { type: String, enum: ['Assigned', 'Accepted', 'Picked Up', 'Out For Delivery', 'Delivered'], default: 'Assigned' },
     deliveryOTP: { type: String },
     otpVerified: { type: Boolean, default: false },
-    deliveryTimeline: [
-      {
-        status: String,
-        timestamp: Date,
-        description: String
-      }
-    ],
   isDelivered: {
     type: Boolean,
     required: true,
@@ -79,6 +71,7 @@ const orderSchema = mongoose.Schema({
   },
   paymentId: { type: String },
   razorpayOrderId: { type: String },
+  razorpayPaymentId: { type: String },
   paymentStatus: {
     type: String,
     enum: ['Pending', 'Paid', 'Failed', 'Refunded', 'COD'],

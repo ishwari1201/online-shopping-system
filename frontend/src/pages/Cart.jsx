@@ -76,7 +76,17 @@ const Cart = () => {
                     >
                       {item.name}
                     </Link>
-                    <p className="text-gray-500 text-[12px] font-medium mt-1">₹{item.price}</p>
+                    {(item.selectedColor || item.selectedSize) && (
+                      <div className="flex gap-4 mt-1 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                        {item.selectedColor && (
+                          <span>Color: <span className="text-[#212a2f]">{item.selectedColor}</span></span>
+                        )}
+                        {item.selectedSize && (
+                          <span>Size: <span className="text-[#212a2f]">{item.selectedSize}</span></span>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-gray-500 text-[12px] font-medium mt-1.5">₹{item.price}</p>
 
                     <div className="mt-4 flex items-center gap-6">
                       <div className="flex items-center border border-black/10 rounded-sm">

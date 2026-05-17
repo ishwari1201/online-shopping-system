@@ -142,7 +142,7 @@ const SearchBar = () => {
                       >
                         <div className="w-12 h-14 bg-bg-cream overflow-hidden flex-shrink-0 rounded-sm border border-black/5">
                           <img
-                            src={product.images?.[0] || ''}
+                            src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'}
                             alt={product.name}
                             className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-300"
                           />

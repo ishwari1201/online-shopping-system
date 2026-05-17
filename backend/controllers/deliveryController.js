@@ -14,7 +14,7 @@ const getDeliveryStats = async (req, res, next) => {
       assigned: orders.filter(o => o.deliveryStatus === 'Assigned').length,
       pending: orders.filter(o => ['Accepted', 'Picked Up', 'Out For Delivery'].includes(o.deliveryStatus)).length,
       delivered: orders.filter(o => o.deliveryStatus === 'Delivered').length,
-      totalEarnings: user.earnings || 0,
+      totalEarnings: user ? user.earnings || 0 : 0,
       recentDeliveries: orders.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5)
     };
 
@@ -27,10 +27,12 @@ const getDeliveryStats = async (req, res, next) => {
 // @desc    Get assigned orders
 const getAssignedOrders = async (req, res, next) => {
   try {
+    console.log('Fetching orders for partner:', req.user._id);
     const orders = await Order.find({ 
       deliveryPartner: req.user._id,
       deliveryStatus: { $ne: 'Delivered' } 
-    }).populate('user', 'name email');
+    }).populate('user', 'name email phone');
+    console.log('Orders found:', orders.length);
     res.json(orders);
   } catch (error) {
     next(error);
@@ -48,7 +50,7 @@ const updateDeliveryStatus = async (req, res, next) => {
       throw new Error('Order not found');
     }
 
-    if (order.deliveryPartner.toString() !== req.user._id.toString()) {
+    if (!order.deliveryPartner || order.deliveryPartner.toString() !== req.user._id.toString()) {
       res.status(401);
       throw new Error('Not authorized');
     }
@@ -96,13 +98,17 @@ const updateDeliveryStatus = async (req, res, next) => {
 
       // Notify Admin
       const admin = await User.findOne({ role: 'admin' });
-      await Notification.create({
-        user: admin._id,
-        order: order._id,
-        title: 'Order Delivered',
-        message: `Order #${String(order._id).slice(-6).toUpperCase()} was delivered.`,
-        type: 'success'
-      });
+      if (admin) {
+        await Notification.create({
+          user: admin._id,
+          order: order._id,
+          title: 'Order Delivered',
+          message: `Order #${String(order._id).slice(-6).toUpperCase()} was delivered.`,
+          type: 'success'
+        });
+      } else {
+        console.log('Admin not found for notification');
+      }
     }
 
     order.deliveryTimeline.push({
@@ -114,13 +120,17 @@ const updateDeliveryStatus = async (req, res, next) => {
     await order.save();
 
     // Notify Customer
-    await Notification.create({
-      user: order.user._id,
-      order: order._id,
-      title: `Order ${status}`,
-      message: `Your order status has been updated to: ${status}`,
-      type: 'info'
-    });
+    if (order.user) {
+      await Notification.create({
+        user: order.user._id,
+        order: order._id,
+        title: `Order ${status}`,
+        message: `Your order status has been updated to: ${status}`,
+        type: 'info'
+      });
+    } else {
+      console.log('Customer not found for notification');
+    }
 
     res.json({ success: true, order });
   } catch (error) {
@@ -134,7 +144,7 @@ const getDeliveryHistory = async (req, res, next) => {
     const orders = await Order.find({ 
       deliveryPartner: req.user._id,
       deliveryStatus: 'Delivered' 
-    }).sort({ updatedAt: -1 });
+    }).sort({ updatedAt: -1 }).populate('user', 'name email phone');
     res.json(orders);
   } catch (error) {
     next(error);

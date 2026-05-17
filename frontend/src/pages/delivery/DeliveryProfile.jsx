@@ -46,7 +46,7 @@ const DeliveryProfile = () => {
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white border border-gray-200 p-8 rounded-[2rem] shadow-sm text-center">
             <div className="relative group mx-auto w-32 h-32 mb-6">
-              <div className="w-full h-full rounded-3xl bg-gradient-to-tr from-primary-600 to-purple-600 flex items-center justify-center text-white text-4xl font-black shadow-md">
+              <div className="w-full h-full rounded-3xl bg-gradient-to-tr from-primary to-purple-600 flex items-center justify-center text-white text-4xl font-black shadow-md">
                 {name.charAt(0)}
               </div>
               <button className="absolute -bottom-2 -right-2 p-2.5 bg-white text-gray-700 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all shadow-sm">
@@ -54,7 +54,7 @@ const DeliveryProfile = () => {
               </button>
             </div>
             <h3 className="text-gray-900 font-bold text-lg">{name}</h3>
-            <p className="text-primary-600 text-[10px] font-black uppercase tracking-[0.2em] mt-1 flex items-center justify-center gap-2">
+            <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em] mt-1 flex items-center justify-center gap-2">
               <Shield size={10} /> Certified Partner
             </p>
           </div>
@@ -63,7 +63,7 @@ const DeliveryProfile = () => {
             <h4 className="text-gray-500 text-[10px] font-black uppercase tracking-widest border-b border-gray-100 pb-4">Vehicle Details</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-xs text-gray-900 font-bold">
-                <Truck size={14} className="text-primary-600" /> 
+                <Truck size={14} className="text-primary" /> 
                 Honda Activa 6G
               </div>
               <p className="text-gray-500 text-[10px] ml-7 font-black uppercase">Plate: ABC-1234</p>
@@ -84,7 +84,7 @@ const DeliveryProfile = () => {
                   <div className="relative">
                     <input 
                       type="text" required
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                       value={name} onChange={(e) => setName(e.target.value)}
                     />
                     <User className="absolute left-4 top-4 text-gray-500" size={18} />
@@ -95,7 +95,7 @@ const DeliveryProfile = () => {
                   <div className="relative">
                     <input 
                       type="text" required
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 pl-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                       value={phone} onChange={(e) => setPhone(e.target.value)}
                     />
                     <Phone className="absolute left-4 top-4 text-gray-500" size={18} />
@@ -118,7 +118,7 @@ const DeliveryProfile = () => {
 
               <div className="pt-4 border-t border-gray-100 mt-4">
                 <h4 className="text-gray-900 font-bold text-sm mb-6 flex items-center gap-3">
-                  <CreditCard size={18} className="text-primary-600" /> Settlement Info
+                  <CreditCard size={18} className="text-primary" /> Settlement Info
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="space-y-2">
@@ -148,7 +148,7 @@ const DeliveryProfile = () => {
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-600 hover:bg-primary-500 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary-500/20 flex items-center justify-center gap-2"
+                className="w-full bg-primary hover:bg-primary/90 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary/20 flex items-center justify-center gap-2"
               >
                 {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white"></div> : <Save size={16} />}
                 Save Profile

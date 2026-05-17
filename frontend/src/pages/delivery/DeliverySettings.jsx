@@ -8,7 +8,8 @@ import {
   Moon,
   Sun,
   Eye,
-  EyeOff
+  EyeOff,
+  Navigation
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
@@ -37,7 +38,7 @@ const DeliverySettings = () => {
             onClick={() => setActiveTab(tab.id)}
             className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
               activeTab === tab.id 
-                ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20' 
+                ? 'bg-primary text-white shadow-sm shadow-primary/20' 
                 : 'text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -66,7 +67,7 @@ const DeliverySettings = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Current Password</label>
                   <div className="relative">
-                    <input type={showPassword ? "text" : "password"} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all" />
+                    <input type={showPassword ? "text" : "password"} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-4 text-gray-500 hover:text-gray-900">
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -74,10 +75,10 @@ const DeliverySettings = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">New Password</label>
-                  <input type="password" placeholder="••••••••" className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all placeholder-gray-400" />
+                  <input type="password" placeholder="••••••••" className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder-gray-400" />
                 </div>
               </div>
-              <button type="button" className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary-500/20">
+              <button type="button" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-sm shadow-primary/20">
                 Change Password
               </button>
             </form>
@@ -104,7 +105,7 @@ const DeliverySettings = () => {
                   <p className="text-gray-900 font-bold text-sm">{item.label}</p>
                   <p className="text-gray-500 text-xs mt-1">{item.desc}</p>
                 </div>
-                <div className="w-12 h-6 bg-primary-600 rounded-full relative cursor-pointer">
+                <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
                   <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
                 </div>
               </div>
@@ -128,7 +129,7 @@ const DeliverySettings = () => {
                   <Sun size={18} className="text-orange-500" />
                 </div>
                 <div className="flex gap-2">
-                  <button className="flex-1 py-3 bg-white text-gray-900 border border-primary-500 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm">Light</button>
+                  <button className="flex-1 py-3 bg-white text-gray-900 border border-primary rounded-xl text-xs font-black uppercase tracking-widest shadow-sm">Light</button>
                   <button className="flex-1 py-3 bg-gray-50 text-gray-500 border border-gray-200 rounded-xl text-xs font-black uppercase tracking-widest">Dark</button>
                 </div>
               </div>

@@ -35,6 +35,12 @@ const SellerEditProduct = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [specs, setSpecs] = useState([{ key: '', value: '' }]);
   const [variants, setVariants] = useState([{ color: '', size: '', stock: '', price: '' }]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [customColor, setCustomColor] = useState('');
+  const [customSize, setCustomSize] = useState('');
+  const [colorOptions, setColorOptions] = useState(['Black', 'White', 'Blue', 'Red', 'Grey', 'Green']);
+  const [sizeOptions, setSizeOptions] = useState(['S', 'M', 'L', 'XL']);
   const [status, setStatus] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -53,7 +59,19 @@ const SellerEditProduct = () => {
         setSku(data.sku || '');
         setImages(data.images);
         setSpecs(data.specs?.length ? data.specs : [{ key: '', value: '' }]);
-        setVariants(data.variants?.length ? data.variants : [{ color: '', size: '', stock: '', price: '' }]);
+        
+        const fetchedVariants = data.variants?.length ? data.variants : [{ color: '', size: '', stock: '', price: '' }];
+        setVariants(fetchedVariants);
+        
+        if (data.variants && data.variants.length > 0) {
+          const uniqueColors = [...new Set(data.variants.map(v => v.color).filter(Boolean))];
+          const uniqueSizes = [...new Set(data.variants.map(v => v.size).filter(Boolean))];
+          setSelectedColors(uniqueColors);
+          setSelectedSizes(uniqueSizes);
+          setColorOptions(prev => [...new Set([...uniqueColors, ...prev])]);
+          setSizeOptions(prev => [...new Set([...uniqueSizes, ...prev])]);
+        }
+        
         setStatus(data.status);
         setRejectionReason(data.rejectionReason || '');
       } catch (error) {
@@ -82,9 +100,104 @@ const SellerEditProduct = () => {
     setVariants(newVariants);
   };
 
+  const generateAllCombinations = (colors, sizes) => {
+    if (colors.length === 0 && sizes.length === 0) {
+      return [{ color: '', size: '', stock: '', price: '' }];
+    }
+    
+    const basePrice = price || '';
+    const baseStock = countInStock || '';
+    
+    if (colors.length > 0 && sizes.length === 0) {
+      return colors.map(c => ({ color: c, size: '', stock: baseStock, price: basePrice }));
+    }
+    
+    if (colors.length === 0 && sizes.length > 0) {
+      return sizes.map(s => ({ color: '', size: s, stock: baseStock, price: basePrice }));
+    }
+    
+    const combos = [];
+    colors.forEach(c => {
+      sizes.forEach(s => {
+        combos.push({
+          color: c,
+          size: s,
+          stock: baseStock,
+          price: basePrice
+        });
+      });
+    });
+    return combos;
+  };
+
+  const handleColorToggle = (color) => {
+    const updated = selectedColors.includes(color)
+      ? selectedColors.filter(c => c !== color)
+      : [...selectedColors, color];
+    setSelectedColors(updated);
+    setVariants(generateAllCombinations(updated, selectedSizes));
+  };
+
+  const handleSizeToggle = (size) => {
+    const updated = selectedSizes.includes(size)
+      ? selectedSizes.filter(s => s !== size)
+      : [...selectedSizes, size];
+    setSelectedSizes(updated);
+    setVariants(generateAllCombinations(selectedColors, updated));
+  };
+
+  const handleAddCustomColor = () => {
+    if (customColor.trim()) {
+      const color = customColor.trim();
+      if (!colorOptions.includes(color)) {
+        setColorOptions([...colorOptions, color]);
+      }
+      if (!selectedColors.includes(color)) {
+        const updated = [...selectedColors, color];
+        setSelectedColors(updated);
+        setVariants(generateAllCombinations(updated, selectedSizes));
+      }
+      setCustomColor('');
+    }
+  };
+
+  const handleAddCustomSize = () => {
+    if (customSize.trim()) {
+      const size = customSize.trim();
+      if (!sizeOptions.includes(size)) {
+        setSizeOptions([...sizeOptions, size]);
+      }
+      if (!selectedSizes.includes(size)) {
+        const updated = [...selectedSizes, size];
+        setSelectedSizes(updated);
+        setVariants(generateAllCombinations(selectedColors, updated));
+      }
+      setCustomSize('');
+    }
+  };
+
+  const handleClearAllVariants = () => {
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setVariants([{ color: '', size: '', stock: '', price: '' }]);
+  };
+
   const addImageUrl = () => {
     if (imageUrl) {
-      setImages([...images, imageUrl]);
+      let parsedUrl = imageUrl.trim();
+      try {
+        if (parsedUrl.includes('google.com/imgres') || (parsedUrl.includes('google.') && parsedUrl.includes('/imgres'))) {
+          const urlObj = new URL(parsedUrl);
+          const imgUrlParam = urlObj.searchParams.get('imgurl');
+          if (imgUrlParam) {
+            parsedUrl = decodeURIComponent(imgUrlParam);
+            toast.success("Automatically extracted direct image link from Google Search!");
+          }
+        }
+      } catch (e) {
+        console.error("URL parsing failed:", e);
+      }
+      setImages([...images, parsedUrl]);
       setImageUrl('');
     }
   };
@@ -192,6 +305,139 @@ const SellerEditProduct = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Stock</label>
                 <input type="number" required className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm" value={countInStock} onChange={(e) => setCountInStock(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Variants */}
+          <div className="bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl"><Layers size={20} /></div>
+                <h3 className="text-gray-900 font-bold text-lg">Dynamic Variant Builder (Shopify Style)</h3>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={handleClearAllVariants} className="text-xs font-bold text-gray-500 hover:text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">Reset</button>
+                <button type="button" onClick={addVariant} className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                  <Plus size={14} /> Add Row
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Options Generator Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl border border-gray-200/60">
+                {/* Colors Attribute Selection */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-black uppercase tracking-wider text-gray-700">1. Colors</span>
+                    <span className="text-[10px] text-gray-400 font-bold">{selectedColors.length} Selected</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {colorOptions.map((c) => {
+                      const active = selectedColors.includes(c);
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => handleColorToggle(c)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                            active
+                              ? 'bg-gray-900 border-gray-900 text-white shadow-sm'
+                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {active ? '✓ ' : ''}{c}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Custom Color (e.g. Lavender)" 
+                      className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                      value={customColor} 
+                      onChange={(e) => setCustomColor(e.target.value)} 
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomColor())}
+                    />
+                    <button type="button" onClick={handleAddCustomColor} className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors">Add</button>
+                  </div>
+                </div>
+
+                {/* Sizes Attribute Selection */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-black uppercase tracking-wider text-gray-700">2. Sizes</span>
+                    <span className="text-[10px] text-gray-400 font-bold">{selectedSizes.length} Selected</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {sizeOptions.map((sz) => {
+                      const active = selectedSizes.includes(sz);
+                      return (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => handleSizeToggle(sz)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                            active
+                              ? 'bg-gray-900 border-gray-900 text-white shadow-sm'
+                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {active ? '✓ ' : ''}{sz}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Custom Size (e.g. XXL)" 
+                      className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                      value={customSize} 
+                      onChange={(e) => setCustomSize(e.target.value)} 
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomSize())}
+                    />
+                    <button type="button" onClick={handleAddCustomSize} className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors">Add</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Variants List Matrix Table */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-500">Generated Combinations Matrix</span>
+                  <span className="text-xs text-gray-400 font-bold">{variants.filter(v => v.color || v.size).length} combinations</span>
+                </div>
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                  {variants.map((v, i) => (
+                    <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end bg-gray-50/50 p-4 rounded-xl border border-gray-200/70 relative group hover:border-gray-300 transition-all">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 ml-0.5">Color</label>
+                        <input type="text" className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 text-gray-800 font-medium" value={v.color} onChange={(e) => updateVariant(i, 'color', e.target.value)} placeholder="Color" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 ml-0.5">Size</label>
+                        <input type="text" className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 text-gray-800 font-medium" value={v.size} onChange={(e) => updateVariant(i, 'size', e.target.value)} placeholder="Size" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 ml-0.5">Price (₹)</label>
+                        <input type="number" className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 text-gray-800 font-semibold" value={v.price} onChange={(e) => updateVariant(i, 'price', e.target.value)} placeholder="Price" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 ml-0.5">Stock</label>
+                        <input type="number" className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 text-gray-800 font-semibold" value={v.stock} onChange={(e) => updateVariant(i, 'stock', e.target.value)} placeholder="Stock" />
+                      </div>
+                      <div className="flex justify-end pb-0.5">
+                        <button type="button" onClick={() => removeVariant(i)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                  ))}
+                  {variants.length === 0 && (
+                    <p className="text-sm text-gray-400 italic text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/20">No variants generated yet. Tick colors/sizes above to get started!</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

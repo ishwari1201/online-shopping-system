@@ -180,7 +180,7 @@ const AdminProductModeration = () => {
                       <div className="flex items-center gap-4">
                         <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
                           <img 
-                            src={product.images?.[0]} 
+                            src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
                             alt={product.name} 
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                           />
@@ -322,7 +322,7 @@ const AdminProductModeration = () => {
           >
             <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-100 relative">
               <img 
-                src={selectedProduct.images?.[0]} 
+                src={selectedProduct.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
                 alt={selectedProduct.name} 
                 className="w-full h-full object-cover"
               />

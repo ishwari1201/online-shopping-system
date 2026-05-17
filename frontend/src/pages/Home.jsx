@@ -27,9 +27,13 @@ const ProductCard = ({ product }) => {
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-white rounded-sm border border-black/5">
         <img 
-          src={product.images && product.images[0] ? product.images[0] : ''} 
+          src={product.images && product.images[0] ? product.images[0] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
           alt={product.name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+          }}
         />
         <div 
           className={`absolute top-4 right-4 p-2 rounded-full bg-white shadow-sm transition-colors ${isWishlisted ? 'text-red-500' : 'text-gray-400'}`} 

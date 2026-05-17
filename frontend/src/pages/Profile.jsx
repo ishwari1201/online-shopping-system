@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Settings, Package, Heart, LogOut, ShoppingBag, Star, TrendingUp, ArrowRight, Leaf } from 'lucide-react';
-import { logout } from '../redux/slices/authSlice';
+import { logout, setCredentials } from '../redux/slices/authSlice';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 const Profile = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
@@ -31,6 +32,7 @@ const Profile = () => {
     } else {
       setName(userInfo.name);
       setEmail(userInfo.email);
+      setPhone(userInfo.phone || '');
     }
   }, [navigate, userInfo]);
 
@@ -61,6 +63,20 @@ const Profile = () => {
     fetchOrders();
     fetchRecommendations();
   }, []);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.put('/api/users/profile', {
+        name,
+        phone,
+      });
+      dispatch(setCredentials({ ...data }));
+      toast.success('Profile updated successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
+    }
+  };
 
   const logoutHandler = async () => {
     try {
@@ -221,7 +237,15 @@ const Profile = () => {
                           onClick={() => navigate(`/product/${product._id}`)}
                         >
                           <div className="aspect-[3/4] overflow-hidden bg-bg-cream">
-                            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img 
+                              src={product.images && product.images[0] ? product.images[0] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
+                              alt={product.name} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+                              }}
+                            />
                           </div>
                           <div className="p-6">
                             <h3 className="text-[10px] font-black uppercase tracking-tight text-primary truncate mb-1">{product.name}</h3>
@@ -244,7 +268,7 @@ const Profile = () => {
                 className="bg-white rounded-sm p-10 border border-black/5 shadow-sm"
               >
                 <h2 className="text-[13px] font-black uppercase tracking-[0.3em] mb-10 pb-4 border-b border-black/5">Account Security</h2>
-                <form className="space-y-8 max-w-2xl">
+                <form onSubmit={submitHandler} className="space-y-8 max-w-2xl">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                       <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] block mb-3">Full Name</label>
@@ -253,6 +277,10 @@ const Profile = () => {
                     <div>
                       <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] block mb-3">Email Address</label>
                       <input type="email" className="w-full px-5 py-4 bg-bg-cream border border-black/5 rounded-sm opacity-50 cursor-not-allowed text-sm font-medium" value={email} disabled />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] block mb-3">Phone Number</label>
+                      <input type="text" className="w-full px-5 py-4 bg-bg-cream border border-black/5 rounded-sm focus:outline-none focus:ring-1 focus:ring-primary text-sm font-medium" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter your phone number" />
                     </div>
                   </div>
                   <button type="submit" className="btn-allbirds">Save Changes</button>
@@ -326,7 +354,15 @@ const Profile = () => {
                     {wishlistItems.map((item) => (
                       <div key={item._id} className="group">
                         <div className="relative aspect-[3/4] overflow-hidden bg-bg-cream border border-black/5 mb-4 rounded-sm">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+                          <img 
+                            src={item.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" 
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+                            }}
+                          />
                           <button onClick={() => dispatch(toggleWishlist(item))} className="absolute top-3 right-3 bg-white p-2 rounded-full text-muted hover:text-red-500 transition-colors shadow-sm"><Heart size={14} className="fill-current" /></button>
                         </div>
                         <h3 className="text-[11px] font-black uppercase tracking-tight text-primary mb-1">{item.name}</h3>

@@ -21,7 +21,64 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [qty, setQty] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
+
+  const availableColors = [...new Set(product?.variants?.map(v => v.color).filter(Boolean))];
+  const availableSizes = [...new Set(product?.variants?.map(v => v.size).filter(Boolean))];
+
+  const getSelectedVariant = () => {
+    if (!product?.variants || product.variants.length === 0) return null;
+    return product.variants.find(v => 
+      (!v.color || v.color.toLowerCase() === selectedColor.toLowerCase()) &&
+      (!v.size || v.size.toLowerCase() === selectedSize.toLowerCase())
+    );
+  };
+
+  const getSizeStock = (size) => {
+    if (!product) return 0;
+    if (!product.variants || product.variants.length === 0) {
+      return product.countInStock;
+    }
+    const filtered = product.variants.filter(v => {
+      const matchSize = v.size?.toUpperCase() === size.toUpperCase();
+      const matchColor = !selectedColor || !v.color || v.color.toLowerCase() === selectedColor.toLowerCase();
+      return matchSize && matchColor;
+    });
+    return filtered.reduce((acc, curr) => acc + (Number(curr.stock) || 0), 0);
+  };
+
+  const getColorStock = (color) => {
+    if (!product) return 0;
+    if (!product.variants || product.variants.length === 0) {
+      return product.countInStock;
+    }
+    const filtered = product.variants.filter(v => {
+      const matchColor = v.color?.toLowerCase() === color.toLowerCase();
+      const matchSize = !selectedSize || !v.size || v.size.toUpperCase() === selectedSize.toUpperCase();
+      return matchColor && matchSize;
+    });
+    return filtered.reduce((acc, curr) => acc + (Number(curr.stock) || 0), 0);
+  };
+
+  useEffect(() => {
+    if (product) {
+      const uniqueColors = [...new Set(product.variants?.map(v => v.color).filter(Boolean))];
+      const uniqueSizes = [...new Set(product.variants?.map(v => v.size).filter(Boolean))];
+      
+      let defaultColor = uniqueColors[0] || '';
+      let defaultSize = uniqueSizes[0] || '';
+      
+      const inStockVariant = product.variants?.find(v => Number(v.stock) > 0);
+      if (inStockVariant) {
+        defaultColor = inStockVariant.color || defaultColor;
+        defaultSize = inStockVariant.size || defaultSize;
+      }
+      
+      setSelectedColor(defaultColor);
+      setSelectedSize(defaultSize);
+    }
+  }, [product]);
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -61,8 +118,30 @@ const ProductDetails = () => {
   }, [id]);
 
   const addToCartHandler = () => {
-    const mainImage = product.images?.length > 0 ? product.images[0] : '/placeholder.jpg';
-    dispatch(addToCart({ ...product, qty, image: mainImage }));
+    const variant = getSelectedVariant();
+    
+    if (product.variants?.length > 0) {
+      if (!variant) {
+        toast.error('Please select a valid color and size combination!');
+        return;
+      }
+      if (Number(variant.stock) <= 0) {
+        toast.error('This combination is out of stock!');
+        return;
+      }
+    }
+    
+    const mainImage = product.images && product.images.length > 0 ? product.images[0] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+    const cartPrice = variant?.price || product.price;
+
+    dispatch(addToCart({ 
+      ...product, 
+      price: cartPrice,
+      qty, 
+      image: mainImage,
+      selectedColor,
+      selectedSize 
+    }));
     toast.success('Added to Cart');
     navigate('/cart');
   };
@@ -76,6 +155,9 @@ const ProductDetails = () => {
   }
 
   if (!product) return null;
+
+  const activeVariant = getSelectedVariant();
+  const displayPrice = activeVariant?.price || product.price;
 
   return (
     <div className="pt-28 pb-24 min-h-screen bg-[#f8f7f5] text-[#212a2f]">
@@ -92,21 +174,23 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
           {/* Image Gallery */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full">
             {/* Thumbnails */}
-            <div className="flex flex-col gap-3 w-20 flex-shrink-0">
-              {product.images?.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImage(idx)}
-                  className={`aspect-square overflow-hidden rounded-sm border-2 transition-all ${
-                    activeImage === idx ? 'border-[#212a2f]' : 'border-transparent opacity-50 hover:opacity-80'
-                  }`}
-                >
-                  <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            {product.images && product.images.length > 1 && (
+              <div className="flex flex-col gap-3 w-20 flex-shrink-0">
+                {product.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(idx)}
+                    className={`aspect-square overflow-hidden rounded-sm border-2 transition-all ${
+                      activeImage === idx ? 'border-[#212a2f]' : 'border-transparent opacity-50 hover:opacity-80'
+                    }`}
+                  >
+                    <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Main Image */}
             <div className="flex-1 bg-white rounded-sm overflow-hidden relative aspect-[4/5]">
@@ -115,9 +199,13 @@ const ProductDetails = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                src={product.images?.[activeImage]}
+                src={product.images && product.images[activeImage] ? product.images[activeImage] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+                }}
               />
               {product.countInStock === 0 && (
                 <div className="absolute top-4 left-4 bg-[#212a2f] text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">
@@ -148,13 +236,47 @@ const ProductDetails = () => {
 
             {/* Price */}
             <div className="flex items-center gap-4 mb-12">
-              <span className="text-3xl font-black tracking-tighter text-primary">₹{product.price}</span>
+              <span className="text-3xl font-black tracking-tighter text-primary">₹{displayPrice}</span>
               <div className="w-px h-6 bg-black/5"></div>
               <span className="text-[11px] font-black uppercase tracking-widest text-muted">Incl. GST</span>
             </div>
 
             {/* Description */}
             <p className="text-gray-500 leading-relaxed text-sm max-w-md">{product.description}</p>
+
+            {/* Color Selector */}
+            {availableColors.length > 0 && (
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] mb-4">Select Color</p>
+                <div className="flex gap-3 flex-wrap">
+                  {availableColors.map(color => {
+                    const isOutOfStock = getColorStock(color) <= 0;
+                    const isSelected = selectedColor?.toLowerCase() === color.toLowerCase();
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => !isOutOfStock && setSelectedColor(color)}
+                        className={`relative px-4 py-2 text-[11px] font-black uppercase border transition-all flex flex-col items-center justify-center rounded-sm ${
+                          isOutOfStock
+                            ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed opacity-50'
+                            : isSelected
+                            ? 'bg-[#212a2f] text-white border-[#212a2f] shadow-sm'
+                            : 'bg-white text-gray-500 border-black/10 hover:border-[#212a2f]'
+                        }`}
+                      >
+                        <span>{color}</span>
+                        {isOutOfStock && (
+                          <span className="text-[6px] text-red-500 font-extrabold uppercase mt-0.5 tracking-tighter">
+                            Sold Out
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Size Selector */}
             <div>
@@ -163,19 +285,31 @@ const ProductDetails = () => {
                 <button className="text-[11px] font-black uppercase tracking-widest underline underline-offset-4 text-gray-400 hover:text-[#212a2f] transition-colors">Size Guide</button>
               </div>
               <div className="flex gap-3 flex-wrap">
-                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 text-[11px] font-black uppercase border transition-all ${
-                      selectedSize === size
-                        ? 'bg-[#212a2f] text-white border-[#212a2f]'
-                        : 'bg-white text-gray-500 border-black/10 hover:border-[#212a2f]'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                  const isOutOfStock = getSizeStock(size) <= 0;
+                  const isSelected = selectedSize === size;
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => !isOutOfStock && setSelectedSize(size)}
+                      className={`relative w-14 h-14 text-[11px] font-black uppercase border transition-all flex flex-col items-center justify-center ${
+                        isOutOfStock
+                          ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed opacity-50'
+                          : isSelected
+                          ? 'bg-[#212a2f] text-white border-[#212a2f] shadow-sm'
+                          : 'bg-white text-gray-500 border-black/10 hover:border-[#212a2f]'
+                      }`}
+                    >
+                      <span>{size}</span>
+                      {isOutOfStock && (
+                        <span className="text-[7px] text-red-500 font-extrabold uppercase mt-0.5 tracking-tighter">
+                          Sold Out
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -201,15 +335,15 @@ const ProductDetails = () => {
               {/* Add to Cart */}
               <button
                 onClick={addToCartHandler}
-                disabled={product.countInStock === 0}
+                disabled={getSizeStock(selectedSize) <= 0}
                 className={`flex-1 flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest py-4 transition-all ${
-                  product.countInStock > 0
+                  getSizeStock(selectedSize) > 0
                     ? 'bg-[#212a2f] text-white hover:bg-[#334148]'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
                 <ShoppingBag size={16} />
-                {product.countInStock > 0 ? 'Add to Cart' : 'Sold Out'}
+                {getSizeStock(selectedSize) > 0 ? 'Add to Cart' : 'Sold Out'}
               </button>
 
               {/* Wishlist */}

@@ -8,7 +8,8 @@ import {
   CheckCircle, 
   Navigation,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Truck
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
@@ -25,7 +26,13 @@ const DeliveryOrders = () => {
   const fetchOrders = async () => {
     try {
       const { data } = await axios.get('/api/delivery/orders');
-      setOrders(data);
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        console.error('Expected array but got:', data);
+        setOrders([]);
+        toast.error('Received invalid data from server');
+      }
     } catch (error) {
       toast.error('Failed to fetch assigned orders');
     } finally {
@@ -73,7 +80,7 @@ const DeliveryOrders = () => {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-[2.5rem] p-20 text-center shadow-sm">
@@ -119,6 +126,15 @@ const DeliveryOrders = () => {
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="p-2.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                      <Phone size={16} />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Customer Phone</p>
+                      <p className="text-gray-900 text-sm font-medium">{order.user?.phone || 'Not Provided'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
                       <Package size={16} />
                     </div>
                     <div>
@@ -132,7 +148,7 @@ const DeliveryOrders = () => {
                   {order.deliveryStatus === 'Assigned' && (
                     <button 
                       onClick={() => updateStatus(order._id, 'Accepted')}
-                      className="col-span-2 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary-900/20"
+                      className="col-span-2 py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary/20"
                     >
                       Accept Order
                     </button>
@@ -194,7 +210,7 @@ const DeliveryOrders = () => {
                 placeholder="Enter 4-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 mb-6"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] text-primary focus:outline-none focus:ring-2 focus:ring-primary mb-6"
               />
               
               <div className="flex gap-3">
@@ -207,7 +223,7 @@ const DeliveryOrders = () => {
                 <button 
                   onClick={() => updateStatus(selectedOrderId, 'Delivered', otp)}
                   disabled={otp.length !== 4 || processing}
-                  className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-primary-500/20"
+                  className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 disabled:opacity-50 transition-all shadow-lg shadow-primary/20"
                 >
                   {processing ? 'Verifying...' : 'Confirm'}
                 </button>

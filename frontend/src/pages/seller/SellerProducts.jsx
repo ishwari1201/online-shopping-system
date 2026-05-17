@@ -160,8 +160,8 @@ const SellerProducts = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
                             <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0">
-                              <img 
-                                src={product.images?.[0] || 'https://via.placeholder.com/150'} 
+                             <img 
+                                src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                               />

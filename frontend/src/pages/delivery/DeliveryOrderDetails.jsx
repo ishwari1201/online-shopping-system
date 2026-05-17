@@ -68,16 +68,30 @@ const DeliveryOrderDetails = () => {
           {/* Customer & Address */}
           <div className="bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm space-y-8">
             <div className="flex items-start gap-6">
-              <div className="p-4 bg-primary-50 text-primary-600 border border-primary-100 rounded-2xl">
+              <div className="p-4 bg-gray-50 text-primary border border-gray-100 rounded-2xl">
                 <User size={24} />
               </div>
               <div>
                 <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Customer Info</h3>
                 <p className="text-gray-900 font-black text-xl">{order.user?.name}</p>
+                {order.user?.phone && (
+                  <p className="text-gray-600 text-sm mt-1 flex items-center gap-1.5 font-medium">
+                    <Phone size={12} className="text-gray-400" /> {order.user.phone}
+                  </p>
+                )}
                 <div className="flex items-center gap-4 mt-3">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-xl text-xs font-bold border border-gray-200 transition-all">
-                    <Phone size={14} className="text-primary-600" /> Call Customer
-                  </button>
+                  {order.user?.phone ? (
+                    <a 
+                      href={`tel:${order.user.phone}`}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-xl text-xs font-bold border border-gray-200 transition-all"
+                    >
+                      <Phone size={14} className="text-primary" /> Call Customer ({order.user.phone})
+                    </a>
+                  ) : (
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-400 cursor-not-allowed rounded-xl text-xs font-bold border border-gray-200 transition-all" disabled>
+                      <Phone size={14} className="text-gray-300" /> No Phone Provided
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -90,9 +104,16 @@ const DeliveryOrderDetails = () => {
                 <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Delivery Location</h3>
                 <p className="text-gray-900 font-medium text-lg leading-relaxed">{order.shippingAddress?.address}</p>
                 <p className="text-gray-500 text-sm">{order.shippingAddress?.city}, {order.shippingAddress?.postalCode}</p>
-                <button className="mt-4 flex items-center gap-2 text-primary-600 text-xs font-black uppercase tracking-widest hover:underline">
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    `${order.shippingAddress?.address}, ${order.shippingAddress?.city}, ${order.shippingAddress?.postalCode}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest hover:underline"
+                >
                   <Navigation size={14} /> Open in Maps
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -125,7 +146,7 @@ const DeliveryOrderDetails = () => {
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
-                <p className="text-primary-600 font-bold text-sm uppercase tracking-widest">{order.deliveryStatus}</p>
+                <p className="text-primary font-bold text-sm uppercase tracking-widest">{order.deliveryStatus}</p>
               </div>
               
               <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
@@ -161,7 +182,7 @@ const DeliveryOrderDetails = () => {
                   {idx !== order.deliveryTimeline.length - 1 && (
                     <div className="absolute left-[7px] top-4 w-[2px] h-full bg-gray-200"></div>
                   )}
-                  <div className="w-4 h-4 rounded-full bg-primary-500 mt-1 flex-shrink-0 border-4 border-white shadow-sm shadow-primary-500/50"></div>
+                  <div className="w-4 h-4 rounded-full bg-primary mt-1 flex-shrink-0 border-4 border-white shadow-sm shadow-primary/50"></div>
                   <div>
                     <p className="text-gray-900 font-bold text-xs">{log.status}</p>
                     <p className="text-gray-500 text-[9px] uppercase tracking-widest mt-1 font-bold">{new Date(log.timestamp).toLocaleTimeString()}</p>

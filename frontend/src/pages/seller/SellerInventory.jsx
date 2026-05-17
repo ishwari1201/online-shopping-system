@@ -124,7 +124,7 @@ const SellerInventory = () => {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
-                            <img src={product.images?.[0] || 'https://via.placeholder.com/150'} className="w-10 h-10 rounded-lg object-cover border border-gray-200" />
+                            <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} className="w-10 h-10 rounded-lg object-cover border border-gray-200" />
                             <div>
                               <p className="text-sm font-bold text-gray-900 truncate max-w-[200px]">{product.name}</p>
                               <p className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">{product.category}</p>

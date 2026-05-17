@@ -49,7 +49,7 @@ const DeliveryHistory = () => {
             <input 
               type="text" 
               placeholder="Search by Order ID..." 
-              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -67,6 +67,7 @@ const DeliveryHistory = () => {
             <thead>
               <tr className="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black border-b border-gray-200">
                 <th className="px-8 py-5">Order ID</th>
+                <th className="px-8 py-5 text-center">Phone</th>
                 <th className="px-8 py-5 text-center">Completed At</th>
                 <th className="px-8 py-5 text-center">Earnings</th>
                 <th className="px-8 py-5 text-center">Status</th>
@@ -76,13 +77,13 @@ const DeliveryHistory = () => {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-8 py-20 text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
+                  <td colSpan="6" className="px-8 py-20 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
                   </td>
                 </tr>
               ) : filteredHistory.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-8 py-20 text-center text-gray-500 font-bold italic">
+                  <td colSpan="6" className="px-8 py-20 text-center text-gray-500 font-bold italic">
                     No delivery history found
                   </td>
                 </tr>
@@ -94,6 +95,9 @@ const DeliveryHistory = () => {
                         <span className="text-gray-900 font-mono text-sm font-bold">#{order._id.substring(18).toUpperCase()}</span>
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">COD Shipment</span>
                       </div>
+                    </td>
+                    <td className="px-8 py-5 text-center">
+                      <span className="text-gray-900 text-sm font-medium">{order.user?.phone || 'N/A'}</span>
                     </td>
                     <td className="px-8 py-5 text-center">
                       <div className="flex flex-col">
