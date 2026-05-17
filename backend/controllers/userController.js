@@ -126,6 +126,8 @@ const registerSeller = async (req, res, next) => {
 const logoutUser = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'development' ? false : true,
+    sameSite: process.env.NODE_ENV === 'development' ? 'lax' : 'none',
     expires: new Date(0),
   });
   res.status(200).json({ message: 'Logged out successfully' });
