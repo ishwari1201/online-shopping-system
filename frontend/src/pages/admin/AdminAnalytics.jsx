@@ -62,8 +62,16 @@ const AdminAnalytics = () => {
   }, []);
 
   const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#fb923c'];
+  const summary = analyticsData?.summary || {};
+  const productAnalytics = analyticsData?.productAnalytics || [];
+  const sellerAnalytics = analyticsData?.sellerAnalytics || [];
 
-  const salesTrend = [
+  const salesTrend = analyticsData?.salesData?.map((row) => ({
+    name: `${row._id.month}/${row._id.year}`,
+    revenue: row.totalSales,
+    orders: row.count,
+    commission: row.commission,
+  })) || [
     { name: 'Week 1', revenue: 45000, orders: 120 },
     { name: 'Week 2', revenue: 52000, orders: 145 },
     { name: 'Week 3', revenue: 48000, orders: 132 },
@@ -79,8 +87,33 @@ const AdminAnalytics = () => {
     { name: 'Beauty', value: 10 },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-10 h-10 border-2 border-[#E91E63] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 pb-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[
+          { label: 'Total Revenue', value: `₹${(summary.totalRevenue || 0).toLocaleString()}`, icon: DollarSign },
+          { label: 'Subscription Revenue', value: `₹${(summary.subscriptionRevenue || 0).toLocaleString()}`, icon: TrendingUp },
+          { label: 'Commission Revenue', value: `₹${(summary.commissionRevenue || 0).toLocaleString()}`, icon: ShoppingCart },
+          { label: 'Total Sellers', value: summary.totalSellers ?? 0, icon: Users },
+          { label: 'Total Users', value: summary.totalUsers ?? 0, icon: Users },
+          { label: 'Total Orders', value: summary.totalOrders ?? 0, icon: ShoppingCart },
+        ].map(({ label, value, icon: Icon }) => (
+          <div key={label} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+            <Icon size={18} className="text-[#E91E63] mb-2" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{label}</p>
+            <p className="text-xl font-black text-gray-900 mt-1">{value}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Advanced Analytics</h1>
@@ -207,6 +240,70 @@ const AdminAnalytics = () => {
             <h4 className="font-bold text-lg">Acquisition Surge!</h4>
             <p className="text-white/80 text-sm mt-1">Your user base grew by 24% this month due to the Summer Sale campaign.</p>
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8">
+        <div className="bg-white border border-gray-200 rounded-[2rem] p-6 overflow-x-auto">
+          <h3 className="font-black text-lg text-gray-900 mb-4">Product Analytics</h3>
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase text-gray-400 border-b">
+              <tr>
+                <th className="py-3 pr-4">Product</th>
+                <th className="py-3 pr-4">Seller</th>
+                <th className="py-3 pr-4">Sales</th>
+                <th className="py-3 pr-4">Revenue</th>
+                <th className="py-3 pr-4">Admin Comm.</th>
+                <th className="py-3 pr-4">Seller Earn.</th>
+                <th className="py-3">Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productAnalytics.slice(0, 15).map((p) => (
+                <tr key={p._id} className="border-b border-gray-50">
+                  <td className="py-3 pr-4 font-semibold">{p.name}</td>
+                  <td className="py-3 pr-4 text-gray-500">{p.sellerName}</td>
+                  <td className="py-3 pr-4">{p.totalSales}</td>
+                  <td className="py-3 pr-4">₹{p.revenue}</td>
+                  <td className="py-3 pr-4 text-[#E91E63]">₹{p.adminCommission}</td>
+                  <td className="py-3 pr-4">₹{p.sellerEarning}</td>
+                  <td className="py-3">{p.countInStock}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-[2rem] p-6 overflow-x-auto">
+          <h3 className="font-black text-lg text-gray-900 mb-4">Seller Analytics</h3>
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase text-gray-400 border-b">
+              <tr>
+                <th className="py-3 pr-4">Store</th>
+                <th className="py-3 pr-4">Plan</th>
+                <th className="py-3 pr-4">Commission %</th>
+                <th className="py-3 pr-4">Revenue</th>
+                <th className="py-3 pr-4">Admin Comm.</th>
+                <th className="py-3 pr-4">Wallet</th>
+                <th className="py-3">Expiry</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sellerAnalytics.map((s) => (
+                <tr key={s._id} className="border-b border-gray-50">
+                  <td className="py-3 pr-4 font-semibold">{s.storeName || s.name}</td>
+                  <td className="py-3 pr-4">{s.subscriptionPlan || '—'}</td>
+                  <td className="py-3 pr-4">{s.commissionRate || 0}%</td>
+                  <td className="py-3 pr-4">₹{s.sellerRevenue}</td>
+                  <td className="py-3 pr-4 text-[#E91E63]">₹{s.adminCommission}</td>
+                  <td className="py-3 pr-4">₹{s.walletBalance}</td>
+                  <td className="py-3">
+                    {s.planExpiry ? new Date(s.planExpiry).toLocaleDateString() : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

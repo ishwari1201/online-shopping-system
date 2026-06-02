@@ -38,7 +38,7 @@ const SellerAnalytics = () => {
   const COLORS = ['#4f46e5', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pb-24 font-sans text-[#111827]">
+    <div className="min-h-screen bg-[#fff7fa] pb-24 font-sans text-[#212a2f]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 space-y-8">
         
         {/* Header */}

@@ -26,6 +26,7 @@ const productSchema = mongoose.Schema({
   countInStock: { type: Number, required: true, default: 0 },
   sku: { type: String, unique: true, sparse: true },
   subcategory: { type: String },
+  type: { type: String },
   specs: [{
     key: String,
     value: String
@@ -46,6 +47,9 @@ const productSchema = mongoose.Schema({
     ref: 'User',
   },
   rejectionReason: {
+    type: String,
+  },
+  productVideo: {
     type: String,
   },
 }, {

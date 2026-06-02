@@ -1,37 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #212a2f; /* Allbirds Charcoal */
-  --color-accent: #ff4f33;  /* Allbirds Coral */
-  --color-bg-cream: #f8f7f5; /* Allbirds Beige */
-  --color-muted: #6a7277;
+  --color-primary: #1F1F1F;    /* Rich Charcoal */
+  --color-accent:  #E91E63;    /* Primary Pink */
+  --color-bg-cream: #FFF7FA;   /* Soft Pink White */
+  --color-muted:   #888888;    /* Neutral Muted */
+  --color-rose:    #D81B60;    /* Deep Rose */
+  --color-soft:    #FCE4EC;    /* Blush Pink */
 }
 
-:root {
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #212a2f;
-  background-color: #f8f7f5;
+/* ─── Base Reset ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f8f7f5;
-  color: #212a2f;
-  -webkit-font-smoothing: antialiased;
+  background-color: #FFF7FA;
+  color: #1F1F1F;
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
 }
 
+/* ─── Custom Scrollbar ───────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #FFF7FA; }
+::-webkit-scrollbar-thumb { background: #E91E63; border-radius: 99px; }
+
+/* ─── Glass Navbar ───────────────────────────────────── */
 .glass-allbirds {
-  background: rgba(248, 247, 245, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 247, 250, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(233, 30, 99, 0.08);
+  box-shadow: 0 2px 20px rgba(233, 30, 99, 0.06);
 }
 
+/* ─── Cards ──────────────────────────────────────────── */
 .card-allbirds {
-  @apply bg-white border border-black/5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  background: #ffffff;
+  border: 1px solid rgba(233, 30, 99, 0.07);
+  border-radius: 20px;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.card-allbirds:hover {
+  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
+  transform: translateY(-4px);
 }
 
+/* ─── Primary Button ─────────────────────────────────── */
 .btn-allbirds {
-  @apply px-10 py-4 bg-[#212a2f] text-white font-bold uppercase tracking-widest text-[11px] transition-all hover:bg-[#334148] active:scale-95;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 36px;
+  background: linear-gradient(135deg, #E91E63 0%, #D81B60 100%);
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 8px 24px rgba(233, 30, 99, 0.3);
 }
+.btn-allbirds:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(233, 30, 99, 0.45);
+  background: linear-gradient(135deg, #D81B60 0%, #C2185B 100%);
+}
+.btn-allbirds:active { transform: scale(0.97); }
+
+/* ─── Outline / Ghost Button ─────────────────────────── */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  background: transparent;
+  color: #E91E63;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 99px;
+  border: 2px solid #E91E63;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  background: #E91E63;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(233, 30, 99, 0.3);
+}
+
+/* ─── Section Headings ───────────────────────────────── */
+.section-heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  color: #1F1F1F;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.section-label {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #E91E63;
+}
+
+/* ─── Pink Pill Tag ──────────────────────────────────── */
+.pill-pink {
+  display: inline-block;
+  padding: 6px 16px;
+  background: #FCE4EC;
+  color: #E91E63;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ─── Divider Line ───────────────────────────────────── */
+.divider-pink {
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, #E91E63, #F8BBD0);
+  border-radius: 99px;
+  margin: 16px auto 0;
+}
+
+/* ─── Keyframe Animations ────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes pulse-pink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(233, 30, 99, 0); }
+}
+
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, #FCE4EC 25%, #FFF7FA 50%, #FCE4EC 75%);
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+}
+.animate-pulse-pink { animation: pulse-pink 2s infinite; }

@@ -117,8 +117,10 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stat Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value={`₹${stats.totalRevenue?.toLocaleString()}`} icon={DollarSign} color="primary" trend="up" trendValue="12.5" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard title="Order Revenue" value={`₹${stats.totalRevenue?.toLocaleString()}`} icon={DollarSign} color="primary" trend="up" trendValue="12.5" />
+        <StatCard title="Subscription Revenue" value={`₹${(stats.subscriptionRevenue || 0).toLocaleString()}`} icon={TrendingUp} color="pink" />
+        <StatCard title="Commission Revenue" value={`₹${(stats.commissionRevenue || 0).toLocaleString()}`} icon={Activity} color="purple" />
         <StatCard title="Total Orders" value={stats.totalOrders} icon={ShoppingCart} color="purple" trend="up" trendValue="8.2" />
         <StatCard title="Active Users" value={stats.totalUsers} icon={Users} color="pink" trend="up" trendValue="5.1" />
         <StatCard title="Total Sellers" value={stats.totalSellers} icon={Store} color="blue" trend="up" trendValue="2.4" />

@@ -1,4 +1,15 @@
 const Product = require('../models/productModel');
+const User = require('../models/userModel');
+const Offer = require('../models/offerModel');
+const OfferProduct = require('../models/offerProductModel');
+const { canUploadProduct, syncProductsUploaded } = require('../utils/sellerSubscriptionUtils');
+const {
+  getOutfitCategories,
+  getOutfitSlots,
+  buildSubcategoryFilter,
+  rankSimilarProducts,
+  fetchOutfitBySlots,
+} = require('../utils/recommendationUtils');
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -38,7 +49,26 @@ const getProductById = async (req, res, next) => {
     const product = await Product.findById(req.params.id);
 
     if (product && product.status === 'Approved') {
-      res.json(product);
+      const productObj = product.toObject();
+      
+      // Fetch active approved offers associated with this product
+      const now = new Date();
+      const mappings = await OfferProduct.find({ productId: product._id });
+      if (mappings.length > 0) {
+        const offerIds = mappings.map(m => m.offerId);
+        const activeOffer = await Offer.findOne({
+          _id: { $in: offerIds },
+          status: 'Approved',
+          startDate: { $lte: now },
+          endDate: { $gte: now }
+        }).populate('sellerId', 'name sellerProfile');
+        
+        if (activeOffer) {
+          productObj.activeOffer = activeOffer;
+        }
+      }
+
+      res.json(productObj);
     } else {
       res.status(404);
       throw new Error('Product not found or not approved');
@@ -53,8 +83,17 @@ const getProductById = async (req, res, next) => {
 // @access  Private/Admin/Seller
 const createProduct = async (req, res, next) => {
   try {
+    if (req.user.role === 'seller') {
+      const seller = await User.findById(req.user._id);
+      const check = canUploadProduct(seller);
+      if (!check.allowed) {
+        res.status(403);
+        throw new Error(check.message);
+      }
+    }
+
     const { 
-      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants 
+      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants, productVideo
     } = req.body;
     
     const product = new Product({
@@ -74,9 +113,16 @@ const createProduct = async (req, res, next) => {
       numReviews: 0,
       status: 'Pending',
       description: description || 'Sample description',
+      productVideo,
     });
 
     const createdProduct = await product.save();
+
+    if (req.user.role === 'seller') {
+      const count = await syncProductsUploaded(req.user._id);
+      await User.findByIdAndUpdate(req.user._id, { productsUploaded: count });
+    }
+
     res.status(201).json(createdProduct);
   } catch (error) {
     next(error);
@@ -89,7 +135,7 @@ const createProduct = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
   try {
     const { 
-      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants 
+      name, price, discount, description, images, brand, category, subcategory, countInStock, sku, specs, variants, productVideo
     } = req.body;
 
     const product = await Product.findById(req.params.id);
@@ -112,6 +158,7 @@ const updateProduct = async (req, res, next) => {
       product.sku = sku || product.sku;
       product.specs = specs || product.specs;
       product.variants = variants || product.variants;
+      product.productVideo = productVideo !== undefined ? productVideo : product.productVideo;
       
       // Reset status to Pending if it was Rejected and re-submitted
       if (product.status === 'Rejected') {
@@ -255,6 +302,106 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
+const getSimilarProducts = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+
+    const baseQuery = {
+      _id: { $ne: product._id },
+      category: product.category,
+      status: 'Approved',
+    };
+
+    let candidates = await Product.find({
+      ...baseQuery,
+      ...buildSubcategoryFilter(product.subcategory),
+    }).limit(30);
+
+    if (candidates.length < 4) {
+      const more = await Product.find(baseQuery).limit(30);
+      const merged = [...candidates, ...more];
+      candidates = merged;
+    }
+
+    let similarProducts = rankSimilarProducts(candidates, product, 8);
+
+    if (similarProducts.length < 4) {
+      const broad = await Product.find(baseQuery).limit(30);
+      similarProducts = rankSimilarProducts(
+        [...similarProducts, ...broad],
+        product,
+        8
+      );
+    }
+
+    if (similarProducts.length === 0 && product.subcategory) {
+      const fallback = await Product.find({
+        _id: { $ne: product._id },
+        subcategory: product.subcategory,
+        status: 'Approved',
+      }).limit(16);
+      similarProducts = rankSimilarProducts(fallback, product, 8);
+    }
+
+    res.json(similarProducts);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getStyleWithProducts = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+
+    const slots = getOutfitSlots(product);
+    let styleProducts = await fetchOutfitBySlots(Product, product, slots, 8);
+
+    if (styleProducts.length < 4) {
+      const outfitCategories = getOutfitCategories(product.category);
+      const fallback = await Product.find({
+        _id: { $ne: product._id },
+        category: { $in: outfitCategories },
+        status: 'Approved',
+        ...buildSubcategoryFilter(product.subcategory),
+      })
+        .sort({ rating: -1 })
+        .limit(12);
+      const used = new Set(styleProducts.map((p) => p._id.toString()));
+      for (const item of fallback) {
+        if (styleProducts.length >= 8) break;
+        if (!used.has(item._id.toString())) {
+          used.add(item._id.toString());
+          styleProducts.push(item);
+        }
+      }
+    }
+
+    if (styleProducts.length === 0) {
+      styleProducts = await Product.find({
+        _id: { $ne: product._id },
+        category: { $ne: product.category },
+        status: 'Approved',
+      })
+        .sort({ rating: -1 })
+        .limit(8);
+    }
+
+    res.json(styleProducts);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
@@ -265,4 +412,7 @@ module.exports = {
   getTopProducts,
   getAllReviews,
   deleteReview,
+  getSimilarProducts,
+  getStyleWithProducts,
 };
+

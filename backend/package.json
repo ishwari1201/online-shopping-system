@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "data:import": "node seeder.js",
+    "data:destroy": "node seeder.js -d",
+    "data:products": "node addProducts.js"
   },
   "keywords": [],
   "author": "",

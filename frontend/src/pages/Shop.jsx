@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Heart, X, SlidersHorizontal } from 'lucide-react';
+import { Search, Heart, X, SlidersHorizontal, ShoppingBag } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
 import { toast } from 'react-toastify';
@@ -26,32 +26,56 @@ const ProductCard = ({ product }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="group cursor-pointer"
+      className="group cursor-pointer bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
       onClick={() => navigate(`/product/${product._id}`)}
+      whileHover={{ y: -4 }}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-white rounded-sm border border-black/5">
+      <div className="relative aspect-[3/4] overflow-hidden bg-gray-50">
         <img 
           src={product.images && product.images[0] ? product.images[0] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
           alt={product.name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
           }}
         />
+        {/* Wishlist Button */}
         <div 
-          className={`absolute top-4 right-4 p-2 rounded-full bg-white shadow-sm transition-colors ${isWishlisted ? 'text-red-500' : 'text-gray-400'}`} 
+          className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md bg-white/80 shadow-sm transition-all hover:bg-white ${isWishlisted ? 'text-[#E91E63]' : 'text-gray-400'}`} 
           onClick={handleWishlist}
         >
-          <Heart size={14} className={isWishlisted ? "fill-current" : ""} />
+          <Heart size={16} className={isWishlisted ? "fill-current" : ""} />
+        </div>
+        {/* Discount Badge */}
+        {product.discount > 0 && (
+          <div className="absolute top-4 left-4 bg-[#D81B60] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase">
+            {product.discount}% OFF
+          </div>
+        )}
+        {/* Quick Add Button */}
+        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            className="w-full bg-white/90 backdrop-blur-sm text-primary text-xs font-bold py-2.5 rounded-xl hover:bg-[#E91E63] hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Add to cart logic would go here
+              toast.success('Added to Cart!');
+            }}
+          >
+            <ShoppingBag size={14} />
+            Quick Add
+          </button>
         </div>
       </div>
-      <div className="mt-4 space-y-1">
-        <div className="flex justify-between items-start">
-          <h3 className="text-[12px] font-black text-primary uppercase tracking-tight max-w-[70%]">{product.name}</h3>
-          <p className="text-[12px] font-black tracking-tighter text-primary">₹{product.price}</p>
+      <div className="p-5 flex-1 flex flex-col justify-between">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{product.brand || 'Premium'}</p>
+          <h3 className="text-sm font-bold text-primary line-clamp-2">{product.name}</h3>
         </div>
-        <p className="text-[10px] text-muted font-black uppercase tracking-widest">{product.category}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-sm font-black text-primary">₹{product.price}</span>
+        </div>
       </div>
     </motion.div>
   );

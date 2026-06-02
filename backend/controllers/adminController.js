@@ -2,6 +2,8 @@ const User = require('../models/userModel');
 const Product = require('../models/productModel');
 const Order = require('../models/orderModel');
 const Notification = require('../models/notificationModel');
+const SubscriptionPayment = require('../models/subscriptionPaymentModel');
+const { creditSellerWallets } = require('../utils/orderPaymentUtils');
 
 // @desc    Get dashboard statistics
 // @route   GET /api/admin/dashboard/stats
@@ -14,9 +16,18 @@ const getAdminDashboardStats = async (req, res, next) => {
     const pendingProducts = await Product.countDocuments({ status: 'Pending' });
     const lowStockProducts = await Product.countDocuments({ countInStock: { $lt: 5 } });
     
-    const orders = await Order.find({});
-    const totalOrders = orders.length;
+    const orders = await Order.find({ isPaid: true });
+    const allOrders = await Order.find({});
+    const totalOrders = allOrders.length;
     const totalRevenue = orders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+    const commissionRevenue = orders.reduce(
+      (acc, order) => acc + (order.adminCommission || 0),
+      0
+    );
+    const subscriptionRevenue = await SubscriptionPayment.aggregate([
+      { $match: { status: 'Paid' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
     
     const recentOrders = await Order.find({})
       .populate('user', 'name')
@@ -34,6 +45,10 @@ const getAdminDashboardStats = async (req, res, next) => {
         totalProducts,
         totalOrders,
         totalRevenue,
+        commissionRevenue,
+        subscriptionRevenue: subscriptionRevenue[0]?.total || 0,
+        totalPlatformRevenue:
+          (subscriptionRevenue[0]?.total || 0) + commissionRevenue,
         pendingProducts,
         lowStockProducts
       },
@@ -57,7 +72,10 @@ const updateSellerStatus = async (req, res, next) => {
 
     if (user && user.role === 'seller') {
       user.sellerStatus = status;
-      user.isSellerApproved = (status === 'approved');
+      user.isSellerApproved = status === 'approved';
+      if (status !== 'approved') {
+        user.isSellerActive = false;
+      }
       
       const updatedUser = await user.save();
       console.log('Seller updated successfully:', updatedUser._id);
@@ -283,18 +301,125 @@ const getAdminAnalytics = async (req, res, next) => {
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     const salesData = await Order.aggregate([
-      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      { $match: { createdAt: { $gte: sixMonthsAgo }, isPaid: true } },
       {
         $group: {
-          _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
-          totalSales: { $sum: "$totalPrice" },
-          count: { $sum: 1 }
-        }
+          _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
+          totalSales: { $sum: '$totalPrice' },
+          commission: { $sum: '$adminCommission' },
+          count: { $sum: 1 },
+        },
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
     ]);
 
-    res.json(salesData);
+    const paidOrders = await Order.find({ isPaid: true });
+    const subscriptionAgg = await SubscriptionPayment.aggregate([
+      { $match: { status: 'Paid' } },
+      { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+    ]);
+
+    const commissionRevenue = paidOrders.reduce(
+      (acc, o) => acc + (o.adminCommission || 0),
+      0
+    );
+    const orderRevenue = paidOrders.reduce((acc, o) => acc + (o.totalPrice || 0), 0);
+    const subscriptionRevenue = subscriptionAgg[0]?.total || 0;
+
+    const totalUsers = await User.countDocuments({ role: 'customer' });
+    const totalSellers = await User.countDocuments({ role: 'seller' });
+    const totalOrders = await Order.countDocuments();
+
+    const productAnalytics = await Product.find({})
+      .populate('seller', 'name email sellerProfile.storeName subscriptionPlan commissionRate')
+      .select('name price countInStock status seller');
+
+    const productStats = await Promise.all(
+      productAnalytics.map(async (product) => {
+        const orders = await Order.find({
+          isPaid: true,
+          'orderItems.product': product._id,
+        });
+        let totalSales = 0;
+        let revenue = 0;
+        let adminCommission = 0;
+        let sellerEarning = 0;
+        orders.forEach((order) => {
+          order.orderItems.forEach((item) => {
+            if (item.product?.toString() === product._id.toString()) {
+              totalSales += item.qty;
+              revenue += item.lineTotal || item.price * item.qty;
+              adminCommission += item.adminCommission || 0;
+              sellerEarning += item.sellerEarning || 0;
+            }
+          });
+        });
+        return {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          countInStock: product.countInStock,
+          status: product.status,
+          sellerName:
+            product.seller?.sellerProfile?.storeName || product.seller?.name || 'N/A',
+          totalSales,
+          revenue,
+          adminCommission,
+          sellerEarning,
+        };
+      })
+    );
+
+    const sellers = await User.find({ role: 'seller' }).select(
+      '-password'
+    );
+    const sellerAnalytics = await Promise.all(
+      sellers.map(async (seller) => {
+        const orders = await Order.find({
+          isPaid: true,
+          'orderItems.seller': seller._id,
+        });
+        let sellerRevenue = 0;
+        let adminCommission = 0;
+        orders.forEach((order) => {
+          order.orderItems.forEach((item) => {
+            if (item.seller?.toString() === seller._id.toString()) {
+              sellerRevenue += item.sellerEarning ?? item.price * item.qty;
+              adminCommission += item.adminCommission ?? 0;
+            }
+          });
+        });
+        return {
+          _id: seller._id,
+          name: seller.name,
+          email: seller.email,
+          storeName: seller.sellerProfile?.storeName,
+          sellerStatus: seller.sellerStatus,
+          subscriptionPlan: seller.subscriptionPlan,
+          planExpiry: seller.planExpiry,
+          commissionRate: seller.commissionRate,
+          isSellerActive: seller.isSellerActive,
+          sellerRevenue,
+          adminCommission,
+          walletBalance: seller.walletBalance,
+        };
+      })
+    );
+
+    res.json({
+      salesData,
+      summary: {
+        totalRevenue: orderRevenue + subscriptionRevenue,
+        orderRevenue,
+        subscriptionRevenue,
+        commissionRevenue,
+        totalUsers,
+        totalSellers,
+        totalOrders,
+      },
+      productAnalytics: productStats,
+      sellerAnalytics,
+    });
   } catch (error) {
     next(error);
   }
@@ -394,10 +519,11 @@ const updateOrderStatus = async (req, res, next) => {
         order.deliveredAt = Date.now();
         
         // If Cash on Delivery, mark payment as paid upon successful delivery
-        if (order.paymentMethod === 'Cash on Delivery') {
+        if (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) {
           order.isPaid = true;
           order.paidAt = Date.now();
           order.paymentStatus = 'Paid';
+          await creditSellerWallets(order.orderItems);
         }
       }
       await order.save();

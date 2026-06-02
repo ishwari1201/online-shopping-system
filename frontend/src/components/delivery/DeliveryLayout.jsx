@@ -38,10 +38,11 @@ const DeliveryLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       await axios.post('/api/users/logout');
-      dispatch(logoutUser());
-      navigate('/login');
     } catch (error) {
       console.error(error);
+    } finally {
+      dispatch(logoutUser());
+      navigate('/login');
     }
   };
 

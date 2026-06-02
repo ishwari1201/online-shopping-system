@@ -37,20 +37,39 @@ const admin = (req, res, next) => {
   }
 };
 
-// Seller middleware
-const seller = (req, res, next) => {
-  console.log('Checking seller role for user:', req.user?._id, 'Role:', req.user?.role);
-  if (req.user && (req.user.role === 'seller' || req.user.role === 'admin')) {
-    if (req.user.role === 'seller' && req.user.sellerStatus !== 'approved') {
+// Seller approved by admin (subscription purchase allowed)
+const sellerApproved = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') return next();
+  if (req.user && req.user.role === 'seller') {
+    if (req.user.sellerStatus !== 'approved') {
       res.status(401);
       return next(new Error(`Seller account is ${req.user.sellerStatus || 'pending approval'}`));
     }
-    next();
-  } else {
-    res.status(401);
-    const error = new Error('Not authorized as a seller');
-    next(error);
+    return next();
   }
+  res.status(401);
+  next(new Error('Not authorized as a seller'));
+};
+
+// Seller with active subscription (dashboard, products, orders)
+const seller = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') return next();
+  if (req.user && req.user.role === 'seller') {
+    if (req.user.sellerStatus !== 'approved') {
+      res.status(401);
+      return next(new Error(`Seller account is ${req.user.sellerStatus || 'pending approval'}`));
+    }
+    const expired = req.user.planExpiry && new Date(req.user.planExpiry) < new Date();
+    if (!req.user.isSellerActive || expired) {
+      res.status(403);
+      return next(
+        new Error('Active subscription required. Please purchase a seller plan.')
+      );
+    }
+    return next();
+  }
+  res.status(401);
+  next(new Error('Not authorized as a seller'));
 };
 
 // Delivery middleware
@@ -69,4 +88,4 @@ const delivery = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin, seller, delivery };
+module.exports = { protect, admin, seller, sellerApproved, delivery };

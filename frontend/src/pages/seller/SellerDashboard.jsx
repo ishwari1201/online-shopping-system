@@ -48,10 +48,14 @@ const SellerDashboard = () => {
     );
   }
 
-  const { stats, monthlySales, recentOrders } = data || {};
+  const { stats, monthlySales, recentOrders, subscription } = data || {};
+  const atLimit =
+    subscription &&
+    subscription.remainingProducts !== 'Unlimited' &&
+    subscription.remainingProducts === 0;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pb-24 font-sans text-[#111827]">
+    <div className="min-h-screen bg-[#fff7fa] pb-24 font-sans text-[#212a2f]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         
         {/* Header & Quick Actions */}
@@ -64,17 +68,51 @@ const SellerDashboard = () => {
             <Link to="/seller/orders" className="flex-1 md:flex-none text-center bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm">
               View Orders
             </Link>
-            <Link to="/seller/add-product" className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm">
-              <Plus size={16} /> New Product
+            <Link
+              to={atLimit ? '/seller/subscription' : '/seller/add-product'}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm ${
+                atLimit
+                  ? 'bg-amber-500 text-white hover:bg-amber-600'
+                  : 'bg-gray-900 text-white hover:bg-gray-800'
+              }`}
+            >
+              <Plus size={16} /> {atLimit ? 'Upgrade Plan' : 'New Product'}
             </Link>
           </div>
         </div>
+
+        {subscription && (
+          <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl border border-pink-100 p-4">
+              <p className="text-xs text-gray-500 font-semibold">Current Plan</p>
+              <p className="font-black text-gray-900">{subscription.subscriptionPlan || 'None'}</p>
+            </div>
+            <div className="bg-white rounded-xl border border-pink-100 p-4">
+              <p className="text-xs text-gray-500 font-semibold">Product Limit</p>
+              <p className="font-black text-gray-900">
+                {subscription.productsUploaded} / {subscription.productLimit}
+              </p>
+            </div>
+            <div className="bg-white rounded-xl border border-pink-100 p-4">
+              <p className="text-xs text-gray-500 font-semibold">Commission Rate</p>
+              <p className="font-black text-[#E91E63]">{subscription.commissionRate}%</p>
+            </div>
+            <div className="bg-white rounded-xl border border-pink-100 p-4">
+              <p className="text-xs text-gray-500 font-semibold">Plan Expiry</p>
+              <p className="font-black text-gray-900 text-sm">
+                {subscription.planExpiry
+                  ? new Date(subscription.planExpiry).toLocaleDateString()
+                  : '—'}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* 1. Main Revenue Chart (Spans 2 columns) */}
-          <div className="md:col-span-2 bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="md:col-span-2 bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col justify-between">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <p className="text-sm font-semibold text-gray-500 mb-1 flex items-center gap-2">
@@ -121,7 +159,7 @@ const SellerDashboard = () => {
           {/* 2. Side Stacked Cards (Column 3) */}
           <div className="flex flex-col gap-6">
             {/* Orders Metric */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center relative overflow-hidden group">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
               <div className="relative z-10">
                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
@@ -133,7 +171,7 @@ const SellerDashboard = () => {
             </div>
 
             {/* Inventory / Action Required */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex-1 flex flex-col justify-center">
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
                   <Package size={20} strokeWidth={2} />
@@ -164,7 +202,7 @@ const SellerDashboard = () => {
           </div>
 
           {/* 3. Recent Orders Table (Spans 2 columns) */}
-          <div className="md:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgb(0,0,0,0.04)] overflow-hidden">
+          <div className="md:col-span-2 bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100 shadow-[0_2px_8px_rgb(0,0,0,0.04)] overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
               <h3 className="text-lg font-bold text-gray-900">Recent Orders</h3>
               <Link to="/seller/orders" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1">
@@ -220,7 +258,7 @@ const SellerDashboard = () => {
           </div>
 
           {/* 4. Action Center / Pending Items (Column 3) */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100 p-6 shadow-[0_2px_8px_rgb(0,0,0,0.04)] flex flex-col">
             <h3 className="text-lg font-bold text-gray-900 mb-6">Action Center</h3>
             
             <div className="space-y-4 flex-1">

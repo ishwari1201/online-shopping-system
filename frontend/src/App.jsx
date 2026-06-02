@@ -14,6 +14,8 @@ import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import OrderDetails from './pages/OrderDetails';
 import MyOrders from './pages/MyOrders';
+import Offers from './pages/Offers';
+import OfferDetails from './pages/OfferDetails';
 
 // Admin Imports
 import AdminLayout from './components/admin/AdminLayout';
@@ -32,10 +34,13 @@ import AdminDelivery from './pages/admin/AdminDelivery';
 import AdminProductModeration from './pages/admin/AdminProductModeration';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminOffers from './pages/admin/AdminOffers';
 
 // Seller Imports
 import SellerLayout from './components/seller/SellerLayout';
 import SellerRoute from './components/seller/SellerRoute';
+import SellerSubscriptionGate from './components/seller/SellerSubscriptionGate';
+import SellerSubscription from './pages/seller/SellerSubscription';
 import SellerRegister from './pages/SellerRegister';
 import SellerDashboard from './pages/seller/SellerDashboard';
 import SellerProducts from './pages/seller/SellerProducts';
@@ -49,6 +54,8 @@ import SellerEditProduct from './pages/seller/SellerEditProduct';
 import SellerSettings from './pages/seller/SellerSettings';
 import SellerAnalytics from './pages/seller/SellerAnalytics';
 import SellerReviews from './pages/seller/SellerReviews';
+import SellerOffers from './pages/seller/SellerOffers';
+import SellerCreateOffer from './pages/seller/SellerCreateOffer';
 
 
 // Delivery Imports
@@ -117,6 +124,7 @@ function App() {
             <Route path="users" element={<AdminUsers />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="offers" element={<AdminOffers />} />
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="sellers" element={<AdminSellers />} />
@@ -132,10 +140,15 @@ function App() {
 
         {/* Seller Routes */}
         <Route path="/seller" element={<SellerRoute />}>
-          <Route element={<SellerLayoutWrapper />}>
-            <Route path="dashboard" element={<SellerDashboard />} />
-            <Route path="products" element={<SellerProducts />} />
-            <Route path="add-product" element={<SellerAddProduct />} />
+          <Route element={<SellerSubscriptionGate />}>
+            <Route path="subscription" element={<SellerSubscription />} />
+            <Route element={<SellerLayoutWrapper />}>
+             <Route path="dashboard" element={<SellerDashboard />} />
+             <Route path="products" element={<SellerProducts />} />
+             <Route path="offers" element={<SellerOffers />} />
+             <Route path="create-offer" element={<SellerCreateOffer />} />
+             <Route path="edit-offer/:id" element={<SellerCreateOffer />} />
+             <Route path="add-product" element={<SellerAddProduct />} />
             <Route path="edit-product/:id" element={<SellerEditProduct />} />
             <Route path="inventory" element={<SellerInventory />} />
             <Route path="orders" element={<SellerOrders />} />
@@ -146,6 +159,7 @@ function App() {
             <Route path="notifications" element={<SellerNotifications />} />
             <Route path="settings" element={<SellerSettings />} />
             <Route index element={<SellerDashboard />} />
+            </Route>
           </Route>
         </Route>
 
@@ -172,6 +186,8 @@ function App() {
           <Route path="/seller/register" element={<SellerRegister />} />
           <Route path="/delivery/register" element={<DeliveryRegister />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/offers" element={<Offers />} />
+          <Route path="/offer/:slug" element={<OfferDetails />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />

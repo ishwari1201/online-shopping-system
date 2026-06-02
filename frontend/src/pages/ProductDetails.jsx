@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { Star, Truck, Shield, ArrowLeft, Plus, Minus, ShoppingBag, Heart, RefreshCw } from 'lucide-react';
+import { Star, Truck, Shield, ArrowLeft, Plus, Minus, ShoppingBag, Heart, RefreshCw, Video, Play, Clock } from 'lucide-react';
 import axios from 'axios';
 import { addToCart } from '../redux/slices/cartSlice';
 import { toggleWishlist } from '../redux/slices/wishlistSlice';
 import { toast } from 'react-toastify';
+import ProductRecommendationSlider from '../components/ProductRecommendationSlider';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -23,6 +24,39 @@ const ProductDetails = () => {
   const [qty, setQty] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(true);
+  const [styleWithProducts, setStyleWithProducts] = useState([]);
+  const [styleWithLoading, setStyleWithLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState('');
+
+  // Countdowns calculations for active promotional offers
+  useEffect(() => {
+    if (!product?.activeOffer?.endDate) return;
+
+    const calculateTime = () => {
+      const difference = new Date(product.activeOffer.endDate) - new Date();
+      if (difference <= 0) {
+        setTimeLeft('Expired');
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      if (days > 0) {
+        setTimeLeft(`${days} Days left`);
+      } else {
+        setTimeLeft(`${hours}h ${minutes}m ${seconds}s left`);
+      }
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [product]);
 
   const availableColors = [...new Set(product?.variants?.map(v => v.color).filter(Boolean))];
   const availableSizes = [...new Set(product?.variants?.map(v => v.size).filter(Boolean))];
@@ -117,6 +151,38 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setSimilarLoading(true);
+      setStyleWithLoading(true);
+      setSimilarProducts([]);
+      setStyleWithProducts([]);
+
+      const [similarResult, styleWithResult] = await Promise.allSettled([
+        axios.get(`/api/products/${id}/similar`),
+        axios.get(`/api/products/${id}/style-with`),
+      ]);
+
+      if (similarResult.status === 'fulfilled') {
+        setSimilarProducts(Array.isArray(similarResult.value.data) ? similarResult.value.data : []);
+      } else {
+        console.error('Failed to load similar products', similarResult.reason);
+      }
+
+      if (styleWithResult.status === 'fulfilled') {
+        setStyleWithProducts(Array.isArray(styleWithResult.value.data) ? styleWithResult.value.data : []);
+      } else {
+        console.error('Failed to load style-with products', styleWithResult.reason);
+      }
+
+      setSimilarLoading(false);
+      setStyleWithLoading(false);
+    };
+    if (id) {
+      fetchRecommendations();
+    }
+  }, [id]);
+
   const addToCartHandler = () => {
     const variant = getSelectedVariant();
     
@@ -176,9 +242,9 @@ const ProductDetails = () => {
           {/* Image Gallery */}
           <div className="flex gap-4 w-full">
             {/* Thumbnails */}
-            {product.images && product.images.length > 1 && (
+            {((product.images && product.images.length > 1) || product.productVideo) && (
               <div className="flex flex-col gap-3 w-20 flex-shrink-0">
-                {product.images.map((img, idx) => (
+                {product.images?.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -189,26 +255,86 @@ const ProductDetails = () => {
                     <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
+                
+                {/* Video Thumbnail */}
+                {product.productVideo && (
+                  <button
+                    onClick={() => setActiveImage('video')}
+                    className={`aspect-square overflow-hidden rounded-sm border-2 transition-all relative flex items-center justify-center bg-black/5 ${
+                      activeImage === 'video' ? 'border-[#212a2f]' : 'border-transparent opacity-60 hover:opacity-90'
+                    }`}
+                  >
+                    {product.productVideo.includes('youtube.com') || product.productVideo.includes('youtu.be') ? (
+                      <img 
+                        src={`https://img.youtube.com/vi/${
+                          product.productVideo.includes('watch?v=') 
+                            ? product.productVideo.split('v=')[1]?.split('&')[0] 
+                            : product.productVideo.split('/').pop()
+                        }/hqdefault.jpg`} 
+                        alt="Video thumbnail" 
+                        className="w-full h-full object-cover opacity-80" 
+                      />
+                    ) : product.images?.[0] ? (
+                      <img src={product.images[0]} alt="Video poster thumbnail" className="w-full h-full object-cover opacity-60" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-900 flex items-center justify-center text-white"><Video size={18} /></div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-[#E91E63] text-white flex items-center justify-center shadow-md">
+                        <Play size={12} className="fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  </button>
+                )}
               </div>
             )}
 
-            {/* Main Image */}
+            {/* Main Image / Video Player */}
             <div className="flex-1 bg-white rounded-sm overflow-hidden relative aspect-[4/5]">
-              <motion.img
-                key={activeImage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                src={product.images && product.images[activeImage] ? product.images[activeImage] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
-                }}
-              />
+              {activeImage === 'video' ? (
+                <div className="w-full h-full bg-black flex items-center justify-center">
+                  {product.productVideo.includes('youtube.com') || product.productVideo.includes('youtu.be') || product.productVideo.includes('vimeo.com') ? (
+                    <iframe
+                      src={
+                        product.productVideo.includes('youtube.com') || product.productVideo.includes('youtu.be')
+                          ? `https://www.youtube.com/embed/${
+                              product.productVideo.includes('watch?v=')
+                                ? product.productVideo.split('v=')[1]?.split('&')[0]
+                                : product.productVideo.split('/').pop()
+                            }?autoplay=1`
+                          : `https://player.vimeo.com/video/${product.productVideo.split('/').pop()}?autoplay=1`
+                      }
+                      title="Product Video Player"
+                      className="w-full h-full border-none aspect-[4/5]"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <video
+                      src={product.productVideo}
+                      className="w-full h-full object-contain"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  )}
+                </div>
+              ) : (
+                <motion.img
+                  key={activeImage}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src={product.images && product.images[activeImage] ? product.images[activeImage] : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop';
+                  }}
+                />
+              )}
               {product.countInStock === 0 && (
-                <div className="absolute top-4 left-4 bg-[#212a2f] text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                <div className="absolute top-4 left-4 bg-[#212a2f] text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest z-10">
                   Sold Out
                 </div>
               )}
@@ -235,11 +361,44 @@ const ProductDetails = () => {
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-4 mb-12">
+            <div className="flex items-center gap-4 mb-8">
               <span className="text-3xl font-black tracking-tighter text-primary">₹{displayPrice}</span>
               <div className="w-px h-6 bg-black/5"></div>
               <span className="text-[11px] font-black uppercase tracking-widest text-muted">Incl. GST</span>
             </div>
+
+            {/* Active Promotional Offer Badge & Countdown widget */}
+            {product.activeOffer && (
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-pink-50 to-pink-100/40 border border-pink-200/80 shadow-[0_2px_12px_rgba(233,30,99,0.03)] space-y-3.5 max-w-md">
+                <div className="flex items-center justify-between">
+                  <Link 
+                    to={`/offer/${product.activeOffer.slug}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-black text-pink-600 hover:text-pink-800 transition-colors uppercase tracking-tight"
+                  >
+                    🌧️ {product.activeOffer.offerName}
+                  </Link>
+                  <span className="text-[10px] bg-pink-500 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                    Active Offer
+                  </span>
+                </div>
+                
+                {product.activeOffer.couponCode && (
+                  <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-pink-200/40">
+                    <span className="text-[10px] font-black tracking-wider text-gray-400 uppercase">Coupon Code</span>
+                    <span className="font-mono text-xs font-black text-pink-600 tracking-wider">
+                      Use Code: {product.activeOffer.couponCode}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
+                  <span>Offer Ends In:</span>
+                  <span className="font-bold text-gray-900 bg-white px-2.5 py-1 rounded-lg border border-pink-200/20 shadow-sm flex items-center gap-1">
+                    <Clock size={12} className="text-pink-500" /> {timeLeft}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             <p className="text-gray-500 leading-relaxed text-sm max-w-md">{product.description}</p>
@@ -483,7 +642,24 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
+        <ProductRecommendationSlider
+          badge="Complete Your Outfit"
+          title="Style It With"
+          subtitle="Items that pair with this product to complete your look"
+          products={styleWithProducts}
+          loading={styleWithLoading}
+          emptyTitle="No outfit pairings yet"
+          emptySubtitle="Browse shop to discover pieces that go together"
+        />
 
+        <ProductRecommendationSlider
+          title="You May Also Like"
+          subtitle="Similar products in the same category you might enjoy"
+          products={similarProducts}
+          loading={similarLoading}
+          emptyTitle="No similar products found"
+          emptySubtitle="Explore the shop for more in this style"
+        />
       </div>
     </div>
   );

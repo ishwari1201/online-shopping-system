@@ -10,7 +10,8 @@ import {
   AlertTriangle,
   Clock,
   Shield,
-  Ban
+  Ban,
+  Play
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -320,12 +321,41 @@ const AdminProductModeration = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative bg-white border border-gray-200 rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-xl flex flex-col md:flex-row max-h-[90vh]"
           >
-            <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-100 relative">
-              <img 
-                src={selectedProduct.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
-                alt={selectedProduct.name} 
-                className="w-full h-full object-cover"
-              />
+            <div className="w-full md:w-1/2 h-80 md:h-auto bg-gray-100 relative flex flex-col justify-center min-h-[300px]">
+              {selectedProduct.productVideo ? (
+                <div className="w-full h-full min-h-[300px] flex flex-col justify-center items-center bg-black relative">
+                  {selectedProduct.productVideo.includes('youtube.com') || selectedProduct.productVideo.includes('youtu.be') || selectedProduct.productVideo.includes('vimeo.com') ? (
+                    <iframe
+                      src={
+                        selectedProduct.productVideo.includes('youtube.com') || selectedProduct.productVideo.includes('youtu.be')
+                          ? `https://www.youtube.com/embed/${
+                              selectedProduct.productVideo.includes('watch?v=')
+                                ? selectedProduct.productVideo.split('v=')[1]?.split('&')[0]
+                                : selectedProduct.productVideo.split('/').pop()
+                            }`
+                          : `https://player.vimeo.com/video/${selectedProduct.productVideo.split('/').pop()}`
+                      }
+                      title="Product Video Review"
+                      className="w-full aspect-video md:h-full border-none"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <video
+                      src={selectedProduct.productVideo}
+                      className="w-full h-full object-contain"
+                      controls
+                      playsInline
+                    />
+                  )}
+                  <span className="absolute bottom-4 right-4 bg-black/60 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1"><Play size={9} /> Video Moderation</span>
+                </div>
+              ) : (
+                <img 
+                  src={selectedProduct.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop'} 
+                  alt={selectedProduct.name} 
+                  className="w-full h-full object-cover"
+                />
+              )}
               <div className="absolute top-6 left-6">
                 {getStatusBadge(selectedProduct.status)}
               </div>

@@ -17,7 +17,10 @@ import {
   Star,
   Store,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Percent,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { logoutUser } from '../../redux/slices/authSlice';
 import axios from 'axios';
@@ -29,11 +32,23 @@ const SellerLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
 
+  const isMarketingActive = location.pathname.startsWith('/seller/offers') || location.pathname.startsWith('/seller/create-offer') || location.pathname.startsWith('/seller/edit-offer');
+  const [marketingExpanded, setMarketingExpanded] = useState(isMarketingActive);
+
   const menuItems = [
     { title: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/seller/dashboard' },
     { title: 'My Products', icon: <Package size={20} />, path: '/seller/products' },
     { title: 'Inventory', icon: <Archive size={20} />, path: '/seller/inventory' },
     { title: 'Orders', icon: <ShoppingBag size={20} />, path: '/seller/orders' },
+    {
+      title: 'Marketing',
+      icon: <Percent size={20} />,
+      isSubmenu: true,
+      children: [
+        { title: 'Create Offer', path: '/seller/create-offer' },
+        { title: 'My Offers', path: '/seller/offers' }
+      ]
+    },
     { title: 'Earnings', icon: <DollarSign size={20} />, path: '/seller/earnings' },
     { title: 'Analytics', icon: <BarChart3 size={20} />, path: '/seller/analytics' },
     { title: 'Reviews', icon: <Star size={20} />, path: '/seller/reviews' },
@@ -45,10 +60,11 @@ const SellerLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       await axios.post('/api/users/logout');
-      dispatch(logoutUser());
-      navigate('/login');
     } catch (error) {
       console.error(error);
+    } finally {
+      dispatch(logoutUser());
+      navigate('/login');
     }
   };
 
@@ -70,7 +86,7 @@ const SellerLayout = ({ children }) => {
           )}
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-colors mx-auto"
+            className="text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-colors mx-auto cursor-pointer"
           >
             {isSidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
           </button>
@@ -78,6 +94,64 @@ const SellerLayout = ({ children }) => {
 
         <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
           {menuItems.map((item) => {
+            if (item.isSubmenu) {
+              const isActive = isMarketingActive;
+              return (
+                <div key={item.title} className="space-y-1">
+                  <button
+                    onClick={() => {
+                      if (!isSidebarOpen) {
+                        setIsSidebarOpen(true);
+                      }
+                      setMarketingExpanded(!marketingExpanded);
+                    }}
+                    className={`flex items-center justify-between px-3 py-2.5 w-full rounded-lg transition-all group relative cursor-pointer ${
+                      isActive 
+                        ? 'bg-blue-50/50 text-blue-700 font-semibold' 
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium'
+                    }`}
+                    title={!isSidebarOpen ? item.title : ''}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                        {item.icon}
+                      </span>
+                      {isSidebarOpen && <span className="text-sm">{item.title}</span>}
+                    </div>
+                    {isSidebarOpen && (
+                      <span className="text-gray-400 group-hover:text-gray-600 transition-transform">
+                        {marketingExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </span>
+                    )}
+                    {isActive && isSidebarOpen && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-600 rounded-r-full"></div>
+                    )}
+                  </button>
+                  
+                  {isSidebarOpen && marketingExpanded && (
+                    <div className="pl-9 pr-2 py-1 space-y-1 border-l border-gray-100 ml-5">
+                      {item.children.map((subItem) => {
+                        const isSubActive = location.pathname === subItem.path;
+                        return (
+                          <Link
+                            key={subItem.title}
+                            to={subItem.path}
+                            className={`block px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                              isSubActive 
+                                ? 'bg-blue-50 text-blue-700' 
+                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                            }`}
+                          >
+                            {subItem.title}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             const isActive = location.pathname === item.path || (location.pathname.startsWith('/seller/edit-product') && item.path === '/seller/products');
             return (
               <Link

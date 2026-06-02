@@ -35,6 +35,14 @@ const userSchema = mongoose.Schema({
   },
   isSellerApproved: { type: Boolean, default: false },
   sellerStatus: { type: String, enum: ['pending', 'approved', 'rejected', 'blocked'], default: 'pending' },
+  isSellerActive: { type: Boolean, default: false },
+  subscriptionPlan: { type: String, default: null },
+  planAmount: { type: Number, default: 0 },
+  productLimit: { type: Number, default: 0 },
+  productsUploaded: { type: Number, default: 0 },
+  commissionRate: { type: Number, default: 0 },
+  planExpiry: { type: Date, default: null },
+  walletBalance: { type: Number, default: 0 },
 
   // Delivery specific fields
   deliveryProfile: {

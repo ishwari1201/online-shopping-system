@@ -10,7 +10,9 @@ import {
   Package,
   Layers,
   Info,
-  AlertCircle
+  AlertCircle,
+  Video,
+  Play
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
@@ -33,6 +35,10 @@ const SellerEditProduct = () => {
   const [sku, setSku] = useState('');
   const [images, setImages] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
+  const [productVideo, setProductVideo] = useState('');
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const [specs, setSpecs] = useState([{ key: '', value: '' }]);
   const [variants, setVariants] = useState([{ color: '', size: '', stock: '', price: '' }]);
   const [selectedColors, setSelectedColors] = useState([]);
@@ -58,6 +64,7 @@ const SellerEditProduct = () => {
         setCountInStock(data.countInStock);
         setSku(data.sku || '');
         setImages(data.images);
+        setProductVideo(data.productVideo || '');
         setSpecs(data.specs?.length ? data.specs : [{ key: '', value: '' }]);
         
         const fetchedVariants = data.variants?.length ? data.variants : [{ color: '', size: '', stock: '', price: '' }];
@@ -204,6 +211,57 @@ const SellerEditProduct = () => {
 
   const removeImage = (index) => setImages(images.filter((_, i) => i !== index));
 
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error('Video file size exceeds the 100MB limit!');
+      return;
+    }
+
+    if (file.type !== 'video/mp4') {
+      toast.error('Only MP4 video uploads are supported!');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const { data } = await axios.post('/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(progress);
+        },
+      });
+
+      setProductVideo(data.filePath);
+      toast.success('Video uploaded successfully!');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to upload video');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleAddVideoUrl = () => {
+    if (videoUrlInput.trim()) {
+      setProductVideo(videoUrlInput.trim());
+      setVideoUrlInput('');
+      toast.success('Product video URL added!');
+    }
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -220,7 +278,8 @@ const SellerEditProduct = () => {
         sku,
         images,
         specs: specs.filter(s => s.key && s.value),
-        variants: variants.filter(v => v.stock || v.price)
+        variants: variants.filter(v => v.stock || v.price),
+        productVideo
       };
       
       await axios.put(`/api/products/${id}`, productData);
@@ -457,6 +516,77 @@ const SellerEditProduct = () => {
                   <button type="button" onClick={() => removeImage(i)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Video Upload */}
+          <div className="bg-white border border-gray-200 p-8 rounded-[2.5rem] shadow-sm space-y-6">
+            <div className="flex items-center gap-2">
+              <h3 className="text-gray-900 font-bold text-lg mb-2">Product Video</h3>
+              <span className="text-[10px] bg-indigo-50 text-[#E91E63] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">MP4 / embed</span>
+            </div>
+            
+            <div className="space-y-4">
+              {/* File Upload Option */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Option 1: Upload MP4 Video</label>
+                <div className="relative border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                  <input 
+                    type="file" 
+                    accept="video/mp4" 
+                    onChange={handleVideoUpload}
+                    disabled={isUploading}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                  <Video className="mb-2 text-gray-400" size={24} />
+                  <span className="text-xs font-bold text-gray-700">Choose MP4 Video File</span>
+                  <span className="text-[10px] text-gray-400 mt-1">Max file size: 100MB</span>
+                  
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-white/90 rounded-2xl flex flex-col items-center justify-center p-4">
+                      <div className="w-full bg-gray-100 rounded-full h-2 max-w-[200px] overflow-hidden mb-2">
+                        <div className="bg-[#E91E63] h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                      </div>
+                      <span className="text-xs font-bold text-gray-700">Uploading Video ({uploadProgress}%)</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* URL Option */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Option 2: Paste YouTube / Vimeo / MP4 URL</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs shadow-sm"
+                    placeholder="Paste video URL..."
+                    value={videoUrlInput} onChange={(e) => setVideoUrlInput(e.target.value)}
+                  />
+                  <button type="button" onClick={handleAddVideoUrl} className="p-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 shadow-sm"><Plus size={18} /></button>
+                </div>
+              </div>
+
+              {/* Video Preview */}
+              {productVideo && (
+                <div className="relative border border-gray-200 rounded-2xl p-4 bg-gray-50 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5"><Play size={12} className="text-[#E91E63]" /> Video Selected</span>
+                    <button type="button" onClick={() => setProductVideo('')} className="text-xs font-bold text-red-500 hover:text-red-700">Remove</button>
+                  </div>
+                  {productVideo.includes('youtube.com') || productVideo.includes('youtu.be') || productVideo.includes('vimeo.com') ? (
+                    <div className="text-xs text-gray-600 truncate bg-white px-3 py-2 rounded-lg border border-gray-200 font-mono">
+                      {productVideo}
+                    </div>
+                  ) : (
+                    <video 
+                      src={productVideo} 
+                      className="w-full rounded-2xl aspect-video object-cover bg-black border border-gray-200" 
+                      controls 
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

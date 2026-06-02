@@ -81,10 +81,11 @@ const Profile = () => {
   const logoutHandler = async () => {
     try {
       await axios.post('/api/users/logout');
-      dispatch(logout());
-      navigate('/login');
     } catch (err) {
       console.error(err);
+    } finally {
+      dispatch(logout());
+      navigate('/login');
     }
   };
 

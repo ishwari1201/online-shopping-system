@@ -18,7 +18,8 @@ import {
   Store,
   Truck,
   Shield,
-  Bell
+  Bell,
+  Percent
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -33,6 +34,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Categories', href: '/admin/categories', icon: Tags },
     { name: 'Coupons', href: '/admin/coupons', icon: Ticket },
+    { name: 'Offers', href: '/admin/offers', icon: Percent },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart2 },
     { name: 'Sellers', href: '/admin/sellers', icon: Store },

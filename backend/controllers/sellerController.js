@@ -2,6 +2,8 @@ const Product = require('../models/productModel');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 const Notification = require('../models/notificationModel');
+const WithdrawalRequest = require('../models/withdrawalRequestModel');
+const { isPlanExpired } = require('../utils/sellerSubscriptionUtils');
 
 // @desc    Get seller dashboard stats
 // @route   GET /api/seller/dashboard/stats
@@ -44,6 +46,24 @@ const getSellerStats = async (req, res, next) => {
       { month: 'May', sales: totalRevenue > 0 ? totalRevenue : 1890 },
     ];
 
+    const seller = await User.findById(req.user._id).select('-password');
+    const productLimitDisplay =
+      seller.productLimit >= 999999 ? 'Unlimited' : seller.productLimit;
+    const remainingProducts =
+      seller.productLimit >= 999999
+        ? 'Unlimited'
+        : Math.max(0, seller.productLimit - seller.productsUploaded);
+
+    let walletEarnings = 0;
+    orders.forEach((order) => {
+      if (!order.isPaid) return;
+      order.orderItems.forEach((item) => {
+        if (item.seller?.toString() === req.user._id.toString()) {
+          walletEarnings += item.sellerEarning ?? item.price * item.qty;
+        }
+      });
+    });
+
     res.json({
       stats: {
         totalProducts,
@@ -51,11 +71,23 @@ const getSellerStats = async (req, res, next) => {
         lowStockCount,
         totalOrders,
         pendingOrders,
-        totalRevenue
+        totalRevenue,
+        walletBalance: seller.walletBalance,
+        walletEarnings,
+      },
+      subscription: {
+        isSellerActive: seller.isSellerActive && !isPlanExpired(seller),
+        subscriptionPlan: seller.subscriptionPlan,
+        planAmount: seller.planAmount,
+        productLimit: productLimitDisplay,
+        productsUploaded: seller.productsUploaded,
+        remainingProducts,
+        commissionRate: seller.commissionRate,
+        planExpiry: seller.planExpiry,
       },
       monthlySales,
       recentOrders,
-      sellerStatus: req.user.sellerStatus || 'pending'
+      sellerStatus: seller.sellerStatus || 'pending',
     });
   } catch (error) {
     next(error);
@@ -220,25 +252,76 @@ const updateSellerStock = async (req, res, next) => {
 // @access  Private/Seller
 const getSellerEarnings = async (req, res, next) => {
   try {
-    const orders = await Order.find({ 
+    const seller = await User.findById(req.user._id).select('-password');
+    const orders = await Order.find({
       'orderItems.seller': req.user._id,
-      isPaid: true 
-    });
+      isPaid: true,
+    }).sort({ createdAt: -1 });
 
-    let totalEarnings = 0;
-    orders.forEach(order => {
-      order.orderItems.forEach(item => {
+    let totalOrderEarnings = 0;
+    let totalCommissionPaid = 0;
+    orders.forEach((order) => {
+      order.orderItems.forEach((item) => {
         if (item.seller?.toString() === req.user._id.toString()) {
-          totalEarnings += item.price * item.qty;
+          totalOrderEarnings += item.sellerEarning ?? item.price * item.qty;
+          totalCommissionPaid += item.adminCommission ?? 0;
         }
       });
     });
 
-    res.json({
-      totalEarnings,
-      pendingPayouts: totalEarnings * 0.9, // Mock commission calculation
-      payoutHistory: []
+    const withdrawals = await WithdrawalRequest.find({ seller: req.user._id }).sort({
+      createdAt: -1,
     });
+
+    res.json({
+      totalEarnings: totalOrderEarnings,
+      walletBalance: seller.walletBalance,
+      commissionRate: seller.commissionRate,
+      totalCommissionPaid,
+      subscriptionPlan: seller.subscriptionPlan,
+      planExpiry: seller.planExpiry,
+      payoutHistory: withdrawals,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const requestWithdrawal = async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    const seller = await User.findById(req.user._id);
+
+    if (!amount || amount <= 0) {
+      res.status(400);
+      throw new Error('Enter a valid withdrawal amount');
+    }
+    if (amount > seller.walletBalance) {
+      res.status(400);
+      throw new Error('Insufficient wallet balance');
+    }
+
+    seller.walletBalance -= amount;
+    await seller.save();
+
+    const request = await WithdrawalRequest.create({
+      seller: req.user._id,
+      amount,
+      status: 'Pending',
+    });
+
+    res.status(201).json(request);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getWithdrawals = async (req, res, next) => {
+  try {
+    const withdrawals = await WithdrawalRequest.find({ seller: req.user._id }).sort({
+      createdAt: -1,
+    });
+    res.json(withdrawals);
   } catch (error) {
     next(error);
   }
@@ -253,5 +336,7 @@ module.exports = {
   getSellerNotifications,
   markNotificationAsRead,
   updateSellerStock,
-  getSellerEarnings
+  getSellerEarnings,
+  requestWithdrawal,
+  getWithdrawals,
 };

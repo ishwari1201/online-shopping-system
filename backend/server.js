@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -13,6 +14,9 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
     "https://online-shopping-system-frontennd.onrender.com"
   ],
   credentials: true,
@@ -26,6 +30,9 @@ app.get('/', (req, res) => {
   res.send('Wearify API is running...');
 });
 
+// Serve static uploads folder
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 // Routes will be mounted here
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
@@ -34,9 +41,11 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/coupons', require('./routes/couponRoutes'));
 app.use('/api/seller', require('./routes/sellerRoutes'));
+app.use('/api/offers', require('./routes/offerRoutes'));
 app.use('/api/delivery', require('./routes/deliveryRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

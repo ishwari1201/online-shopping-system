@@ -19,6 +19,10 @@ const authUser = async (req, res, next) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        sellerStatus: user.sellerStatus,
+        isSellerApproved: user.isSellerApproved,
+        isSellerActive: user.isSellerActive,
+        subscriptionPlan: user.subscriptionPlan,
       });
     } else {
       res.status(401);
@@ -148,6 +152,11 @@ const getUserProfile = async (req, res, next) => {
         role: user.role,
         avatar: user.avatar,
         addresses: user.addresses,
+        sellerStatus: user.sellerStatus,
+        isSellerApproved: user.isSellerApproved,
+        isSellerActive: user.isSellerActive,
+        subscriptionPlan: user.subscriptionPlan,
+        planExpiry: user.planExpiry,
       });
     } else {
       res.status(404);

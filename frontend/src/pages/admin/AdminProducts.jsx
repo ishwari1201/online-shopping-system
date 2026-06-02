@@ -14,9 +14,11 @@ const AdminProducts = () => {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [type, setType] = useState('');
   const [brand, setBrand] = useState('');
   const [countInStock, setCountInStock] = useState('');
   const [image, setImage] = useState('');
+  const [productVideo, setProductVideo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchProducts = async () => {
@@ -54,9 +56,11 @@ const AdminProducts = () => {
     setPrice(product.price);
     setDescription(product.description);
     setCategory(product.category);
+    setType(product.type || '');
     setBrand(product.brand);
     setCountInStock(product.countInStock);
     setImage(product.images[0] || '');
+    setProductVideo(product.productVideo || '');
     setEditMode(true);
     setShowModal(true);
   };
@@ -70,9 +74,11 @@ const AdminProducts = () => {
         price,
         description,
         category,
+        type,
         brand,
         countInStock,
-        images: [image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop']
+        images: [image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop'],
+        productVideo
       };
 
       if (editMode) {
@@ -99,9 +105,11 @@ const AdminProducts = () => {
     setPrice('');
     setDescription('');
     setCategory('');
+    setType('');
     setBrand('');
     setCountInStock('');
     setImage('');
+    setProductVideo('');
     setEditMode(false);
   };
 
@@ -231,6 +239,16 @@ const AdminProducts = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Product Type</label>
+                  <input
+                    type="text"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
+                    placeholder="e.g. Hoodie, T-Shirt"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Brand</label>
                   <input
                     type="text"
@@ -260,6 +278,16 @@ const AdminProducts = () => {
                     placeholder="https://..."
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Product Video URL (MP4 / YT / Vimeo)</label>
+                  <input
+                    type="text"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
+                    placeholder="https://..."
+                    value={productVideo}
+                    onChange={(e) => setProductVideo(e.target.value)}
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">

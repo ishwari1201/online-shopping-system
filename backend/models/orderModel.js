@@ -18,8 +18,13 @@ const orderSchema = mongoose.Schema({
         required: true,
         ref: 'Product',
       },
+      lineTotal: { type: Number, default: 0 },
+      adminCommission: { type: Number, default: 0 },
+      sellerEarning: { type: Number, default: 0 },
     },
   ],
+  adminCommission: { type: Number, default: 0 },
+  sellerEarning: { type: Number, default: 0 },
   shippingAddress: {
     address: { type: String, required: true },
     city: { type: String, required: true },
